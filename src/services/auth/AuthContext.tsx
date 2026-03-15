@@ -20,11 +20,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     auth.actions.loadCurrentUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuthContext(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuthContext must be used within AuthProvider");

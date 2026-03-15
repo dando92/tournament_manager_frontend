@@ -10,15 +10,17 @@ import { toast } from "react-toastify";
 export default function TournamentSelectPage() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { state } = useAuthContext();
   const canCreate = state.account?.isTournamentCreator || state.account?.isAdmin;
   const canDelete = state.account?.isAdmin;
 
   useEffect(() => {
-    axios.get<Tournament[]>("tournaments").then((response) => {
-      setTournaments(response.data);
-    }).finally(() => setLoading(false));
+    axios.get<Tournament[]>("tournaments")
+      .then((response) => { setTournaments(response.data); setError(null); })
+      .catch(() => setError("Failed to load tournaments."))
+      .finally(() => setLoading(false));
   }, []);
 
   async function handleDelete(e: React.MouseEvent, tournamentId: number) {
@@ -49,8 +51,9 @@ export default function TournamentSelectPage() {
       </div>
 
       {loading && <p className="text-gray-500">Loading...</p>}
+      {error && <p className="text-red-500">{error}</p>}
 
-      {!loading && tournaments.length === 0 && (
+      {!loading && !error && tournaments.length === 0 && (
         <p className="text-gray-500">No tournaments yet. {canCreate ? "Create one to get started." : ""}</p>
       )}
 

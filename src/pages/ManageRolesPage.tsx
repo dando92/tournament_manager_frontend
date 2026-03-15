@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Account } from "../models/Account";
 import { toast } from "react-toastify";
+import RoleAccountItem from "../components/manage/roles/RoleAccountItem";
 
 export default function ManageRolesPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -34,33 +35,11 @@ export default function ManageRolesPage() {
       <h1 className="text-3xl font-bold text-rossoTesto mb-6">Manage Roles</h1>
       <div className="flex flex-col gap-3">
         {accounts.map((account) => (
-          <div
+          <RoleAccountItem
             key={account.id}
-            className="flex flex-row items-center justify-between bg-gray-50 px-5 py-4 rounded-lg"
-          >
-            <div>
-              <p className="font-semibold">{account.username}</p>
-              <p className="text-sm text-gray-500">{account.email}</p>
-            </div>
-            <div className="flex flex-row gap-6">
-              <label className="flex flex-row items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={account.isTournamentCreator}
-                  onChange={(e) => handleFlagChange(account.id, "isTournamentCreator", e.target.checked)}
-                />
-                <span className="text-sm">Tournament Creator</span>
-              </label>
-              <label className="flex flex-row items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={account.isAdmin}
-                  onChange={(e) => handleFlagChange(account.id, "isAdmin", e.target.checked)}
-                />
-                <span className="text-sm">Admin</span>
-              </label>
-            </div>
-          </div>
+            account={account}
+            onFlagChange={(flag, value) => handleFlagChange(account.id, flag, value)}
+          />
         ))}
         {accounts.length === 0 && (
           <p className="text-gray-500">No accounts found.</p>

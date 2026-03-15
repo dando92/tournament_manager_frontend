@@ -1,5 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinus } from "@fortawesome/free-solid-svg-icons";
 import { Player } from "../../models/Player";
@@ -34,6 +34,9 @@ export default function ManageParticipantsModal({
   helpers,
   canEditHelpers,
 }: Props) {
+  const [selectedPlayerId, setSelectedPlayerId] = useState("");
+  const [selectedHelperId, setSelectedHelperId] = useState("");
+
   return (
     <Transition appear show={open} as={Fragment}>
       <Dialog
@@ -76,11 +79,13 @@ export default function ManageParticipantsModal({
                   {players.availableToAdd.length > 0 && (
                     <select
                       className="border rounded px-2 py-1 text-sm w-full mb-2"
-                      defaultValue=""
+                      value={selectedPlayerId}
                       onChange={(e) => {
                         if (e.target.value) {
                           players.onAdd(Number(e.target.value));
-                          e.target.value = "";
+                          setSelectedPlayerId("");
+                        } else {
+                          setSelectedPlayerId(e.target.value);
                         }
                       }}
                     >
@@ -124,11 +129,13 @@ export default function ManageParticipantsModal({
                   {canEditHelpers && helpers.availableCandidates.length > 0 && (
                     <select
                       className="border rounded px-2 py-1 text-sm w-full mb-2"
-                      defaultValue=""
+                      value={selectedHelperId}
                       onChange={(e) => {
                         if (e.target.value) {
                           helpers.onAdd(e.target.value);
-                          e.target.value = "";
+                          setSelectedHelperId("");
+                        } else {
+                          setSelectedHelperId(e.target.value);
                         }
                       }}
                     >

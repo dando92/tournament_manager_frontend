@@ -31,7 +31,7 @@ export default function TournamentSettings({
   }, [tournamentId, controls]);
 
   return (
-    <div>
+    <>
       <div className="flex flex-col justify-start gap-3">
         {!controls && tournamentName && (
           <div className="flex flex-row gap-3">
@@ -73,6 +73,6 @@ export default function TournamentSettings({
           />
         )}
       </div>
-    </div>
+    </>
   );
 }

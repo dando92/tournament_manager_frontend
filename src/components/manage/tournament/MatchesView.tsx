@@ -24,18 +24,28 @@ export default function MatchesView({
   matchUpdateSignal,
 }: MatchesViewProps) {
   const [phase, setPhase] = useState<Phase | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { state, actions } = useMatches(phaseId);
 
   const [createMatchModalOpened, setCreateMatchModalOpened] = useState(false);
 
   useEffect(() => {
-    axios.get<Phase>(`/phases/${phaseId}`).then((response) => {
-      setPhase(response.data);
-      actions.list();
-    });
+    setIsLoading(true);
+    axios.get<Phase>(`/phases/${phaseId}`)
+      .then((response) => {
+        setPhase(response.data);
+        setError(null);
+        actions.list();
+      })
+      .catch(() => setError("Failed to load phase."))
+      .finally(() => setIsLoading(false));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phaseId]);
+
+  if (isLoading) return <p className="text-gray-400 mt-10 text-center">Loading...</p>;
+  if (error) return <p className="text-red-500 mt-10 text-center">{error}</p>;
 
   return (
     <div className="mt-10">

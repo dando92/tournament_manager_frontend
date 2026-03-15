@@ -8,9 +8,27 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setUsernameError(null);
+    setPasswordError(null);
+    setApiError(null);
+
+    let valid = true;
+    if (username.length < 3) {
+      setUsernameError("Username must be at least 3 characters.");
+      valid = false;
+    }
+    if (password.length < 6) {
+      setPasswordError("Password must be at least 6 characters.");
+      valid = false;
+    }
+    if (!valid) return;
+
     setLoading(true);
     try {
       const account = await actions.login(username, password);
@@ -19,6 +37,8 @@ export default function LoginPage() {
       } else {
         navigate("/");
       }
+    } catch {
+      setApiError("Invalid username or password.");
     } finally {
       setLoading(false);
     }
@@ -36,8 +56,10 @@ export default function LoginPage() {
             onChange={(e) => setUsername(e.target.value)}
             className="w-full border rounded-lg px-3 py-2"
             autoComplete="username"
+            minLength={3}
             required
           />
+          {usernameError && <p className="text-red-500 text-sm mt-1">{usernameError}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Password</label>
@@ -47,9 +69,12 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full border rounded-lg px-3 py-2"
             autoComplete="current-password"
+            minLength={6}
             required
           />
+          {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
         </div>
+        {apiError && <p className="text-red-500 text-sm">{apiError}</p>}
         <button
           type="submit"
           disabled={loading}
