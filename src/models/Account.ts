@@ -6,5 +6,6 @@ export interface Account {
   isTournamentCreator: boolean;
   grooveStatsApi?: string;
   nationality?: string;
+  profilePicture?: string;
   player?: { id: number; playerName: string };
 }
