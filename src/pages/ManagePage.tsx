@@ -1,15 +1,15 @@
-import TournamentSettings from "../components/manage/tournament/TournamentSettings";
-import LobbyPasswordModal from "../components/manage/tournament/LobbyPasswordModal";
+import TournamentSettings from "@/components/manage/tournament/TournamentSettings";
+import LobbyPasswordModal from "@/components/manage/tournament/LobbyPasswordModal";
 import { useParams, useNavigate } from "react-router-dom";
 import { faArrowLeft, faBroadcastTower, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState, useCallback } from "react";
-import { useMatchHub } from "../services/useMatchHub";
+import { useMatchHub } from "@/services/useMatchHub";
 import axios from "axios";
-import { useAuthContext } from "../services/auth/AuthContext";
-import { useHelpers } from "../services/helpers/useHelpers";
-import { Player } from "../models/Player";
-import ManageParticipantsModal from "../components/manage/ManageParticipantsModal";
+import { useAuthContext } from "@/services/auth/AuthContext";
+import { useHelpers } from "@/services/helpers/useHelpers";
+import { Player } from "@/models/Player";
+import ManageParticipantsModal from "@/components/manage/ManageParticipantsModal";
 import { toast } from "react-toastify";
 
 export default function ManagePage() {

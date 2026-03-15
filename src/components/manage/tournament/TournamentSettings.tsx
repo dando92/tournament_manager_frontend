@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { Division } from "../../../models/Division";
-import DivisionList from "./DivisionList";
-import { Phase } from "../../../models/Phase";
-import PhaseList from "./PhaseList";
-import MatchesView from "./MatchesView";
+import { Division } from "@/models/Division";
+import DivisionList from "@/components/manage/tournament/DivisionList";
+import { Phase } from "@/models/Phase";
+import PhaseList from "@/components/manage/tournament/PhaseList";
+import MatchesView from "@/components/manage/tournament/MatchesView";
 import axios from "axios";
 
 type TournamentSettingsProps = {

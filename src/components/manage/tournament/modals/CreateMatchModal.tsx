@@ -1,14 +1,14 @@
 import {useEffect, useState} from "react";
-import OkModal from "../../../layout/OkModal";
-import {Player} from "../../../../models/Player";
+import OkModal from "@/components/layout/OkModal";
+import {Player} from "@/models/Player";
 import axios from "axios";
 import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMinusCircle, faPlusCircle} from "@fortawesome/free-solid-svg-icons";
-import {Song} from "../../../../models/Song";
-import {Division} from "../../../../models/Division";
-import {Phase} from "../../../../models/Phase";
-import {CreateMatchRequest} from "../../../../models/requests/match-requests";
+import {Song} from "@/models/Song";
+import {Division} from "@/models/Division";
+import {Phase} from "@/models/Phase";
+import {CreateMatchRequest} from "@/models/requests/match-requests";
 
 type CreateMatchModal = {
     open: boolean;

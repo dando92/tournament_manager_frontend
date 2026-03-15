@@ -1,5 +1,5 @@
 
-import cabinet from './prova.png';
+import cabinet from '@/components/manage/development/prova.png';
 import './style.css'
 
 export const PlayerCard = (idx: number) => {

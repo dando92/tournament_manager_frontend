@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import SongsList from "../components/manage/songs/SongsList";
-import { useAuthContext } from "../services/auth/AuthContext";
-import { Tournament } from "../models/Tournament";
+import SongsList from "@/components/manage/songs/SongsList";
+import { useAuthContext } from "@/services/auth/AuthContext";
+import { Tournament } from "@/models/Tournament";
 import Select from "react-select";
 
 export default function SongsPage() {

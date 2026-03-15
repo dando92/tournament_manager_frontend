@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
-import { TournamentLobbyStateDto } from "../../services/useScoreHub";
+import { TournamentLobbyStateDto } from "@/services/useScoreHub";
 
 type Props = {
   lobbyState: TournamentLobbyStateDto;

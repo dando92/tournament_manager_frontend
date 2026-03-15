@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { faMedal, faSpoon } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Player } from "../../models/Player.ts";
-import { useMatchHub } from "../../services/useMatchHub.ts";
+import { Player } from "@/models/Player.ts";
+import { useMatchHub } from "@/services/useMatchHub.ts";
 
 export default function Rankings() {
   const [players, setPlayers] = useState<Player[]>([]);

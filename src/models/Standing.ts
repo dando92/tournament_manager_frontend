@@ -1,5 +1,5 @@
-import { Player } from './Player'
-import { Song } from './Song'
+import { Player } from '@/models/Player'
+import { Song } from '@/models/Song'
 
 export interface Score {
   id: number;

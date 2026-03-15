@@ -1,4 +1,4 @@
-import { Match } from './Match'
+import { Match } from '@/models/Match'
 
 export interface Phase {
   id: number;

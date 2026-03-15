@@ -1,8 +1,8 @@
 import { useState } from "react";
 import React from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { CabinetCard } from "./CabinetCard";
-import { ToggleButton } from "./ToggleButton";
+import { CabinetCard } from "@/components/manage/development/CabinetCard";
+import { ToggleButton } from "@/components/manage/development/ToggleButton";
 
 
 

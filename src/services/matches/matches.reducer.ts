@@ -1,5 +1,5 @@
-import { Match } from "../../models/Match";
-import { MatchesActions } from "./matches.actions";
+import { Match } from "@/models/Match";
+import { MatchesActions } from "@/services/matches/matches.actions";
 
 export type MatchesState = {
   matches: Match[];

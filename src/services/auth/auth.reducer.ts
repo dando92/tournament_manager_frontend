@@ -1,5 +1,5 @@
-import { Account } from "../../models/Account";
-import { AuthActions } from "./auth.actions";
+import { Account } from "@/models/Account";
+import { AuthActions } from "@/services/auth/auth.actions";
 
 export interface AuthState {
   token: string | null;

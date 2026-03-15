@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, ReactNode } from "react";
-import { useAuth } from "./useAuth";
-import { AuthState } from "./auth.reducer";
-import { Account } from "../../models/Account";
+import { useAuth } from "@/services/auth/useAuth";
+import { AuthState } from "@/services/auth/auth.reducer";
+import { Account } from "@/models/Account";
 
 interface AuthContextValue {
   state: AuthState;

@@ -1,5 +1,5 @@
-import { Account } from "../../models/Account";
-import { HelpersActions } from "./helpers.actions";
+import { Account } from "@/models/Account";
+import { HelpersActions } from "@/services/helpers/helpers.actions";
 
 export interface HelpersState {
   helpers: Account[];

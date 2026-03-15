@@ -1,7 +1,7 @@
 import { useReducer } from "react";
-import { initialState, matchesReducer } from "./matches.reducer";
-import * as MatchesApi from "./matches.api";
-import { CreateMatchRequest } from "../../models/requests/match-requests";
+import { initialState, matchesReducer } from "@/services/matches/matches.reducer";
+import * as MatchesApi from "@/services/matches/matches.api";
+import { CreateMatchRequest } from "@/models/requests/match-requests";
 import { toast } from "react-toastify";
 
 export function useMatches(phaseId: number) {

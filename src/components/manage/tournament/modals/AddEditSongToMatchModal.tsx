@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import OkModal from "../../../layout/OkModal";
-import { Song } from "../../../../models/Song";
+import OkModal from "@/components/layout/OkModal";
+import { Song } from "@/models/Song";
 import axios from "axios";
 import Select from "react-select";
 

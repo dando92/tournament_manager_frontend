@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBan, faPencil, faPlus, faRefresh } from "@fortawesome/free-solid-svg-icons";
-import { Match } from "../../../models/Match";
-import { Player } from "../../../models/Player";
+import { Match } from "@/models/Match";
+import { Player } from "@/models/Player";
 
 type ScoreEntry = { score: number; percentage: number; isFailed: boolean };
 

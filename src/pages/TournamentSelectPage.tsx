@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Tournament } from "../models/Tournament";
+import { Tournament } from "@/models/Tournament";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrophy, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { useAuthContext } from "../services/auth/AuthContext";
+import { useAuthContext } from "@/services/auth/AuthContext";
 import { toast } from "react-toastify";
 
 export default function TournamentSelectPage() {

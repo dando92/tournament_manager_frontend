@@ -1,4 +1,4 @@
-import { CabinetOrganization } from "./CabinetOrganization";
+import { CabinetOrganization } from "@/components/manage/development/CabinetOrganization";
 
 
 export default function CabOrganizationView() {

@@ -1,4 +1,4 @@
-import { Phase } from "./Phase";
+import { Phase } from "@/models/Phase";
 
 export interface Division {
   id: number;

@@ -1,5 +1,5 @@
-import { Standing } from "./Standing";
-import { Song } from "./Song";
+import { Standing } from "@/models/Standing";
+import { Song } from "@/models/Song";
 
 export interface Round {
   id: number;

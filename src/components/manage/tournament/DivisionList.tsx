@@ -1,11 +1,11 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Division } from "../../../models/Division";
+import { Division } from "@/models/Division";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import CreateDivisionModal from "./modals/CreateDivisionModal";
-import OkModal from "../../layout/OkModal";
+import CreateDivisionModal from "@/components/manage/tournament/modals/CreateDivisionModal";
+import OkModal from "@/components/layout/OkModal";
 
 type DivisionListProps = {
   onDivisionSelect: (division: Division | null) => void;

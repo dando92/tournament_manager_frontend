@@ -1,12 +1,12 @@
 import { useState, useCallback, useEffect } from "react";
-import { Division } from "../../models/Division";
-import { Phase } from "../../models/Phase";
-import { Tournament } from "../../models/Tournament";
+import { Division } from "@/models/Division";
+import { Phase } from "@/models/Phase";
+import { Tournament } from "@/models/Tournament";
 import axios from "axios";
-import MatchesView from "../manage/tournament/MatchesView";
-import LiveScores from "./LiveScores";
-import { useMatchHub } from "../../services/useMatchHub";
-import { useScoreHub, TournamentLobbyStateDto } from "../../services/useScoreHub";
+import MatchesView from "@/components/manage/tournament/MatchesView";
+import LiveScores from "@/components/view/LiveScores";
+import { useMatchHub } from "@/services/useMatchHub";
+import { useScoreHub, TournamentLobbyStateDto } from "@/services/useScoreHub";
 
 type TournamentLiveState = {
   phase: Phase | null;

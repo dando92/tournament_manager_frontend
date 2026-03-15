@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Tournament } from "../models/Tournament";
+import { Tournament } from "@/models/Tournament";
 
 export default function CreateTournamentPage() {
   const navigate = useNavigate();
