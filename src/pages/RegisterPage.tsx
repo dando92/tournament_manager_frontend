@@ -10,13 +10,39 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [playerName, setPlayerName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setUsernameError(null);
+    setEmailError(null);
+    setPasswordError(null);
+    setApiError(null);
+
+    let valid = true;
+    if (username.length < 3) {
+      setUsernameError("Username must be at least 3 characters.");
+      valid = false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError("Please enter a valid email address.");
+      valid = false;
+    }
+    if (password.length < 6) {
+      setPasswordError("Password must be at least 6 characters.");
+      valid = false;
+    }
+    if (!valid) return;
+
     setLoading(true);
     try {
       await actions.register(username, email, password, playerName || undefined);
       navigate("/");
+    } catch {
+      setApiError("Registration failed. Username or email may already be taken.");
     } finally {
       setLoading(false);
     }
@@ -34,8 +60,10 @@ export default function RegisterPage() {
             onChange={(e) => setUsername(e.target.value)}
             className="w-full border rounded-lg px-3 py-2"
             autoComplete="username"
+            minLength={3}
             required
           />
+          {usernameError && <p className="text-red-500 text-sm mt-1">{usernameError}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Email</label>
@@ -46,6 +74,7 @@ export default function RegisterPage() {
             className="w-full border rounded-lg px-3 py-2"
             required
           />
+          {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Password</label>
@@ -55,8 +84,10 @@ export default function RegisterPage() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full border rounded-lg px-3 py-2"
             autoComplete="new-password"
+            minLength={6}
             required
           />
+          {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">
@@ -69,6 +100,7 @@ export default function RegisterPage() {
             className="w-full border rounded-lg px-3 py-2"
           />
         </div>
+        {apiError && <p className="text-red-500 text-sm">{apiError}</p>}
         <button
           type="submit"
           disabled={loading}

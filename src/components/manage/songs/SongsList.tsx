@@ -98,7 +98,7 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
         data.map((dto) => axios.post<Song>("songs", { ...dto, tournamentId }))
       );
       const created = results
-        .filter((r): r is PromiseFulfilledResult<{ data: Song }> => r.status === "fulfilled")
+        .filter((r): r is PromiseFulfilledResult<Awaited<ReturnType<typeof axios.post<Song>>>> => r.status === "fulfilled")
         .map((r) => r.value.data);
       const failed = results.filter((r) => r.status === "rejected").length;
       setSongs((prev) => {

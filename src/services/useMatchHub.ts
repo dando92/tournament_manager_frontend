@@ -30,6 +30,7 @@ export function useMatchHub(onUpdate: (data: MatchUpdateData) => void, tournamen
           if (tournamentId !== undefined && data.tournamentId !== tournamentId) return;
           onUpdate(data);
         }
+      // eslint-disable-next-line no-empty
       } catch {}
     };
 

@@ -18,9 +18,15 @@ export default function LivePhase() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [tournamentStates, setTournamentStates] = useState<Map<number, TournamentLiveState>>(new Map());
   const [lobbyStates, setLobbyStates] = useState<Map<number, TournamentLobbyStateDto>>(new Map());
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    axios.get<Tournament[]>("tournaments/public").then((r) => setTournaments(r.data));
+    setIsLoading(true);
+    axios.get<Tournament[]>("tournaments/public")
+      .then((r) => { setTournaments(r.data); setError(null); })
+      .catch(() => setError("Failed to load tournaments."))
+      .finally(() => setIsLoading(false));
   }, []);
 
   const fetchPhaseAndDivision = useCallback((tournamentId: number, phaseId: number, divisionId: number) => {
@@ -62,6 +68,9 @@ export default function LivePhase() {
   const activeTournaments = tournaments.filter(
     (t) => tournamentStates.has(t.id) || lobbyStates.has(t.id),
   );
+
+  if (isLoading) return <p className="text-gray-400">Loading...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   if (activeTournaments.length === 0) {
     return <p>No live events. Stay tuned!</p>;

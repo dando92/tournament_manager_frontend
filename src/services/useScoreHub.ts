@@ -53,6 +53,7 @@ export function useScoreHub(
         } else if (msg.event === 'OnLobbyDisconnected') {
           onLobbyDisconnected?.(msg.data.tournamentId as number);
         }
+      // eslint-disable-next-line no-empty
       } catch {}
     };
 

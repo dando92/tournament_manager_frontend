@@ -1,4 +1,5 @@
 import TournamentSettings from "../components/manage/tournament/TournamentSettings";
+import LobbyPasswordModal from "../components/manage/tournament/LobbyPasswordModal";
 import { useParams, useNavigate } from "react-router-dom";
 import { faArrowLeft, faBroadcastTower, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,13 +12,12 @@ import { Player } from "../models/Player";
 import ManageParticipantsModal from "../components/manage/ManageParticipantsModal";
 import { toast } from "react-toastify";
 
-export { classNames } from "../utils/classNames";
-
 export default function ManagePage() {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   const navigate = useNavigate();
-  const [tournamentName, setTournamentName] = useState<string>("");
   const [lobbyCode, setLobbyCode] = useState<string>("");
+  const [lobbyPasswordModalOpen, setLobbyPasswordModalOpen] = useState(false);
+  const [lobbyPasswordInput, setLobbyPasswordInput] = useState("");
   const [lobbyConnected, setLobbyConnected] = useState(false);
   const { state: authState } = useAuthContext();
   const account = authState.account;
@@ -50,14 +50,13 @@ export default function ManagePage() {
     axios
       .get<{ id: number; name: string; lobbyCode?: string | null; owner?: { id: string } }>(`tournaments/${tournamentId}`)
       .then((r) => {
-        setTournamentName(r.data.name);
         setLobbyCode(r.data.lobbyCode ?? "");
         document.title = `${r.data.name} — Tournament Manager`;
         if (account && r.data.owner?.id === account.id) {
           setIsTournamentOwner(true);
         }
       })
-      .catch(() => setTournamentName("Tournament"));
+      .catch(() => {});
 
     axios
       .get<{ connected: boolean }>(`tournaments/${tournamentId}/lobby/status`)
@@ -67,6 +66,7 @@ export default function ManagePage() {
     return () => {
       document.title = "Tournament Manager";
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tournamentId, account?.id]);
 
   // Check helper status for non-admin users
@@ -76,6 +76,7 @@ export default function ManagePage() {
       .get<{ isHelper: boolean }>("tournaments/is-helper")
       .then((r) => setIsHelper(r.data.isHelper))
       .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account?.id, isAdmin]);
 
   // Load helpers list and players when we know the user can access this tournament
@@ -90,6 +91,7 @@ export default function ManagePage() {
       .get<Player[]>("players")
       .then((r) => setAllPlayers(r.data.sort((a, b) => a.playerName.localeCompare(b.playerName))))
       .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tournamentId, canControl, canEditHelpers]);
 
   const availableCandidates = helpersState.candidates.filter(
@@ -134,12 +136,16 @@ export default function ManagePage() {
       .catch(() => toast.error("Failed to save lobby code."));
   };
 
-  const handleConnectLobby = async () => {
+  const handleConnectLobby = () => {
+    setLobbyPasswordInput("");
+    setLobbyPasswordModalOpen(true);
+  };
+
+  const handleConnectLobbyConfirm = async () => {
     if (!tournamentId) return;
-    const password = window.prompt("Enter lobby password (leave empty if none):");
-    if (password === null) return; // user cancelled
+    setLobbyPasswordModalOpen(false);
     try {
-      await axios.post(`tournaments/${tournamentId}/lobby/connect`, { password });
+      await axios.post(`tournaments/${tournamentId}/lobby/connect`, { password: lobbyPasswordInput });
       setLobbyConnected(true);
       toast.success("Connected to lobby.");
     } catch (e: unknown) {
@@ -221,6 +227,14 @@ export default function ManagePage() {
           }}
         />
       )}
+
+      <LobbyPasswordModal
+        open={lobbyPasswordModalOpen}
+        password={lobbyPasswordInput}
+        onPasswordChange={setLobbyPasswordInput}
+        onConfirm={handleConnectLobbyConfirm}
+        onCancel={() => setLobbyPasswordModalOpen(false)}
+      />
     </div>
   );
 }

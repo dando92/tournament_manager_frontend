@@ -7,14 +7,19 @@ export default function CreateTournamentPage() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setApiError(null);
     setLoading(true);
     try {
-      const response = await axios.post<Tournament>("tournaments", { name });
+      const response = await axios.post<Tournament>("tournaments", { name: trimmed });
       navigate(`/manage/${response.data.id}`);
+    } catch {
+      setApiError("Failed to create tournament.");
     } finally {
       setLoading(false);
     }
@@ -35,6 +40,7 @@ export default function CreateTournamentPage() {
             required
           />
         </div>
+        {apiError && <p className="text-red-500 text-sm">{apiError}</p>}
         <div className="flex gap-3">
           <button
             type="button"
@@ -45,7 +51,7 @@ export default function CreateTournamentPage() {
           </button>
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !name.trim()}
             className="flex-1 bg-rossoTesto text-white py-2 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50"
           >
             {loading ? "Creating..." : "Create"}

@@ -76,6 +76,7 @@ export default function LiveScores({ lobbyState }: Props) {
                         ? "bg-red-500"
                         : "bg-blue-500"
                   }`}
+                  // health is a 0–1 float; width must be dynamic — cannot use Tailwind static classes
                   style={{ width: `${player.health * 100}%` }}
                 />
               </div>

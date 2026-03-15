@@ -10,6 +10,8 @@ export default function SongsPage() {
   const [isHelper, setIsHelper] = useState(false);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [selectedTournamentId, setSelectedTournamentId] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const account = authState.account;
@@ -22,14 +24,19 @@ export default function SongsPage() {
   }, [authState.account]);
 
   useEffect(() => {
-    axios.get<Tournament[]>("tournaments/public").then((r) => {
-      setTournaments(r.data);
-    });
+    setIsLoading(true);
+    axios.get<Tournament[]>("tournaments/public")
+      .then((r) => { setTournaments(r.data); setError(null); })
+      .catch(() => setError("Failed to load tournaments."))
+      .finally(() => setIsLoading(false));
   }, []);
 
   const canEdit =
     !!authState.account &&
     (authState.account.isAdmin || authState.account.isTournamentCreator || isHelper);
+
+  if (isLoading) return <p className="text-gray-400">Loading...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
     <div className="text-white">

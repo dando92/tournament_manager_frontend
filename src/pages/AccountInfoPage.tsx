@@ -17,6 +17,7 @@ export default function AccountInfoPage() {
   if (!account) return null;
 
   async function saveGrooveStatsApi() {
+    if (!account) return;
     setSaving(true);
     try {
       await axios.patch(`user/${account.id}/groove-stats`, { grooveStatsApi });
@@ -31,6 +32,7 @@ export default function AccountInfoPage() {
   }
 
   async function saveProfile() {
+    if (!account) return;
     setSaving(true);
     try {
       await axios.patch(`user/${account.id}/profile`, { playerName, nationality });

@@ -71,6 +71,7 @@ export default function CreateMatchModal({
             setScoringSystems(response.data);
             setScoringSystem(response.data[0]);
         });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open]);
 
     const onSubmit = () => {
