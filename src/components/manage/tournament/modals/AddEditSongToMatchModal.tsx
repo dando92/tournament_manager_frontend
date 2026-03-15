@@ -9,6 +9,7 @@ type AddSongToMatchModalProps = {
   matchId: number;
   phaseId: number;
   songId?: number | null;
+  tournamentId?: number;
   open: boolean;
   onClose: () => void;
   onAddSongToMatchByRoll: (
@@ -46,6 +47,7 @@ export default function AddEditSongToMatchModal({
   phaseId,
   matchId,
   songId,
+  tournamentId,
   open,
   onClose,
   onAddSongToMatchByRoll,
@@ -65,14 +67,15 @@ export default function AddEditSongToMatchModal({
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
 
   useEffect(() => {
-    open &&
-      axios.get<Song[]>(`songs`).then((response) => {
-        setSongs(response.data);
-        setSongGroups([...new Set(response.data.map((s) => s.group))]);
-        if (response.data.length > 0)
-          setSelectedGroupName(response.data[0].group);
-      });
-  }, [open]);
+    if (!open) return;
+    const url = tournamentId ? `songs?tournamentId=${tournamentId}` : `songs`;
+    axios.get<Song[]>(url).then((response) => {
+      setSongs(response.data);
+      setSongGroups([...new Set(response.data.map((s) => s.group))]);
+      if (response.data.length > 0)
+        setSelectedGroupName(response.data[0].group);
+    });
+  }, [open, tournamentId]);
 
   const onSubmit = () => {
     switch (songAddType) {

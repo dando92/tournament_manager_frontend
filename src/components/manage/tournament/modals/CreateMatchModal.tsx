@@ -16,6 +16,7 @@ type CreateMatchModal = {
     onCreate: (request: CreateMatchRequest) => void;
     phase: Phase;
     division: Division;
+    tournamentId?: number;
 };
 
 export default function CreateMatchModal({
@@ -24,6 +25,7 @@ export default function CreateMatchModal({
                                              onCreate,
                                              phase,
                                              division,
+                                             tournamentId,
                                          }: CreateMatchModal) {
     const [players, setPlayers] = useState<Player[]>([]);
     const [scoringSystems, setScoringSystems] = useState<string[]>([])
@@ -31,8 +33,6 @@ export default function CreateMatchModal({
 
     const [matchName, setMatchName] = useState<string>("");
     const [subtitle, setSubtitle] = useState<string>("");
-    const [multiplier, setMultiplier] = useState<number>(1);
-    const [isManualMatch, setIsManualMatch] = useState<boolean>(false);
 
     const [selectedPlayers, setSelectedPlayers] = useState<Player[]>([]);
 
@@ -51,12 +51,15 @@ export default function CreateMatchModal({
 
     useEffect(() => {
         open &&
-        axios.get<Player[]>(`players`).then((response) => {
+        (tournamentId
+            ? axios.get<Player[]>(`tournaments/${tournamentId}/players`)
+            : axios.get<Player[]>(`players`)
+        ).then((response) => {
             setPlayers(response.data);
         });
 
         open &&
-        axios.get<Song[]>(`songs`).then((response) => {
+        axios.get<Song[]>(tournamentId ? `songs?tournamentId=${tournamentId}` : `songs`).then((response) => {
             setSongs(response.data);
             setSongGroups([...new Set(response.data.map((s) => s.group))]);
             if (response.data.length > 0)
@@ -64,7 +67,7 @@ export default function CreateMatchModal({
         });
 
         open &&
-        axios.get("tournament/possibleScoringSystem").then((response) => {
+        axios.get("match-operations/scoring-systems").then((response) => {
             setScoringSystems(response.data);
             setScoringSystem(response.data[0]);
         });
@@ -87,10 +90,8 @@ export default function CreateMatchModal({
             phaseId: phase.id,
             matchName: matchName,
             subtitle: subtitle,
-            multiplier: multiplier,
             group: selectedGroupName,
             scoringSystem: scoringSystem,
-            isManualMatch: isManualMatch,
             songIds: selectedSongs.map((s) => s.id),
             playerIds: selectedPlayers.map((p) => p.id),
         } as CreateMatchRequest;
@@ -105,10 +106,8 @@ export default function CreateMatchModal({
             phaseId: phase.id,
             matchName: matchName,
             subtitle: subtitle,
-            multiplier: multiplier,
             group: selectedGroupName,
             scoringSystem: scoringSystem,
-            isManualMatch: isManualMatch,
             levels: selectedSongDifficulties.join(","),
             playerIds: selectedPlayers.map((p) => p.id),
         } as CreateMatchRequest;
@@ -146,16 +145,6 @@ export default function CreateMatchModal({
                         placeholder="Type subtitle"
                     />
                 </div>
-                <div className="w-full">
-                    <h3>Multiplier</h3>
-                    <input
-                        className="w-full border border-gray-300 px-2 py-2 rounded-lg"
-                        type="number"
-                        value={multiplier}
-                        onChange={(e) => setMultiplier(+e.target.value)}
-                        placeholder="Type multiplier (number)"
-                    />
-                </div>
                 <div>
                     <h3>Scoring system</h3>
                     <Select
@@ -167,25 +156,17 @@ export default function CreateMatchModal({
                         styles={{menuPortal: (base) => ({...base, zIndex: 9999})}}
                     ></Select>
                 </div>
-                <div>
-                    <h3>Manual match</h3>
-                    <input
-                        type="checkbox"
-                        checked={isManualMatch}
-                        onChange={(e) => setIsManualMatch(e.target.checked)}
-                    />
-                </div>
                 <div className="w-full">
                     <h3>Players</h3>
                     <Select
                         isMulti
-                        options={players.map((p) => ({value: p.id, label: p.name}))}
+                        options={players.map((p) => ({value: p.id, label: p.playerName}))}
                         onChange={(e) => {
                             setSelectedPlayers(
                                 e.map((p) => players.find((pl) => pl.id === p.value)!),
                             );
                         }}
-                        value={selectedPlayers.map((p) => ({value: p.id, label: p.name}))}
+                        value={selectedPlayers.map((p) => ({value: p.id, label: p.playerName}))}
                         menuPortalTarget={document.body}
                         styles={{menuPortal: (base) => ({...base, zIndex: 9999})}}
                     />

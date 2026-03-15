@@ -6,9 +6,7 @@ export interface Match {
   name: string;
   subtitle: string;
   notes: string;
-  isManualMatch: boolean;
   scoringSystem: string;
-  multiplier: number;
   players: Player[];
   rounds: Round[];
 }
