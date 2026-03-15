@@ -1,7 +1,8 @@
 import TournamentSettings from "@/components/manage/tournament/TournamentSettings";
 import LobbyPasswordModal from "@/components/manage/tournament/LobbyPasswordModal";
+import LobbyConnectMobileModal from "@/components/manage/tournament/LobbyConnectMobileModal";
 import { useParams, useNavigate } from "react-router-dom";
-import { faArrowLeft, faBroadcastTower, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faBroadcastTower, faUsers, faPlugCircleXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState, useCallback } from "react";
 import { useMatchHub } from "@/services/useMatchHub";
@@ -18,20 +19,16 @@ export default function ManagePage() {
   const [lobbyCode, setLobbyCode] = useState<string>("");
   const [lobbyPasswordModalOpen, setLobbyPasswordModalOpen] = useState(false);
   const [lobbyPasswordInput, setLobbyPasswordInput] = useState("");
+  const [lobbyMobileModalOpen, setLobbyMobileModalOpen] = useState(false);
   const [lobbyConnected, setLobbyConnected] = useState(false);
   const { state: authState } = useAuthContext();
   const account = authState.account;
 
-  // Whether the current user is the specific owner of this tournament
   const [isTournamentOwner, setIsTournamentOwner] = useState(false);
-  // Whether the current user is a helper of any tournament
   const [isHelper, setIsHelper] = useState(false);
 
   const isAdmin = account?.isAdmin ?? false;
-
-  // Can manage helpers (add/remove): admin or the tournament's owner
   const canEditHelpers = isAdmin || isTournamentOwner;
-  // Can use management controls: admin, tournament owner, or helper
   const canControl = isAdmin || isTournamentOwner || isHelper;
 
   const { state: helpersState, actions: helpersActions } = useHelpers(Number(tournamentId));
@@ -44,7 +41,7 @@ export default function ManagePage() {
   const [tournamentPlayers, setTournamentPlayers] = useState<Player[]>([]);
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
 
-  // Fetch tournament name, lobbyCode, and determine if current user is its owner
+  // Fetch tournament detail, lobbyCode, and owner check
   useEffect(() => {
     if (!tournamentId) return;
     axios
@@ -79,7 +76,7 @@ export default function ManagePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account?.id, isAdmin]);
 
-  // Load helpers list and players when we know the user can access this tournament
+  // Load helpers list and players
   useEffect(() => {
     if (!tournamentId || !canControl) return;
     helpersActions.load();
@@ -136,11 +133,6 @@ export default function ManagePage() {
       .catch(() => toast.error("Failed to save lobby code."));
   };
 
-  const handleConnectLobby = () => {
-    setLobbyPasswordInput("");
-    setLobbyPasswordModalOpen(true);
-  };
-
   const handleConnectLobbyConfirm = async () => {
     if (!tournamentId) return;
     setLobbyPasswordModalOpen(false);
@@ -162,51 +154,79 @@ export default function ManagePage() {
   };
 
   return (
-    <div className="flex flex-row gap-4">
-      <div className="flex-1 min-w-0">
-        <div className="flex flex-row items-center gap-4 mb-1">
-          <button
-            onClick={() => navigate("/manage")}
-            className="text-rossoTesto hover:underline flex items-center gap-1"
-          >
-            <FontAwesomeIcon icon={faArrowLeft} />
-            <span>Back</span>
-          </button>
-{canControl && tournamentId && (
-            <div className="flex items-center gap-2 ml-auto">
-              <label className="text-rossoTesto text-sm whitespace-nowrap">Lobby code:</label>
-              <input
-                className="border border-gray-400 bg-white text-gray-800 px-2 py-0.5 rounded w-32 text-sm"
-                type="text"
-                value={lobbyCode}
-                onChange={(e) => setLobbyCode(e.target.value)}
-                placeholder="e.g. ABC123"
-              />
+    <div>
+      {/* [4] Back button (left) + lobby controls (right) */}
+      <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
+        <button
+          onClick={() => navigate("/manage")}
+          className="text-rossoTesto hover:underline flex items-center gap-1.5 text-sm"
+        >
+          <FontAwesomeIcon icon={faArrowLeft} />
+          <span>Back</span>
+        </button>
+
+        {canControl && tournamentId && (
+          <div className="flex items-center gap-2 ml-auto">
+            {/* Lobby code input + save — desktop only */}
+            <label className="hidden md:block text-gray-600 text-sm whitespace-nowrap">Lobby code:</label>
+            <input
+              className="hidden md:block border border-gray-300 bg-white text-gray-800 px-2 py-1.5 rounded w-32 text-sm"
+              type="text"
+              value={lobbyCode}
+              onChange={(e) => setLobbyCode(e.target.value)}
+              placeholder="e.g. ABC123"
+            />
+            <button
+              onClick={handleSaveLobbyCode}
+              className="hidden md:block bg-rossoTesto text-white px-3 py-1.5 rounded hover:opacity-90 text-sm"
+            >
+              Save
+            </button>
+
+            {/* Connect / Disconnect lobby */}
+            {lobbyConnected ? (
               <button
-                onClick={handleSaveLobbyCode}
-                className="flex items-center gap-1 bg-rossoTesto text-white px-2 py-1 rounded hover:opacity-90 text-sm"
+                onClick={handleDisconnectLobby}
+                className="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 bg-rossoTesto text-white px-3 py-1.5 rounded hover:opacity-90"
               >
-                Save
+                <FontAwesomeIcon icon={faPlugCircleXmark} className="text-base md:text-sm" />
+                <span className="text-xs md:text-sm leading-none">Disconnect</span>
               </button>
+            ) : (
               <button
-                onClick={lobbyConnected ? handleDisconnectLobby : handleConnectLobby}
-                className="flex items-center gap-2 bg-rossoTesto text-white px-3 py-1 rounded hover:opacity-90 text-sm"
+                onClick={() => {
+                  setLobbyPasswordInput("");
+                  // On mobile open the combined modal; on desktop open the password-only modal
+                  if (window.innerWidth < 768) {
+                    setLobbyMobileModalOpen(true);
+                  } else {
+                    setLobbyPasswordModalOpen(true);
+                  }
+                }}
+                className="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 bg-rossoTesto text-white px-3 py-1.5 rounded hover:opacity-90"
               >
-                <FontAwesomeIcon icon={faBroadcastTower} />
-                <span>{lobbyConnected ? "Disconnect from lobby" : "Connect to lobby"}</span>
+                <FontAwesomeIcon icon={faBroadcastTower} className="text-base md:text-sm" />
+                <span className="text-xs md:text-sm leading-none">Connect lobby</span>
               </button>
-              <button
-                onClick={() => setParticipantsOpen(true)}
-                className="flex items-center gap-2 bg-rossoTesto text-white px-3 py-1 rounded hover:opacity-90 text-sm"
-              >
-                <FontAwesomeIcon icon={faUsers} />
-                <span>Participants</span>
-              </button>
-            </div>
-          )}
-        </div>
-        <TournamentSettings controls={canControl} tournamentId={Number(tournamentId)} matchUpdateSignal={matchUpdateSignal} />
+            )}
+
+            {/* Participants */}
+            <button
+              onClick={() => setParticipantsOpen(true)}
+              className="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 bg-rossoTesto text-white px-3 py-1.5 rounded hover:opacity-90"
+            >
+              <FontAwesomeIcon icon={faUsers} className="text-base md:text-sm" />
+              <span className="text-xs md:text-sm leading-none">Participants</span>
+            </button>
+          </div>
+        )}
       </div>
+
+      <TournamentSettings
+        controls={canControl}
+        tournamentId={Number(tournamentId)}
+        matchUpdateSignal={matchUpdateSignal}
+      />
 
       {canControl && tournamentId && (
         <ManageParticipantsModal
@@ -234,6 +254,18 @@ export default function ManagePage() {
         onPasswordChange={setLobbyPasswordInput}
         onConfirm={handleConnectLobbyConfirm}
         onCancel={() => setLobbyPasswordModalOpen(false)}
+      />
+
+      {/* Mobile-only lobby modal: combines lobby code save + password + connect */}
+      <LobbyConnectMobileModal
+        open={lobbyMobileModalOpen}
+        lobbyCode={lobbyCode}
+        onLobbyCodeChange={setLobbyCode}
+        onSaveLobbyCode={() => { handleSaveLobbyCode(); }}
+        password={lobbyPasswordInput}
+        onPasswordChange={setLobbyPasswordInput}
+        onConnect={() => { setLobbyMobileModalOpen(false); handleConnectLobbyConfirm(); }}
+        onCancel={() => setLobbyMobileModalOpen(false)}
       />
     </div>
   );
