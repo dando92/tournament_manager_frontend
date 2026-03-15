@@ -1,94 +1,101 @@
-import { useEffect, useState, useCallback } from "react";
-import { Match } from "../../models/Match";
-import * as MatchesApi from "../../services/matches/matches.api";
+import { useState, useCallback, useEffect } from "react";
 import { Division } from "../../models/Division";
 import { Phase } from "../../models/Phase";
+import { Tournament } from "../../models/Tournament";
 import axios from "axios";
 import MatchesView from "../manage/tournament/MatchesView";
-import {
-  HttpTransportType,
-  HubConnection,
-  HubConnectionBuilder,
-} from "@microsoft/signalr";
 import LiveScores from "./LiveScores";
+import { useMatchHub } from "../../services/useMatchHub";
+import { useScoreHub, TournamentLobbyStateDto } from "../../services/useScoreHub";
+
+type TournamentLiveState = {
+  phase: Phase | null;
+  division: Division | null;
+  matchUpdateSignal: number;
+};
 
 export default function LivePhase() {
-  const [loading, setLoading] = useState(true);
-  const [phase, setPhase] = useState<Phase | null>(null);
-  const [division, setDivision] = useState<Division | null>(null);
-  const [activeMatch, setActiveMatch] = useState<Match | null>(null);
-  const [connection, setConnection] = useState<HubConnection | null>(null);
-
-  const fetchData = useCallback(() => {
-    setLoading(true);
-    MatchesApi.getActiveMatch()
-      .then((match) => {
-        setActiveMatch(match);
-        return axios.get("/phases/" + match.phaseId);
-      })
-      .then((response) => {
-        setPhase(response.data);
-        return axios.get("/divisions/" + response.data.divisionId);
-      })
-      .then((response) => {
-        setDivision(response.data);
-      })
-      .catch(() => {
-        setActiveMatch(null);
-        setPhase(null);
-        setDivision(null);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [tournamentStates, setTournamentStates] = useState<Map<number, TournamentLiveState>>(new Map());
+  const [lobbyStates, setLobbyStates] = useState<Map<number, TournamentLobbyStateDto>>(new Map());
 
   useEffect(() => {
-    fetchData();
+    axios.get<Tournament[]>("tournaments/public").then((r) => setTournaments(r.data));
+  }, []);
 
-    const conn = new HubConnectionBuilder()
-      .withUrl(`${import.meta.env.VITE_PUBLIC_API_URL}../matchupdatehub`, {
-        skipNegotiation: true,
-        transport: HttpTransportType.WebSockets,
+  const fetchPhaseAndDivision = useCallback((tournamentId: number, phaseId: number, divisionId: number) => {
+    Promise.all([
+      axios.get<Phase>(`/phases/${phaseId}`),
+      axios.get<Division>(`/divisions/${divisionId}`),
+    ])
+      .then(([phaseRes, divRes]) => {
+        setTournamentStates((prev) => {
+          const next = new Map(prev);
+          const curr = next.get(tournamentId);
+          next.set(tournamentId, {
+            phase: phaseRes.data,
+            division: divRes.data,
+            matchUpdateSignal: (curr?.matchUpdateSignal ?? 0) + 1,
+          });
+          return next;
+        });
       })
-      .build();
+      .catch(() => {});
+  }, []);
 
-    conn.on("OnMatchUpdate", fetchData);
+  useMatchHub((data) => {
+    if (data.phaseId && data.divisionId && data.tournamentId) {
+      fetchPhaseAndDivision(data.tournamentId, data.phaseId, data.divisionId);
+    }
+  });
 
-    conn
-      .start()
-      .then(() => {
-        console.log("Now listening to match changes.");
-      })
-      .catch((error) => console.error("Connection failed: ", error));
+  const handleLobbyDisconnected = useCallback((tournamentId: number) => {
+    setLobbyStates((prev) => { const next = new Map(prev); next.delete(tournamentId); return next; });
+    setTournamentStates((prev) => { const next = new Map(prev); next.delete(tournamentId); return next; });
+  }, []);
 
-    setConnection(conn);
+  useScoreHub((data) => {
+    if (!data?.players?.length) return;
+    setLobbyStates((prev) => new Map(prev).set(data.tournamentId, data));
+  }, handleLobbyDisconnected);
 
-    return () => {
-      if (connection) {
-        conn.stop();
-      }
-    };
-  }, [fetchData]);
+  const activeTournaments = tournaments.filter(
+    (t) => tournamentStates.has(t.id) || lobbyStates.has(t.id),
+  );
+
+  if (activeTournaments.length === 0) {
+    return <p>No live events. Stay tuned!</p>;
+  }
 
   return (
-    <div>
-      {import.meta.env.VITE_PUBLIC_ENABLE_LIVE_SCORES === "true" && (
-        <LiveScores />
-      )}
-      {loading && <p>Loading...</p>}
-      {!loading && !activeMatch && <p>No match in progress. Stay tuned!</p>}
-      {division && phase && activeMatch && (
-        <div>
-          <h1 className="text-center text-7xl text-rossoTesto font-bold">
-            {division.name}
-          </h1>
+    <div className="flex flex-col gap-8">
+      {activeTournaments.map((tournament) => {
+        const state = tournamentStates.get(tournament.id);
+        const lobbyState = lobbyStates.get(tournament.id);
 
-          <MatchesView
-            showPastMatches={false}
-            phaseId={phase.id}
-            division={division}
-          />
-        </div>
-      )}
+        return (
+          <div key={tournament.id}>
+            <h2 className="text-2xl text-rossoTesto font-bold mb-2">{tournament.name}</h2>
+
+            {import.meta.env.VITE_PUBLIC_ENABLE_LIVE_SCORES === "true" && lobbyState && (
+              <LiveScores lobbyState={lobbyState} />
+            )}
+
+            {state?.division && state?.phase && (
+              <div>
+                <h3 className="text-center text-5xl text-rossoTesto font-bold">
+                  {state.division.name}
+                </h3>
+                <MatchesView
+                  phaseId={state.phase.id}
+                  division={state.division}
+                  matchUpdateSignal={state.matchUpdateSignal}
+                />
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

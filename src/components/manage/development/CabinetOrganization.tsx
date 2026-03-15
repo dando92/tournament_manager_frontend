@@ -1,4 +1,5 @@
 import { useState } from "react";
+import React from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { CabinetCard } from "./CabinetCard";
 import { ToggleButton } from "./ToggleButton";
@@ -8,7 +9,7 @@ import { ToggleButton } from "./ToggleButton";
 export const CabinetOrganization = () => {
     const [isToggled, setIsToggled] = useState(false);
     
-    const getItems = (count) => Array.from({ length: count }, (v, k) => k).map(k => CabinetCard(k, isToggled));
+    const getItems = (count: number) => Array.from({ length: count }, (_v, k) => k).map(k => CabinetCard(k, isToggled));
     
     const [items, setItems] = useState(getItems(8));
 
@@ -17,8 +18,10 @@ export const CabinetOrganization = () => {
     };
 
 
+    type Item = ReturnType<typeof CabinetCard>;
+
     // a little function to help us with reordering the result
-    const reorder = (list, startIndex, endIndex) => {
+    const reorder = (list: Item[], startIndex: number, endIndex: number): Item[] => {
         const result = Array.from(list);
         const [removed] = result.splice(startIndex, 1);
         result.splice(endIndex, 0, removed);
@@ -28,9 +31,9 @@ export const CabinetOrganization = () => {
 
     const grid = 8;
 
-    const getItemStyle = (isDragging, draggableStyle) => ({
+    const getItemStyle = (isDragging: boolean, draggableStyle: React.CSSProperties | undefined): React.CSSProperties => ({
         // some basic styles to make the items look a bit nicer
-        userSelect: 'none',
+        userSelect: 'none' as const,
         padding: grid * 2,
         margin: `0 ${grid}px 0 0`,
 
@@ -41,14 +44,14 @@ export const CabinetOrganization = () => {
         ...draggableStyle,
     });
 
-    const getListStyle = isDraggingOver => ({
+    const getListStyle = (isDraggingOver: boolean) => ({
         background: isDraggingOver ? 'lightblue' : 'lightgrey',
         display: 'flex',
         padding: grid,
         overflow: 'auto',
     });
 
-    const onDragEnd = (result) => {
+    const onDragEnd = (result: import("react-beautiful-dnd").DropResult) => {
         // dropped outside the list
         if (!result.destination) {
             return;

@@ -1,6 +1,5 @@
 export interface Player {
   id: number;
-  name: string;
+  playerName: string;
   score: number;
-  teamId?: number;
 }

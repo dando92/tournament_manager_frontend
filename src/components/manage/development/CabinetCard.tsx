@@ -2,7 +2,7 @@
 import cabinet from './prova.png';
 import './style.css'
 
-export const PlayerCard = (idx) => {
+export const PlayerCard = (idx: number) => {
     return ({
         id: `PlayerCard-${idx}`,
         content:
@@ -12,7 +12,7 @@ export const PlayerCard = (idx) => {
     });
 }
 
-export const CabinetCard = (idx, isToggled) => {
+export const CabinetCard = (idx: number, isToggled: boolean) => {
     const getItemStyle = () => ({
         display: (isToggled ? 'block' : 'none'),
         flexdirection: 'row',

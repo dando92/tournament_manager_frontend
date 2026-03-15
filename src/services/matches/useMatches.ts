@@ -17,15 +17,6 @@ export function useMatches(phaseId: number) {
       throw new Error("Unable to list matches by phase.");
     }
   }
-  async function getActiveMatch() {
-    try {
-      const item = await MatchesApi.getActiveMatch();
-      dispatch({ type: "onSetActiveMatch", payload: item });
-    } catch (error) {
-      console.error("Error getting active match:", error);
-      throw new Error("Unable to get active match.");
-    }
-  }
 
   async function create(request: CreateMatchRequest) {
     try {
@@ -50,24 +41,6 @@ export function useMatches(phaseId: number) {
     }
   }
 
-  async function setActiveMatch(
-    divisionId: number,
-    phaseId: number,
-    matchId: number,
-  ) {
-    try {
-      await MatchesApi.setActiveMatch({ divisionId, phaseId, matchId });
-      dispatch({
-        type: "onSetActiveMatch",
-        payload: state.matches.find((m) => m.id === matchId)!,
-      });
-    } catch (error) {
-      toast.error("Error setting active match.");
-      console.error("Error setting active match:", error);
-      throw new Error("Unable to set active match.");
-    }
-  }
-
   async function deleteMatch(matchId: number) {
     try {
       await MatchesApi.deleteMatch(matchId);
@@ -83,20 +56,13 @@ export function useMatches(phaseId: number) {
   }
 
   async function addSongToMatchByRoll(
-    divisionId: number,
-    phaseId: number,
     matchId: number,
+    divisionId: number,
     group: string,
     level: string,
   ) {
     try {
-      const item = await MatchesApi.addSongToActiveMatch({
-        divisionId,
-        phaseId,
-        matchId,
-        group,
-        level,
-      });
+      const item = await MatchesApi.addSongToMatch(matchId, undefined, divisionId, group, level);
       dispatch({ type: "onAddSongToMatch", payload: item });
     } catch (error) {
       toast.error("Error adding song to match.");
@@ -106,43 +72,28 @@ export function useMatches(phaseId: number) {
   }
 
   async function editSongToMatchByRoll(
-    divisionId: number,
-    phaseId: number,
     matchId: number,
+    editSongId: number,
+    divisionId: number,
     group: string,
     level: string,
-    editSongId: number,
   ) {
     try {
-      const item = await MatchesApi.editSongToActiveMatch({
-        divisionId,
-        phaseId,
-        matchId,
-        group,
-        level,
-        editSongId,
-      });
+      const item = await MatchesApi.editSongInMatch(matchId, editSongId, undefined, divisionId, group, level);
       dispatch({ type: "onAddSongToMatch", payload: item });
     } catch (error) {
-      toast.error("Error adding song to match.");
-      console.error("Error adding song to match:", error);
-      throw new Error("Unable to add song to match.");
+      toast.error("Error editing song in match.");
+      console.error("Error editing song in match:", error);
+      throw new Error("Unable to edit song in match.");
     }
   }
 
   async function addSongToMatchBySongId(
-    divisionId: number,
-    phaseId: number,
     matchId: number,
     songId: number,
   ) {
     try {
-      const item = await MatchesApi.addSongToActiveMatch({
-        divisionId,
-        phaseId,
-        matchId,
-        songId,
-      });
+      const item = await MatchesApi.addSongToMatch(matchId, songId);
       dispatch({ type: "onAddSongToMatch", payload: item });
     } catch (error) {
       toast.error("Error adding song to match.");
@@ -152,29 +103,22 @@ export function useMatches(phaseId: number) {
   }
 
   async function editSongToMatchBySongId(
-    divisionId: number,
-    phaseId: number,
     matchId: number,
-    songId: number,
     editSongId: number,
+    songId: number,
   ) {
     try {
-      const item = await MatchesApi.editSongToActiveMatch({
-        divisionId,
-        phaseId,
-        matchId,
-        songId,
-        editSongId,
-      });
+      const item = await MatchesApi.editSongInMatch(matchId, editSongId, songId);
       dispatch({ type: "onAddSongToMatch", payload: item });
     } catch (error) {
-      toast.error("Error adding song to match.");
-      console.error("Error adding song to match:", error);
-      throw new Error("Unable to add song to match.");
+      toast.error("Error editing song in match.");
+      console.error("Error editing song in match:", error);
+      throw new Error("Unable to edit song in match.");
     }
   }
 
   async function addStandingToMatch(
+    matchId: number,
     playerId: number,
     songId: number,
     percentage: number,
@@ -182,7 +126,7 @@ export function useMatches(phaseId: number) {
     isFailed: boolean,
   ) {
     try {
-      const item = await MatchesApi.addStandingToActiveMatch({
+      const item = await MatchesApi.addStandingToMatch(matchId, {
         playerId,
         songId,
         percentage,
@@ -198,14 +142,12 @@ export function useMatches(phaseId: number) {
   }
 
   async function deleteStandingsForPlayerFromMatch(
+    matchId: number,
     playerId: number,
     songId: number,
   ) {
     try {
-      const item = await MatchesApi.deleteStandingsForPlayerFromActiveMatch(
-        playerId,
-        songId,
-      );
+      const item = await MatchesApi.deleteStandingFromMatch(matchId, playerId, songId);
       dispatch({ type: "onDeleteStandingFromMatch", payload: item });
     } catch (error) {
       toast.error("Error deleting standings for player from match.");
@@ -215,6 +157,7 @@ export function useMatches(phaseId: number) {
   }
 
   async function editStandingFromMatch(
+    matchId: number,
     songId: number,
     playerId: number,
     percentage: number,
@@ -222,7 +165,8 @@ export function useMatches(phaseId: number) {
     isFailed: boolean,
   ) {
     try {
-      const item = await MatchesApi.editStandingForPlayerFromActiveMatch(
+      const item = await MatchesApi.editStandingInMatch(
+        matchId,
         songId,
         playerId,
         percentage,
@@ -241,10 +185,8 @@ export function useMatches(phaseId: number) {
     state,
     actions: {
       list,
-      getActiveMatch,
       create,
       editMatchNotes,
-      setActiveMatch,
       deleteMatch,
       addSongToMatchByRoll,
       addSongToMatchBySongId,

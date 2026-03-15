@@ -1,161 +1,67 @@
-import {
-  HttpTransportType,
-  HubConnection,
-  HubConnectionBuilder,
-} from "@microsoft/signalr";
-import { useEffect, useState, useMemo } from "react";
-import { RawScore } from "../../models/RawScore";
+import { useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
-import { Player } from "../../models/Player.ts";
-import { Team, TEAM_COLORS } from "../../models/Team.ts";
+import { TournamentLobbyStateDto } from "../../services/useScoreHub";
 
-export default function LiveScores() {
-  const [, setScoreUpdateConnection] = useState<HubConnection | null>(null);
-  const [scores, setScores] = useState<RawScore[]>([]);
-  const [showJudgements, setShowJudgements] = useState(true);
+type Props = {
+  lobbyState: TournamentLobbyStateDto;
+};
 
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [teams, setTeams] = useState<Team[]>([]);
+export default function LiveScores({ lobbyState }: Props) {
+  const [showJudgements] = useMemo(() => [true], []);
 
-  useEffect(() => {
-    const conn = new HubConnectionBuilder()
-      .withUrl(`${import.meta.env.VITE_PUBLIC_API_URL}../scoreupdatehub`, {
-        skipNegotiation: true,
-        transport: HttpTransportType.WebSockets,
-      })
-      .build();
-
-    conn.on("OnScoreUpdate", (msg: RawScore) => {
-      setScores((prev) => {
-        const newScores = prev.filter(
-          (score) => score.score.playerName !== msg.score.playerName,
-        );
-        return [...newScores, msg];
-      });
+  const sortedPlayers = useMemo(() => {
+    return [...lobbyState.players].sort((a, b) => {
+      if (a.isFailed && !b.isFailed) return 1;
+      if (!a.isFailed && b.isFailed) return -1;
+      return b.scorePercent - a.scorePercent;
     });
+  }, [lobbyState]);
 
-    conn.start().then(() => {
-      console.log("Now listening to scores changes.");
-    });
-
-    setScoreUpdateConnection(conn);
-
-    axios.get("players").then((response) => {
-      setPlayers(response.data);
-    });
-
-    axios.get("teams").then((response) => {
-      setTeams(response.data);
-    });
-
-    return () => {
-      conn.stop();
-    };
-  }, []);
-
-  const sortedScores = useMemo(() => {
-    return scores.sort((a, b) => {
-      const scoreA = +a.score.formattedScore;
-      const scoreB = +b.score.formattedScore;
-
-      if (a.score.isFailed && !b.score.isFailed) return 1;
-      if (!a.score.isFailed && b.score.isFailed) return -1;
-      return scoreB - scoreA;
-    });
-  }, [scores]);
-
-  const getTeamColor = (playerName: string) => {
-    const player = players.find((p) => p.name === playerName);
-
-    console.log(player);
-
-    if (!player) return "#000000";
-
-    const teamId = player.teamId;
-
-    if (teamId) {
-      const team = teams.find((t) => t.id === teamId);
-
-      if (team) {
-        return TEAM_COLORS.find((t) => t.name === team.name)?.color;
-      }
-    }
-
-    return "#000000";
-  };
-
-  if (scores.length === 0) return <></>;
+  const songTitle = lobbyState.songTitle || lobbyState.songPath.split("/")?.[1] || "";
 
   return (
-    <div className="text-bianco w-auto">
-      <div className="flex flex-row gap-3 items-center">
-        <h2 className="text-rossoTesto">
-          Now playing: {sortedScores[0]?.score.song.split("/")[1]}
-        </h2>
-        <div>
-          <button
-            onClick={() => setShowJudgements((prev) => !prev)}
-            className="text-bianco bg-rossoTesto p-0.5 text-xs rounded-md"
-          >
-            {showJudgements ? "Hide" : "Show"} judgements
-          </button>
-        </div>
-      </div>
-      <div className="grid my-2 border-b pb-2  grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-1">
-        {sortedScores.map((score, idx) => (
+    <div className="w-auto">
+      <h2 className="text-rossoTesto">Now playing: {songTitle}</h2>
+      <div className="grid my-2 border-b pb-2 grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-1">
+        {sortedPlayers.map((player, idx) => (
           <div
-            key={score.score.playerName}
-            style={{ backgroundColor: getTeamColor(score.score.playerName) }}
-            className={`flex flex-col items-start p-2  rounded-md shadow-md transition-transform transform ${
-              score.score.isFailed ? "bg-red-300 opacity-50" : ""
-            } text-sfondoPagina ${idx === 0 ? "animate-first-place" : ""} `}
+            key={player.name}
+            className={`flex flex-col items-start p-2 rounded-md shadow-md transition-transform transform ${
+              player.isFailed ? "bg-red-300 opacity-50" : "bg-gray-700"
+            } text-sfondoPagina ${idx === 0 ? "animate-first-place" : ""}`}
           >
             <div className="flex flex-row gap-5 justify-between items-end w-full">
               <span className="text-xl">
                 <span className="italic">#{idx + 1}</span>{" "}
-                <span className="font-bold">{score.score.playerName}</span>
+                <span className="font-bold">{player.name}</span>
               </span>
-
-              <span className=" font-bold text-xl">
-                {score.score.formattedScore}%
+              <span className="font-bold text-xl">
+                {player.scorePercent.toFixed(2)}%
               </span>
             </div>
-            {showJudgements && (
-              <div className=" flex text-xs text-ellipsis flex-wrap gap-3  text-bianco">
-                {score.score.tapNote.W0 > 0 && (
-                  <span className="text-blue-200">
-                    {score.score.tapNote.W0}FA
-                  </span>
+            {showJudgements && player.judgments && (
+              <div className="flex text-xs text-ellipsis flex-wrap gap-3 text-bianco">
+                {player.judgments.fantasticPlus > 0 && (
+                  <span className="text-blue-200">{player.judgments.fantasticPlus}FA+</span>
                 )}
-                {score.score.tapNote.W1 > 0 && (
-                  <span>{score.score.tapNote.W1}FA</span>
+                {player.judgments.fantastics > 0 && (
+                  <span>{player.judgments.fantastics}FA</span>
                 )}
-                {score.score.tapNote.W2 > 0 && (
-                  <span className="text-yellow-300">
-                    {score.score.tapNote.W2}EX
-                  </span>
+                {player.judgments.excellents > 0 && (
+                  <span className="text-yellow-300">{player.judgments.excellents}EX</span>
                 )}
-                {score.score.tapNote.W3 > 0 && (
-                  <span className="text-green-300">
-                    {score.score.tapNote.W3}GR
-                  </span>
+                {player.judgments.greats > 0 && (
+                  <span className="text-green-300">{player.judgments.greats}GR</span>
                 )}
-                {score.score.tapNote.W4 > 0 && (
-                  <span className="text-pink-300">
-                    {score.score.tapNote.W4}DE
-                  </span>
+                {player.judgments.decents > 0 && (
+                  <span className="text-pink-300">{player.judgments.decents}DE</span>
                 )}
-                {score.score.tapNote.W5 > 0 && (
-                  <span className="text-orange-300">
-                    {score.score.tapNote.W5}WO
-                  </span>
+                {player.judgments.wayOffs > 0 && (
+                  <span className="text-orange-300">{player.judgments.wayOffs}WO</span>
                 )}
-                {score.score.tapNote.miss > 0 && (
-                  <span className="text-red-300">
-                    {score.score.tapNote.miss}MISS
-                  </span>
+                {player.judgments.misses > 0 && (
+                  <span className="text-red-300">{player.judgments.misses}MISS</span>
                 )}
               </div>
             )}
@@ -164,14 +70,14 @@ export default function LiveScores() {
               <div className="relative w-full h-2 my-2 rounded-md bg-grigio overflow-hidden">
                 <div
                   className={`absolute top-0 left-0 h-full transition-all ${
-                    score.score.life === 1
+                    player.health === 1
                       ? "bg-green-500"
-                      : score.score.life < 0.2
+                      : player.health < 0.2
                         ? "bg-red-500"
                         : "bg-blue-500"
                   }`}
-                  style={{ width: `${score.score.life * 100}%` }}
-                ></div>
+                  style={{ width: `${player.health * 100}%` }}
+                />
               </div>
             </div>
           </div>

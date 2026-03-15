@@ -1,17 +1,31 @@
 import {
+  faFileImport,
   faLayerGroup,
   faPlus,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Song } from "../../../models/Song";
 import axios from "axios";
+import { toast } from "react-toastify";
+
+interface SongScore {
+  playerName: string;
+  percentage: number;
+  isFailed: boolean;
+}
 import Select from "react-select";
 
-export default function SongsList() {
+type SongsListProps = {
+  canEdit?: boolean;
+  tournamentId?: number;
+};
+
+export default function SongsList({ canEdit = true, tournamentId }: SongsListProps) {
   const [songs, setSongs] = useState<Song[]>([]);
   const [groups, setGroups] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [search, setSearch] = useState<string>("");
   const [selectedGroupName, setSelectedGroupName] = useState<string>("");
@@ -19,13 +33,15 @@ export default function SongsList() {
   const [selectedSongId, setSelectedSongId] = useState<number>(-1);
 
   useEffect(() => {
-    axios.get<Song[]>("songs").then((response) => {
+    const url = tournamentId ? `songs?tournamentId=${tournamentId}` : "songs";
+    axios.get<Song[]>(url).then((response) => {
       const { data } = response;
       setSongs(data);
       setGroups([...new Set(data.map((s) => s.group))]);
-      if (data.length > 0) setSelectedGroupName(data[0].group);
+      setSelectedGroupName(data.length > 0 ? data[0].group : "");
+      setSelectedSongId(-1);
     });
-  }, []);
+  }, [tournamentId]);
 
   const addNewSongInGroup = () => {
     const title = prompt("Enter song title");
@@ -36,7 +52,7 @@ export default function SongsList() {
 
     if (title && difficulty) {
       axios
-        .post<Song>("songs", { title, difficulty, group: selectedGroupName })
+        .post<Song>("songs", { title, difficulty, group: selectedGroupName, tournamentId })
         .then((response) => {
           setSongs([...songs, response.data]);
         });
@@ -58,12 +74,45 @@ export default function SongsList() {
 
     if (title && difficulty && group) {
       axios
-        .post<Song>("songs", { title, difficulty, group })
+        .post<Song>("songs", { title, difficulty, group, tournamentId })
         .then((response) => {
           setSongs([...songs, response.data]);
           setGroups([...groups, group]);
           setSelectedGroupName(group);
         });
+    }
+  };
+
+  const handleBulkImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (!Array.isArray(data)) {
+        toast.error("JSON must be an array of songs.");
+        return;
+      }
+      const results = await Promise.allSettled(
+        data.map((dto) => axios.post<Song>("songs", { ...dto, tournamentId }))
+      );
+      const created = results
+        .filter((r): r is PromiseFulfilledResult<{ data: Song }> => r.status === "fulfilled")
+        .map((r) => r.value.data);
+      const failed = results.filter((r) => r.status === "rejected").length;
+      setSongs((prev) => {
+        const merged = [...prev, ...created];
+        setGroups([...new Set(merged.map((s) => s.group))]);
+        return merged;
+      });
+      if (failed > 0) {
+        toast.warn(`Imported ${created.length} songs. ${failed} failed.`);
+      } else {
+        toast.success(`Imported ${created.length} songs.`);
+      }
+    } catch {
+      toast.error("Failed to parse JSON file.");
     }
   };
 
@@ -81,25 +130,43 @@ export default function SongsList() {
       <div className="flex flex-col justify-start gap-3">
         <div className="flex flex-row gap-3">
           <h2 className="text-rossoTesto">Songs List</h2>
-          <button
-            title={
-              !selectedGroupName
-                ? "plz select group"
-                : "Add song in selected group"
-            }
-            disabled={!selectedGroupName}
-            onClick={addNewSongInGroup}
-            className="disabled:opacity-50 w-4 text-green-700"
-          >
-            <FontAwesomeIcon icon={faPlus} />
-          </button>
-          <button
-            title={"Add song in new group"}
-            onClick={addNewSongInNewGroup}
-            className="disabled:opacity-50 w-4 text-green-700"
-          >
-            <FontAwesomeIcon icon={faLayerGroup} />
-          </button>
+          {canEdit && (
+            <>
+              <button
+                title={
+                  !selectedGroupName
+                    ? "plz select group"
+                    : "Add song in selected group"
+                }
+                disabled={!selectedGroupName}
+                onClick={addNewSongInGroup}
+                className="disabled:opacity-50 w-4 text-green-700"
+              >
+                <FontAwesomeIcon icon={faPlus} />
+              </button>
+              <button
+                title={"Add song in new group"}
+                onClick={addNewSongInNewGroup}
+                className="disabled:opacity-50 w-4 text-green-700"
+              >
+                <FontAwesomeIcon icon={faLayerGroup} />
+              </button>
+              <button
+                title="Bulk import songs from JSON"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-4 text-green-700"
+              >
+                <FontAwesomeIcon icon={faFileImport} />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                className="hidden"
+                onChange={handleBulkImport}
+              />
+            </>
+          )}
         </div>
         <Select
           options={groups.map((g) => {
@@ -119,7 +186,7 @@ export default function SongsList() {
           }
         ></Select>
         <div className="flex flex-row gap-3">
-          <div className="relative bg-gray-100 w-[400px] h-[400px] overflow-auto">
+          <div className="relative bg-gray-100 text-gray-800 w-[400px] h-[400px] overflow-auto">
             <input
               className="p-1 w-full sticky inset-0 border-blu border outline-none"
               type="search"
@@ -152,15 +219,17 @@ export default function SongsList() {
                     } cursor-pointer py-2 px-3 flex justify-between items-center gap-3 `}
                   >
                     <span>{song.title}</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteSong(song.id);
-                      }}
-                      className="text-sm"
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
+                    {canEdit && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteSong(song.id);
+                        }}
+                        className="text-sm"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    )}
                   </div>
                 );
               })}
@@ -190,6 +259,25 @@ export default function SongsList() {
 }
 
 function SongItem({ song }: { song: Song }) {
+  const [scores, setScores] = useState<SongScore[]>([]);
+
+  useEffect(() => {
+    axios
+      .get<{ player: { playerName: string }; percentage: number; isFailed: boolean }[]>(
+        `songs/${song.id}/scores`,
+      )
+      .then((r) =>
+        setScores(
+          r.data.map((s) => ({
+            playerName: s.player?.playerName ?? "Unknown",
+            percentage: s.percentage,
+            isFailed: s.isFailed,
+          })),
+        ),
+      )
+      .catch(() => setScores([]));
+  }, [song.id]);
+
   return (
     <div className="text-red-400">
       <h3 className="text-2xl text-rossoTesto">Song Information</h3>
@@ -213,7 +301,17 @@ function SongItem({ song }: { song: Song }) {
         </div>
       </div>
       <h3 className="mt-3 text-rossoTesto">Player Scores</h3>
-      <p>No scores on record for this song.</p>
+      {scores.length === 0 ? (
+        <p>No scores on record for this song.</p>
+      ) : (
+        <ul className="mt-1 flex flex-col gap-1">
+          {scores.map((s, i) => (
+            <li key={i} className="text-gray-800 text-sm">
+              {s.playerName} - {Number(s.percentage).toFixed(2)}%
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

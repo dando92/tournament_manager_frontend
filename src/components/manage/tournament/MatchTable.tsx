@@ -2,10 +2,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Match } from "../../../models/Match";
 import {
   faBan,
-  faCircle,
   faInfoCircle,
   faPencil,
-  faPlay,
   faPlus,
   faRefresh,
   faStickyNote,
@@ -14,61 +12,25 @@ import {
 import { Division } from "../../../models/Division";
 import { Phase } from "../../../models/Phase";
 import AddEditSongToMatchModal from "./modals/AddEditSongToMatchModal";
-import { useEffect, useState } from "react";
-import AddStandingToMatchModal from "./modals/AddStandingToMatchModal";
-import {
-  HttpTransportType,
-  HubConnection,
-  HubConnectionBuilder,
-} from "@microsoft/signalr";
-import { toast } from "react-toastify";
+import { useEffect, useRef, useState } from "react";
+import StandingModal from "./modals/StandingModal";
 import EditMatchNotesModal from "./modals/EditMatchNotesModal";
-import { Log } from "../../../models/Log";
-import LogViewer from "../../layout/LogViewer";
 import { Tab } from "@headlessui/react";
-import { classNames } from "../../../pages/ManagePage";
+import { classNames } from "../../../utils/classNames";
 
 type MatchTableProps = {
   division: Division;
   phase: Phase;
   match: Match;
-  isActive: boolean;
   controls?: boolean;
-  onGetActiveMatch: () => void;
-  onSetActiveMatch: (
-    divisionId: number,
-    phaseId: number,
-    matchId: number,
-  ) => void;
+  tournamentId?: number;
+  matchUpdateSignal?: number;
+  onMatchUpdated: () => void;
   onDeleteMatch: (matchId: number) => void;
-  onAddSongToMatchByRoll: (
-    divisionId: number,
-    phaseId: number,
-    matchId: number,
-    group: string,
-    level: string,
-  ) => void;
-  onAddSongToMatchBySongId: (
-    divisionId: number,
-    phaseId: number,
-    matchId: number,
-    songId: number,
-  ) => void;
-  onEditSongToMatchByRoll: (
-    divisionId: number,
-    phaseId: number,
-    matchId: number,
-    group: string,
-    level: string,
-    editSongId: number,
-  ) => void;
-  onEditSongToMatchBySongId: (
-    divisionId: number,
-    phaseId: number,
-    matchId: number,
-    songId: number,
-    editSongId: number,
-  ) => void;
+  onAddSongToMatchByRoll: (group: string, level: string) => void;
+  onAddSongToMatchBySongId: (songId: number) => void;
+  onEditSongToMatchByRoll: (group: string, level: string, editSongId: number) => void;
+  onEditSongToMatchBySongId: (songId: number, editSongId: number) => void;
   onAddStandingToMatch: (
     playerId: number,
     songId: number,
@@ -87,15 +49,36 @@ type MatchTableProps = {
   onDeleteStanding: (playerId: number, songId: number) => void;
 };
 
+type StandingModalState = {
+  open: boolean;
+  mode: "add" | "edit";
+  playerId: number;
+  songId: number;
+  playerName: string;
+  songTitle: string;
+  initialPercentage?: number;
+  initialScore?: number;
+  initialIsFailed?: boolean;
+};
+
+const closedModal: StandingModalState = {
+  open: false,
+  mode: "add",
+  playerId: 0,
+  songId: 0,
+  playerName: "",
+  songTitle: "",
+};
+
 export default function MatchTable({
   division,
   phase,
   match,
-  isActive,
   controls = false,
-  onGetActiveMatch,
+  tournamentId,
+  matchUpdateSignal,
+  onMatchUpdated,
   onDeleteMatch,
-  onSetActiveMatch,
   onAddSongToMatchByRoll,
   onAddSongToMatchBySongId,
   onEditSongToMatchByRoll,
@@ -103,34 +86,19 @@ export default function MatchTable({
   onAddStandingToMatch,
   onEditMatchNotes,
   onDeleteStanding,
+  onEditStanding,
 }: MatchTableProps) {
-  // Create a lookup table for scores and percentages
   const scoreTable: {
     [key: string]: { score: number; percentage: number; isFailed: boolean };
   } = {};
 
-  const [logs, setLogs] = useState<Log[]>([]);
   const [addSongToMatchModalOpen, setAddSongToMatchModalOpen] = useState(false);
   const [editSongId, setEditSongId] = useState<number | null>(null);
-
-  const [addStandingToMatchModalOpen, setAddStandingToMatchModalOpen] =
-    useState(false);
-
+  const [standingModal, setStandingModal] = useState<StandingModalState>(closedModal);
   const [EditMatchNotesModalOpen, setEditMatchNotesModalOpen] = useState(false);
 
-  const [songIdPlayerId, setSongIdPlayerId] = useState<{
-    playerId: number;
-    playerName: string;
-    songId: number;
-    songTitle: string;
-  }>({ songId: 0, playerId: 0, playerName: "", songTitle: "" });
-
-  const [scoreConnection, setScoreConnection] = useState<null | HubConnection>(
-    null,
-  );
-  const [errorConnection, setErrorConnection] = useState<null | HubConnection>(
-    null,
-  );
+  const onMatchUpdatedRef = useRef(onMatchUpdated);
+  useEffect(() => { onMatchUpdatedRef.current = onMatchUpdated; });
 
   match.rounds.forEach((round) => {
     round.standings.forEach((standing) => {
@@ -144,71 +112,19 @@ export default function MatchTable({
   });
 
   useEffect(() => {
-    if (scoreConnection === null && isActive) {
-      const conn = new HubConnectionBuilder()
-        .withUrl(`${import.meta.env.VITE_PUBLIC_API_URL}../matchupdatehub`, {
-          skipNegotiation: true,
-          transport: HttpTransportType.WebSockets,
-        })
-        .build();
+    if (!matchUpdateSignal) return;
+    onMatchUpdatedRef.current();
+  }, [matchUpdateSignal]);
 
-      conn.on("OnMatchUpdate", () => {
-        onGetActiveMatch();
-      });
-
-      conn.start().then(() => {
-        console.log("Now listening to match changes.");
-        toast.info("Now listening to match changes.");
-      });
-
-      if (!errorConnection && controls) {
-        const errConn = new HubConnectionBuilder()
-          .withUrl(`${import.meta.env.VITE_PUBLIC_API_URL}../logupdatehub`, {
-            skipNegotiation: true,
-            transport: HttpTransportType.WebSockets,
-          })
-          .build();
-
-        errConn.on("OnLogUpdate", ({ message, error }: Log) => {
-          console.log(message, error);
-
-          error &&
-            toast.error(`Error: ${message} - ${error}`, {
-              autoClose: false,
-            });
-
-          setLogs((prevLogs) => [
-            ...prevLogs,
-            { message, error: error, timestamp: new Date().toISOString() },
-          ]);
-        });
-
-        errConn.start().then(() => {
-          console.log("Now listening to log changes.");
-          toast.info("Now listening to log changes.");
-        });
-
-        setErrorConnection(errConn);
-      }
-
-      setScoreConnection(conn);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isActive, scoreConnection, errorConnection]);
-
-  // Calculate total points for each player
   const getTotalPoints = (playerId: number) => {
     return match.rounds
       .map((round) => round.standings.find((s) => s.score.player.id === playerId))
       .reduce((acc, standing) => {
-        if (standing) {
-          return acc + standing.points;
-        }
+        if (standing) return acc + standing.points;
         return acc;
       }, 0);
   };
 
-  // Sort players by total points
   const sortedPlayers = [...match.players].sort(
     (a, b) => getTotalPoints(b.id) - getTotalPoints(a.id),
   );
@@ -219,12 +135,6 @@ export default function MatchTable({
         <div>
           <h2 className="text-center text-4xl font-bold text-rossoTesto">
             <div className="flex flex-row justify-center items-center gap-3">
-              {isActive && (
-                <FontAwesomeIcon
-                  icon={faCircle}
-                  className="text-green-200 text-xs animate-pulse"
-                />
-              )}
               <span className="text-xl">{match.name}</span>
               {controls && (
                 <button
@@ -249,33 +159,28 @@ export default function MatchTable({
           phaseId={phase.id}
           matchId={match.id}
           divisionId={division.id}
+          tournamentId={tournamentId}
           open={addSongToMatchModalOpen}
-          onAddSongToMatchByRoll={onAddSongToMatchByRoll}
-          onAddSongToMatchBySongId={onAddSongToMatchBySongId}
-          onEditSongToMatchByRoll={onEditSongToMatchByRoll}
-          onEditSongToMatchBySongId={onEditSongToMatchBySongId}
+          onAddSongToMatchByRoll={(_, __, ___, group, level) => onAddSongToMatchByRoll(group, level)}
+          onAddSongToMatchBySongId={(_, __, ___, songId) => onAddSongToMatchBySongId(songId)}
+          onEditSongToMatchByRoll={(_, __, ___, group, level, editSongId) => onEditSongToMatchByRoll(group, level, editSongId)}
+          onEditSongToMatchBySongId={(_, __, ___, songId, editSongId) => onEditSongToMatchBySongId(songId, editSongId)}
           onClose={() => {
             setAddSongToMatchModalOpen(false);
             setEditSongId(null);
           }}
         />
-        <AddStandingToMatchModal
-          open={addStandingToMatchModalOpen}
-          playerId={songIdPlayerId.playerId}
-          isManualMatch={match.isManualMatch}
-          songId={songIdPlayerId.songId}
-          playerName={songIdPlayerId.playerName}
-          songTitle={songIdPlayerId.songTitle}
-          onClose={() => {
-            setAddStandingToMatchModalOpen(false);
-            setSongIdPlayerId({
-              playerId: 0,
-              songId: 0,
-              playerName: "",
-              songTitle: "",
-            });
+        <StandingModal
+          {...standingModal}
+          onClose={() => setStandingModal(closedModal)}
+          onSave={(playerId, songId, pct, score, isFailed) => {
+            if (standingModal.mode === "add") {
+              onAddStandingToMatch(playerId, songId, pct, score, isFailed);
+            } else {
+              onEditStanding(playerId, songId, pct, score, isFailed);
+            }
           }}
-          onAddStandingToMatch={onAddStandingToMatch}
+          onDelete={(playerId, songId) => onDeleteStanding(playerId, songId)}
         />
         <EditMatchNotesModal
           match={match}
@@ -285,28 +190,13 @@ export default function MatchTable({
         />
         {controls && (
           <div className="ml-3 bg-gray-300 rounded-xl p-3 flex flex-row gap-3">
-            {!isActive && (
-              <button
-                onClick={() =>
-                  onSetActiveMatch(division.id, phase.id, match.id)
-                }
-                title="Set as active match"
-                className="text-green-800 font-bold flex flex-row gap-2"
-              >
-                <FontAwesomeIcon icon={faPlay} />
-              </button>
-            )}
-            {isActive && (
-              <button
-                title="Add a new round/song to the match"
-                onClick={() => {
-                  setAddSongToMatchModalOpen(true);
-                }}
-                className=" text-green-800 font-bold flex flex-row gap-2"
-              >
-                <FontAwesomeIcon icon={faPlus} />
-              </button>
-            )}
+            <button
+              title="Add a new round/song to the match"
+              onClick={() => setAddSongToMatchModalOpen(true)}
+              className="text-green-800 font-bold flex flex-row gap-2"
+            >
+              <FontAwesomeIcon icon={faPlus} />
+            </button>
             <button
               onClick={() => onDeleteMatch(match.id)}
               className="ml-3 text-red-800 font-bold flex flex-row gap-2"
@@ -331,46 +221,27 @@ export default function MatchTable({
             >
               Match
             </Tab>
-            {controls && (
-              <Tab
-                className={({ selected }) =>
-                  classNames(
-                    "py-2 px-4 text-lg",
-                    selected
-                      ? "border-b-2 border-blue-500 font-bold text-blue-500"
-                      : "text-gray-500",
-                  )
-                }
-              >
-                Errors & Logs
-              </Tab>
-            )}
           </Tab.List>
           <Tab.Panels className="mt-3">
             <Tab.Panel>
               <div
                 style={{ minWidth: match.rounds.length * 200 }}
-                className={`shadow-lg overflow-auto lg:min-w-fit`}
+                className="shadow-lg overflow-auto lg:min-w-fit"
               >
                 <div
-                  className={`grid grid-cols-${
-                    match.rounds.length + 2
-                  } w-full bg-rossoTesto rounded-t-lg`}
-                  style={{
-                    gridTemplateColumns: `repeat(${
-                      match.rounds.length + 2
-                    }, 1fr)`,
-                  }}
+                  className={`grid w-full bg-rossoTesto rounded-t-lg`}
+                  style={{ gridTemplateColumns: `repeat(${match.rounds.length + 2}, 1fr)` }}
                 >
-                  <div className=" border-rossoTag p-2">
+                  <div className="border-rossoTag p-2">
                     <div className="text-center font-bold text-rossoTag"></div>
                   </div>
-                  {match.rounds.map((round, i) => (
-                    <div key={i} className="border-x border-rossoTag p-2">
-                      <div className="text-center font-bold text-blue-100">
-                        {round.song.title}
-                        {controls && isActive && (
-                          <>
+                  {match.rounds.map((round, i) => {
+                    const roundHasStandings = round.standings.length > 0;
+                    return (
+                      <div key={i} className="border-x border-rossoTag p-2">
+                        <div className="text-center font-bold text-blue-100">
+                          {round.song.title}
+                          {controls && !roundHasStandings && (
                             <button
                               onClick={() => {
                                 setEditSongId(round.song.id);
@@ -381,56 +252,43 @@ export default function MatchTable({
                             >
                               <FontAwesomeIcon icon={faRefresh} />
                             </button>
-                          </>
-                        )}
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                  <div className=" p-2">
-                    <div className="text-center font-bold text-blue-100">
-                      Total Points
-                    </div>
+                    );
+                  })}
+                  <div className="p-2">
+                    <div className="text-center font-bold text-blue-100">Total Points</div>
                   </div>
                 </div>
 
                 {sortedPlayers.map((player, i) => (
                   <div
                     key={i}
-                    className={`grid grid-cols-${
-                      match.rounds.length + 2
-                    } w-full odd:bg-white even:bg-gray-50`}
-                    style={{
-                      gridTemplateColumns: `repeat(${
-                        match.rounds.length + 2
-                      }, 1fr)`,
-                    }}
+                    className="grid w-full odd:bg-white even:bg-gray-50"
+                    style={{ gridTemplateColumns: `repeat(${match.rounds.length + 2}, 1fr)` }}
                   >
                     <div className="border border-gray-300 p-2">
                       <div className="text-center font-semibold text-gray-700">
-                        {player.name}
+                        {player.playerName}
                       </div>
                     </div>
                     {match.rounds.map((round, j) => {
                       const key = `${player.id}-${round.song.id}`;
                       const scoreData = scoreTable[key];
-
-                      const playerDisabled =
-                        scoreData?.isFailed && scoreData?.percentage === -1;
+                      const playerDisabled = scoreData?.isFailed && scoreData?.percentage === -1;
 
                       if (playerDisabled) {
                         return (
                           <div
-                            className={
-                              "flex flex-row gap-3 items-center justify-center bg-gray-400"
-                            }
+                            key={j}
+                            className="flex flex-row gap-3 items-center justify-center bg-gray-400"
                           >
-                            <p className={"font-bold"}>Disabled</p>
+                            <p className="font-bold">Disabled</p>
                             {controls && (
                               <button
-                                className={"underline font-red-800 text-xs"}
-                                onClick={() =>
-                                  onDeleteStanding(player.id, round.song.id)
-                                }
+                                className="underline font-red-800 text-xs"
+                                onClick={() => onDeleteStanding(player.id, round.song.id)}
                               >
                                 Reactivate
                               </button>
@@ -441,60 +299,52 @@ export default function MatchTable({
 
                       return (
                         <div key={j} className="border border-gray-300 p-2">
-                          <div className="text-center  justify-center flex flex-row gap-3 items-center text-gray-600">
+                          <div className="text-center justify-center flex flex-row gap-3 items-center text-gray-600">
                             <p
                               className={`${
-                                scoreData?.isFailed
-                                  ? "text-red-500 font-bold"
-                                  : "text-black"
+                                scoreData?.isFailed ? "text-red-500 font-bold" : "text-black"
                               }`}
                             >
                               {scoreData && !playerDisabled
-                                ? `${scoreData.score} (${
-                                    scoreData.percentage
-                                  }%) ${scoreData.isFailed ? "F" : ""}`
+                                ? `${scoreData.score} (${scoreData.percentage}%) ${scoreData.isFailed ? "F" : ""}`
                                 : "-"}
-                              {controls && isActive && scoreData && (
-                                <>
-                                  <button
-                                    title="Edit standing manually"
-                                    className="text-xs ml-3 text-blu"
-                                  >
-                                    <FontAwesomeIcon icon={faPencil} />
-                                  </button>
-                                  <button
-                                    title="Delete this standing"
-                                    className="text-xs ml-3 text-red-500"
-                                    onClick={() => {
-                                      if (
-                                        window.confirm(
-                                          "Are you sure you want to delete this standing?",
-                                        )
-                                      ) {
-                                        onDeleteStanding(player.id, round.song.id);
-                                      }
-                                    }}
-                                  >
-                                    <FontAwesomeIcon icon={faTrash} />
-                                  </button>
-                                </>
-                              )}
                             </p>
-
-                            {!scoreData && controls && isActive && (
+                            {controls && scoreData && (
+                              <button
+                                title="Edit standing"
+                                className="text-xs text-blue-600"
+                                onClick={() =>
+                                  setStandingModal({
+                                    open: true,
+                                    mode: "edit",
+                                    playerId: player.id,
+                                    songId: round.song.id,
+                                    playerName: player.playerName,
+                                    songTitle: round.song.title,
+                                    initialPercentage: scoreData.percentage,
+                                    initialScore: scoreData.score,
+                                    initialIsFailed: scoreData.isFailed,
+                                  })
+                                }
+                              >
+                                <FontAwesomeIcon icon={faPencil} />
+                              </button>
+                            )}
+                            {!scoreData && controls && (
                               <>
                                 <button
                                   title="Manually add score"
                                   className="text-green-700"
-                                  onClick={() => {
-                                    setAddStandingToMatchModalOpen(true);
-                                    setSongIdPlayerId({
+                                  onClick={() =>
+                                    setStandingModal({
+                                      open: true,
+                                      mode: "add",
                                       playerId: player.id,
                                       songId: round.song.id,
-                                      playerName: player.name,
+                                      playerName: player.playerName,
                                       songTitle: round.song.title,
-                                    });
-                                  }}
+                                    })
+                                  }
                                 >
                                   <FontAwesomeIcon icon={faPlus} />
                                 </button>
@@ -502,13 +352,7 @@ export default function MatchTable({
                                   title="Disable player for this round"
                                   className="text-xs ml-3 text-red-500"
                                   onClick={() => {
-                                    onAddStandingToMatch(
-                                      player.id,
-                                      round.song.id,
-                                      -1,
-                                      0,
-                                      true,
-                                    );
+                                    onAddStandingToMatch(player.id, round.song.id, -1, 0, true);
                                   }}
                                 >
                                   <FontAwesomeIcon icon={faBan} />
@@ -523,14 +367,10 @@ export default function MatchTable({
                       <div className="text-center text-gray-600">
                         {match.rounds
                           .map((round) =>
-                            round.standings.find(
-                              (s) => s.score.player.id === player.id,
-                            ),
+                            round.standings.find((s) => s.score.player.id === player.id),
                           )
                           .reduce((acc, standing) => {
-                            if (standing) {
-                              return acc + standing.points;
-                            }
+                            if (standing) return acc + standing.points;
                             return acc;
                           }, 0)}
                       </div>
@@ -538,13 +378,6 @@ export default function MatchTable({
                   </div>
                 ))}
               </div>
-            </Tab.Panel>
-            <Tab.Panel>
-              {controls && (
-                <div>
-                  <LogViewer logs={logs} />
-                </div>
-              )}
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>
