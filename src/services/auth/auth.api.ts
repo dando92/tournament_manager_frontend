@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Account } from "../../models/Account";
+import { Account } from "@/models/Account";
 
 export async function login(username: string, password: string): Promise<{ access_token: string }> {
   const response = await axios.post<{ access_token: string }>("auth/login", { username, password });

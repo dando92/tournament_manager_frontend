@@ -1,16 +1,16 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
-import ViewPage from "./pages/ViewPage";
-import ManagePage from "./pages/ManagePage";
-import TournamentSelectPage from "./pages/TournamentSelectPage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import AccountInfoPage from "./pages/AccountInfoPage";
-import CreateTournamentPage from "./pages/CreateTournamentPage";
-import ManageRolesPage from "./pages/ManageRolesPage";
-import SongsPage from "./pages/SongsPage";
-import Navbar from "./components/layout/Navbar";
-import ProtectedRoute from "./components/layout/ProtectedRoute";
+import ViewPage from "@/pages/ViewPage";
+import ManagePage from "@/pages/ManagePage";
+import TournamentSelectPage from "@/pages/TournamentSelectPage";
+import LoginPage from "@/pages/LoginPage";
+import RegisterPage from "@/pages/RegisterPage";
+import AccountInfoPage from "@/pages/AccountInfoPage";
+import CreateTournamentPage from "@/pages/CreateTournamentPage";
+import ManageRolesPage from "@/pages/ManageRolesPage";
+import SongsPage from "@/pages/SongsPage";
+import Navbar from "@/components/layout/Navbar";
+import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

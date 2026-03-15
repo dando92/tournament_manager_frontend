@@ -1,5 +1,5 @@
-import { Player } from "./Player";
-import { Round } from "./Round";
+import { Player } from "@/models/Player";
+import { Round } from "@/models/Round";
 
 export interface Match {
   id: number;

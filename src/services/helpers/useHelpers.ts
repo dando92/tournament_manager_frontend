@@ -1,6 +1,6 @@
 import { useReducer } from "react";
-import { helpersReducer, initialState } from "./helpers.reducer";
-import * as HelpersApi from "./helpers.api";
+import { helpersReducer, initialState } from "@/services/helpers/helpers.reducer";
+import * as HelpersApi from "@/services/helpers/helpers.api";
 import { toast } from "react-toastify";
 
 export function useHelpers(tournamentId: number) {

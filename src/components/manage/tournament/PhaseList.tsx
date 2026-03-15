@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { Phase } from "../../../models/Phase";
-import { Division } from "../../../models/Division";
+import { Phase } from "@/models/Phase";
+import { Division } from "@/models/Division";
 import Select from "react-select";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash, faDiagramProject } from "@fortawesome/free-solid-svg-icons";
-import GenerateBracketModal from "./modals/GenerateBracketModal";
-import CreatePhaseModal from "./modals/CreatePhaseModal";
-import OkModal from "../../layout/OkModal";
+import GenerateBracketModal from "@/components/manage/tournament/modals/GenerateBracketModal";
+import CreatePhaseModal from "@/components/manage/tournament/modals/CreatePhaseModal";
+import OkModal from "@/components/layout/OkModal";
 
 type PhaseListProps = {
   divisionId: number;

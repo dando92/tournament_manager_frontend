@@ -1,15 +1,15 @@
 import { Tab } from "@headlessui/react";
-import { classNames } from "../utils/classNames";
+import { classNames } from "@/utils/classNames";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle, faTrophy } from "@fortawesome/free-solid-svg-icons";
-import LivePhase from "../components/view/LivePhase";
-import TournamentSettings from "../components/manage/tournament/TournamentSettings";
-import TournamentRow from "../components/view/TournamentRow";
+import LivePhase from "@/components/view/LivePhase";
+import TournamentSettings from "@/components/manage/tournament/TournamentSettings";
+import TournamentRow from "@/components/view/TournamentRow";
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Tournament } from "../models/Tournament";
-import { useAuthContext } from "../services/auth/AuthContext";
-import { useMatchHub } from "../services/useMatchHub";
+import { Tournament } from "@/models/Tournament";
+import { useAuthContext } from "@/services/auth/AuthContext";
+import { useMatchHub } from "@/services/useMatchHub";
 
 export default function ViewPage() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);

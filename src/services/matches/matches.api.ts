@@ -1,10 +1,10 @@
 import axios from "axios";
-import { Match } from "../../models/Match";
-import { Phase } from "../../models/Phase";
+import { Match } from "@/models/Match";
+import { Phase } from "@/models/Phase";
 import {
   AddStandingToMatchRequest,
   CreateMatchRequest,
-} from "../../models/requests/match-requests";
+} from "@/models/requests/match-requests";
 
 export async function listByPhase(phaseId: number): Promise<Match[]> {
   try {

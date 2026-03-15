@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faInfoCircle, faPlus, faStickyNote, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { Match } from "../../../models/Match";
+import { Match } from "@/models/Match";
 
 type Props = {
   match: Match;

@@ -1,14 +1,14 @@
-import { Match } from "../../../models/Match";
-import { Division } from "../../../models/Division";
-import { Phase } from "../../../models/Phase";
-import AddEditSongToMatchModal from "./modals/AddEditSongToMatchModal";
+import { Match } from "@/models/Match";
+import { Division } from "@/models/Division";
+import { Phase } from "@/models/Phase";
+import AddEditSongToMatchModal from "@/components/manage/tournament/modals/AddEditSongToMatchModal";
 import { useEffect, useRef, useState } from "react";
-import StandingModal from "./modals/StandingModal";
-import EditMatchNotesModal from "./modals/EditMatchNotesModal";
+import StandingModal from "@/components/manage/tournament/modals/StandingModal";
+import EditMatchNotesModal from "@/components/manage/tournament/modals/EditMatchNotesModal";
 import { Tab } from "@headlessui/react";
-import { classNames } from "../../../utils/classNames";
-import MatchHeader from "./MatchHeader";
-import StandingsTable from "./StandingsTable";
+import { classNames } from "@/utils/classNames";
+import MatchHeader from "@/components/manage/tournament/MatchHeader";
+import StandingsTable from "@/components/manage/tournament/StandingsTable";
 
 type MatchTableProps = {
   division: Division;

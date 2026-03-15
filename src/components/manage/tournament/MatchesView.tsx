@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Phase } from "../../../models/Phase";
+import { Phase } from "@/models/Phase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHandFist } from "@fortawesome/free-solid-svg-icons";
-import CreateMatchModal from "./modals/CreateMatchModal";
-import { Division } from "../../../models/Division";
-import MatchTable from "./MatchTable";
-import { useMatches } from "../../../services/matches/useMatches";
+import CreateMatchModal from "@/components/manage/tournament/modals/CreateMatchModal";
+import { Division } from "@/models/Division";
+import MatchTable from "@/components/manage/tournament/MatchTable";
+import { useMatches } from "@/services/matches/useMatches";
 
 type MatchesViewProps = {
   phaseId: number;

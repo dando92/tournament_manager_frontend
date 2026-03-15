@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Player } from "../../../models/Player";
+import { Player } from "@/models/Player";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";

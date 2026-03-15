@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import OkModal from "../../../layout/OkModal";
+import OkModal from "@/components/layout/OkModal";
 import axios from "axios";
 import Select from "react-select";
 

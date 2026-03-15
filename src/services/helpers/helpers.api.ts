@@ -1,6 +1,6 @@
 import axios from "axios";
-import { Account } from "../../models/Account";
-import { Tournament } from "../../models/Tournament";
+import { Account } from "@/models/Account";
+import { Tournament } from "@/models/Tournament";
 
 export async function fetchHelpers(tournamentId: number): Promise<Account[]> {
   const response = await axios.get<Tournament>(`tournaments/${tournamentId}`);

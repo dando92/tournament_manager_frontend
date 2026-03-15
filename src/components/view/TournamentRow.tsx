@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrophy } from "@fortawesome/free-solid-svg-icons";
-import { Tournament } from "../../models/Tournament";
+import { Tournament } from "@/models/Tournament";
 
 type Props = {
   t: Tournament;

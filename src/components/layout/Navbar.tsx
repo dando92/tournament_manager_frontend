@@ -1,6 +1,6 @@
 import { Link, useNavigate, useMatch } from "react-router-dom";
-import Logo from "../../assets/icon.png";
-import { useAuthContext } from "../../services/auth/AuthContext";
+import Logo from "@/assets/icon.png";
+import { useAuthContext } from "@/services/auth/AuthContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
 

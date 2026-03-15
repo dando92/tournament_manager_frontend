@@ -1,6 +1,6 @@
 import { useState } from "react";
-import OkModal from "../../../layout/OkModal";
-import { Match } from "../../../../models/Match";
+import OkModal from "@/components/layout/OkModal";
+import { Match } from "@/models/Match";
 
 type EditMatchNotesModalProps = {
   open: boolean;

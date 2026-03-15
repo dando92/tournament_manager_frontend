@@ -2,8 +2,8 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinus } from "@fortawesome/free-solid-svg-icons";
-import { Player } from "../../models/Player";
-import { Account } from "../../models/Account";
+import { Player } from "@/models/Player";
+import { Account } from "@/models/Account";
 
 type PlayersSection = {
   tournamentPlayers: Player[];
