@@ -258,6 +258,15 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
   );
 }
 
+function scoreBadgeClass(percentage: number, isFailed: boolean): string {
+  if (isFailed) return "bg-red-100 text-red-700 border-red-200";
+  if (percentage >= 99) return "bg-purple-100 text-purple-800 border-purple-200";
+  if (percentage >= 95) return "bg-blue-100 text-blue-800 border-blue-200";
+  if (percentage >= 90) return "bg-green-100 text-green-800 border-green-200";
+  if (percentage >= 80) return "bg-yellow-100 text-yellow-800 border-yellow-200";
+  return "bg-gray-100 text-gray-600 border-gray-200";
+}
+
 function SongItem({ song }: { song: Song }) {
   const [scores, setScores] = useState<SongScore[]>([]);
 
@@ -278,40 +287,63 @@ function SongItem({ song }: { song: Song }) {
       .catch(() => setScores([]));
   }, [song.id]);
 
+  const sorted = [...scores].sort((a, b) =>
+    a.isFailed !== b.isFailed ? (a.isFailed ? 1 : -1) : b.percentage - a.percentage,
+  );
+
   return (
-    <div className="text-red-400">
-      <h3 className="text-2xl text-rossoTesto">Song Information</h3>
-      <div className="mt-2">
-        <h3 className=" text-rossoTesto">Title: </h3>
-        <span>{song.title}</span>
+    <div className="text-gray-800">
+      <h3 className="text-2xl text-rossoTesto font-bold">Song Information</h3>
+
+      <div className="mt-3 flex items-baseline gap-2">
+        <span className="text-rossoTesto font-semibold">Title:</span>
+        <span className="text-gray-900">{song.title}</span>
       </div>
-      <div className="mt-2">
-        <h3 className="text-rossoTesto">Difficulty: </h3>
-        <div className="flex flex-row items-center ml-1 gap-1">
+
+      <div className="mt-2 flex items-center gap-2">
+        <span className="text-rossoTesto font-semibold">Difficulty:</span>
+        <div className="flex items-center gap-0.5">
           {[...Array(13)].map((_, i) => (
             <span
               key={i}
               className={`${
                 i + 1 <= song.difficulty ? "bg-rossoTesto" : "bg-gray-300"
-              } h-4 rounded-sm w-2 `}
-            ></span>
+              } h-4 rounded-sm w-2`}
+            />
           ))}
-
-          <span className="ml-2 font-bold">{song.difficulty}</span>
+          <span className="ml-2 font-bold text-gray-900">{song.difficulty}</span>
         </div>
       </div>
-      <h3 className="mt-3 text-rossoTesto">Player Scores</h3>
-      {scores.length === 0 ? (
-        <p>No scores on record for this song.</p>
-      ) : (
-        <ul className="mt-1 flex flex-col gap-1">
-          {scores.map((s, i) => (
-            <li key={i} className="text-gray-800 text-sm">
-              {s.playerName} - {Number(s.percentage).toFixed(2)}%
-            </li>
-          ))}
-        </ul>
-      )}
+
+      <div className="mt-4">
+        <h4 className="text-rossoTesto font-semibold mb-2">
+          Player Scores{scores.length > 0 && <span className="text-gray-400 font-normal text-sm ml-1">({scores.length})</span>}
+        </h4>
+        {scores.length === 0 ? (
+          <p className="text-gray-400 text-sm">No scores on record for this song.</p>
+        ) : (
+          <ul className="flex flex-col gap-1 max-h-64 overflow-y-auto pr-1">
+            {sorted.map((s, i) => (
+              <li
+                key={i}
+                className="flex items-center justify-between gap-3 px-3 py-1.5 rounded border bg-white"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-xs text-gray-400 w-5 text-right shrink-0">
+                    #{i + 1}
+                  </span>
+                  <span className="text-sm text-gray-800 truncate">{s.playerName}</span>
+                </div>
+                <span
+                  className={`text-xs font-semibold px-2 py-0.5 rounded border shrink-0 ${scoreBadgeClass(s.percentage, s.isFailed)}`}
+                >
+                  {s.isFailed ? "FAILED" : `${Number(s.percentage).toFixed(2)}%`}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
