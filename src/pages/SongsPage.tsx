@@ -46,7 +46,6 @@ export default function SongsPage() {
           options={tournaments.map((t) => ({ value: t.id, label: t.name }))}
           placeholder="Select tournament..."
           className="w-[300px]"
-          isClearable
           value={
             selectedTournamentId != null
               ? { value: selectedTournamentId, label: tournaments.find((t) => t.id === selectedTournamentId)?.name ?? "" }
