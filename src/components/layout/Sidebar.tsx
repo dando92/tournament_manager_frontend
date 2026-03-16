@@ -158,8 +158,8 @@ export default function Sidebar() {
 
     if (location.pathname.startsWith("/manage/")) {
       navigate(`/manage/${t.id}`);
-    } else if (location.pathname === "/songs") {
-      navigate("/songs");
+    } else if (location.pathname.startsWith("/songs")) {
+      navigate(`/songs/${t.id}`);
     } else {
       navigate(`/view/${t.id}`);
     }
@@ -171,6 +171,7 @@ export default function Sidebar() {
     location.pathname.startsWith("/view");
 
   const viewTo = selectedTournament ? `/view/${selectedTournament.id}` : "/select";
+  const songsTo = selectedTournament ? `/songs/${selectedTournament.id}` : "/songs";
 
   const content = (
     <aside className="flex flex-col w-56 h-full bg-rossoTag border-r border-white/10">
@@ -204,9 +205,9 @@ export default function Sidebar() {
             View
           </SidebarLink>
           <SidebarLink
-            to="/songs"
+            to={songsTo}
             icon={faMusic}
-            active={location.pathname === "/songs"}
+            active={location.pathname.startsWith("/songs")}
             onClick={close}
           >
             Songs

@@ -10,12 +10,14 @@ type TournamentSettingsProps = {
   controls: boolean;
   tournamentId?: number;
   matchUpdateSignal?: number;
+  headerActions?: React.ReactNode;
 };
 
 export default function TournamentSettings({
   controls,
   tournamentId,
   matchUpdateSignal,
+  headerActions,
 }: TournamentSettingsProps) {
   const [selectedDivision, setSelectedDivision] = useState<Division | null>(null);
   const [selectedPhase, setSelectedPhase] = useState<Phase | null>(null);
@@ -41,7 +43,7 @@ export default function TournamentSettings({
           </div>
         )}
 
-        <div className="flex flex-row justify-between gap-3">
+        <div className="flex flex-row justify-between items-start gap-3">
           <div>
             <DivisionList
               controls={controls}
@@ -62,6 +64,7 @@ export default function TournamentSettings({
               />
             )}
           </div>
+          {headerActions && <div className="flex items-center gap-2 shrink-0">{headerActions}</div>}
         </div>
         {selectedPhase && selectedDivision && (
           <MatchesView
