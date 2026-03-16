@@ -6,9 +6,9 @@ import { selectStyles } from "@/utils/selectStyles";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash, faDiagramProject } from "@fortawesome/free-solid-svg-icons";
-import GenerateBracketModal from "@/components/manage/tournament/modals/GenerateBracketModal";
-import CreatePhaseModal from "@/components/manage/tournament/modals/CreatePhaseModal";
-import OkModal from "@/components/layout/OkModal";
+import GenerateBracketModal from "@/components/modals/GenerateBracketModal";
+import CreatePhaseModal from "@/components/modals/CreatePhaseModal";
+import OkModal from "@/components/modals/OkModal";
 
 type PhaseListProps = {
   divisionId: number;

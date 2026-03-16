@@ -3,7 +3,7 @@ import axios from "axios";
 import { Phase } from "@/models/Phase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHandFist } from "@fortawesome/free-solid-svg-icons";
-import CreateMatchModal from "@/components/manage/tournament/modals/CreateMatchModal";
+import CreateMatchModal from "@/components/modals/CreateMatchModal";
 import { Division } from "@/models/Division";
 import MatchTable from "@/components/manage/tournament/MatchTable";
 import { useMatches } from "@/services/matches/useMatches";

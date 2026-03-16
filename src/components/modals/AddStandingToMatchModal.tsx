@@ -1,5 +1,5 @@
 import { useState } from "react";
-import OkModal from "@/components/layout/OkModal";
+import OkModal from "@/components/modals/OkModal";
 
 type AddStandingToMatchModalProps = {
   playerId: number;

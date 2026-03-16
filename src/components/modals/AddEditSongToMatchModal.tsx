@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import OkModal from "@/components/layout/OkModal";
+import OkModal from "@/components/modals/OkModal";
 import { Song } from "@/models/Song";
 import axios from "axios";
 import Select from "react-select";
@@ -211,7 +211,7 @@ export default function AddEditSongToMatchModal({
               }}
               value={{ value: selectedSong?.id, label: selectedSong?.title }}
               menuPortalTarget={document.body}
-              styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+              styles={selectPortalStyles}
             />
           </div>
         )}

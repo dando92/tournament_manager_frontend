@@ -5,8 +5,8 @@ import Select from "react-select";
 import { selectStyles } from "@/utils/selectStyles";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import CreateDivisionModal from "@/components/manage/tournament/modals/CreateDivisionModal";
-import OkModal from "@/components/layout/OkModal";
+import CreateDivisionModal from "@/components/modals/CreateDivisionModal";
+import OkModal from "@/components/modals/OkModal";
 
 type DivisionListProps = {
   onDivisionSelect: (division: Division | null) => void;

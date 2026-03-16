@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import OkModal from "@/components/layout/OkModal";
+import OkModal from "@/components/modals/OkModal";
 
 type Props = {
   open: boolean;
