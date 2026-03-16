@@ -1,9 +1,11 @@
 import { Outlet, Route, Routes } from "react-router-dom";
 import { PageTitleProvider } from "@/services/PageTitleContext";
+import { SidebarProvider } from "@/context/SidebarContext";
 import "./App.css";
 import ViewPage from "@/pages/ViewPage";
 import ManagePage from "@/pages/ManagePage";
 import TournamentSelectPage from "@/pages/TournamentSelectPage";
+import SelectTournamentPage from "@/pages/SelectTournamentPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import AccountInfoPage from "@/pages/AccountInfoPage";
@@ -35,33 +37,40 @@ function MainLayout() {
 function App() {
   return (
     <PageTitleProvider>
-    <Routes>
-      {/* Standalone route — no sidebar/nav, used as OBS browser source */}
-      <Route path="/obs/:lobbyId" element={<OBSPage />} />
+      <SidebarProvider>
+        <Routes>
+          {/* Standalone route — no sidebar/nav, used as OBS browser source */}
+          <Route path="/obs/:lobbyId" element={<OBSPage />} />
 
-      {/* Main layout */}
-      <Route element={<MainLayout />}>
-        <Route path="/" element={<ViewPage />} />
-        <Route path="/view" element={<ViewPage />} />
-        <Route path="/view/:tournamentId" element={<ViewPage />} />
-        <Route path="/songs" element={<SongsPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+          {/* Main layout */}
+          <Route element={<MainLayout />}>
+            {/* Root and /view redirect to last selected tournament or /select */}
+            <Route path="/" element={<ViewPage />} />
+            <Route path="/view" element={<ViewPage />} />
+            <Route path="/view/:tournamentId" element={<ViewPage />} />
 
-        <Route element={<ProtectedRoute require="auth" />}>
-          <Route path="/account" element={<AccountInfoPage />} />
-          <Route path="/manage" element={<TournamentSelectPage />} />
-          <Route path="/manage/:tournamentId" element={<ManagePage />} />
-        </Route>
+            {/* Tournament browser (used by search button) */}
+            <Route path="/select" element={<SelectTournamentPage />} />
 
-        <Route element={<ProtectedRoute require="admin" />}>
-          <Route path="/admin/roles" element={<ManageRolesPage />} />
-        </Route>
+            <Route path="/songs" element={<SongsPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-        <Route path="*" element={<ViewPage />} />
-      </Route>
-    </Routes>
-  </PageTitleProvider>
+            <Route element={<ProtectedRoute require="auth" />}>
+              <Route path="/account" element={<AccountInfoPage />} />
+              <Route path="/manage" element={<TournamentSelectPage />} />
+              <Route path="/manage/:tournamentId" element={<ManagePage />} />
+            </Route>
+
+            <Route element={<ProtectedRoute require="admin" />}>
+              <Route path="/admin/roles" element={<ManageRolesPage />} />
+            </Route>
+
+            <Route path="*" element={<SelectTournamentPage />} />
+          </Route>
+        </Routes>
+      </SidebarProvider>
+    </PageTitleProvider>
   );
 }
 
