@@ -5,9 +5,10 @@ import { TournamentLobbyStateDto } from "@/services/useScoreHub";
 
 type Props = {
   lobbyState: TournamentLobbyStateDto;
+  singleColumn?: boolean;
 };
 
-export default function LiveScores({ lobbyState }: Props) {
+export default function LiveScores({ lobbyState, singleColumn }: Props) {
   const [showJudgements] = useMemo(() => [true], []);
 
   const sortedPlayers = useMemo(() => {
@@ -23,7 +24,7 @@ export default function LiveScores({ lobbyState }: Props) {
   return (
     <div className="w-auto">
       <h2 className="text-rossoTesto">Now playing: {songTitle}</h2>
-      <div className="grid my-2 border-b pb-2 grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-1">
+      <div className={`grid my-2 border-b pb-2 gap-1 ${singleColumn ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-3 lg:grid-cols-4"}`}>
         {sortedPlayers.map((player, idx) => (
           <div
             key={player.name}

@@ -1,8 +1,7 @@
 import TournamentSettings from "@/components/manage/tournament/TournamentSettings";
-import LobbyPasswordModal from "@/components/manage/tournament/LobbyPasswordModal";
-import LobbyConnectMobileModal from "@/components/manage/tournament/LobbyConnectMobileModal";
+import LobbiesModal from "@/components/manage/tournament/LobbiesModal";
 import { useParams, useNavigate } from "react-router-dom";
-import { faArrowLeft, faBroadcastTower, faUsers, faPlugCircleXmark } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faBroadcastTower, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState, useCallback } from "react";
 import { useMatchHub } from "@/services/useMatchHub";
@@ -16,11 +15,7 @@ import { toast } from "react-toastify";
 export default function ManagePage() {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   const navigate = useNavigate();
-  const [lobbyCode, setLobbyCode] = useState<string>("");
-  const [lobbyPasswordModalOpen, setLobbyPasswordModalOpen] = useState(false);
-  const [lobbyPasswordInput, setLobbyPasswordInput] = useState("");
-  const [lobbyMobileModalOpen, setLobbyMobileModalOpen] = useState(false);
-  const [lobbyConnected, setLobbyConnected] = useState(false);
+  const [lobbiesModalOpen, setLobbiesModalOpen] = useState(false);
   const { state: authState } = useAuthContext();
   const account = authState.account;
 
@@ -41,23 +36,17 @@ export default function ManagePage() {
   const [tournamentPlayers, setTournamentPlayers] = useState<Player[]>([]);
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
 
-  // Fetch tournament detail, lobbyCode, and owner check
+  // Fetch tournament detail and owner check
   useEffect(() => {
     if (!tournamentId) return;
     axios
-      .get<{ id: number; name: string; lobbyCode?: string | null; owner?: { id: string } }>(`tournaments/${tournamentId}`)
+      .get<{ id: number; name: string; owner?: { id: string } }>(`tournaments/${tournamentId}`)
       .then((r) => {
-        setLobbyCode(r.data.lobbyCode ?? "");
         document.title = `${r.data.name} — Tournament Manager`;
         if (account && r.data.owner?.id === account.id) {
           setIsTournamentOwner(true);
         }
       })
-      .catch(() => {});
-
-    axios
-      .get<{ connected: boolean }>(`tournaments/${tournamentId}/lobby/status`)
-      .then((r) => setLobbyConnected(r.data.connected))
       .catch(() => {});
 
     return () => {
@@ -125,37 +114,9 @@ export default function ManagePage() {
       .catch(() => toast.error("Failed to remove player."));
   };
 
-  const handleSaveLobbyCode = () => {
-    if (!tournamentId) return;
-    axios
-      .patch(`tournaments/${tournamentId}`, { lobbyCode: lobbyCode || null })
-      .then(() => toast.success("Lobby code saved."))
-      .catch(() => toast.error("Failed to save lobby code."));
-  };
-
-  const handleConnectLobbyConfirm = async () => {
-    if (!tournamentId) return;
-    setLobbyPasswordModalOpen(false);
-    try {
-      await axios.post(`tournaments/${tournamentId}/lobby/connect`, { password: lobbyPasswordInput });
-      setLobbyConnected(true);
-      toast.success("Connected to lobby.");
-    } catch (e: unknown) {
-      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Failed to connect to lobby.";
-      toast.error(msg);
-    }
-  };
-
-  const handleDisconnectLobby = async () => {
-    if (!tournamentId) return;
-    await axios.delete(`tournaments/${tournamentId}/lobby/disconnect`).catch(() => {});
-    setLobbyConnected(false);
-    toast.success("Disconnected from lobby.");
-  };
-
   return (
     <div>
-      {/* [4] Back button (left) + lobby controls (right) */}
+      {/* Back button (left) + action buttons (right) */}
       <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
         <button
           onClick={() => navigate("/manage")}
@@ -167,50 +128,14 @@ export default function ManagePage() {
 
         {canControl && tournamentId && (
           <div className="flex items-center gap-2 ml-auto">
-            {/* Lobby code input + save — desktop only */}
-            <label className="hidden md:block text-gray-600 text-sm whitespace-nowrap">Lobby code:</label>
-            <input
-              className="hidden md:block border border-gray-300 bg-white text-gray-800 px-2 py-1.5 rounded w-32 text-sm"
-              type="text"
-              value={lobbyCode}
-              onChange={(e) => setLobbyCode(e.target.value)}
-              placeholder="e.g. ABC123"
-            />
             <button
-              onClick={handleSaveLobbyCode}
-              className="hidden md:block bg-rossoTesto text-white px-3 py-1.5 rounded hover:opacity-90 text-sm"
+              onClick={() => setLobbiesModalOpen(true)}
+              className="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 bg-rossoTesto text-white px-3 py-1.5 rounded hover:opacity-90"
             >
-              Save
+              <FontAwesomeIcon icon={faBroadcastTower} className="text-base md:text-sm" />
+              <span className="text-xs md:text-sm leading-none">Lobbies</span>
             </button>
 
-            {/* Connect / Disconnect lobby */}
-            {lobbyConnected ? (
-              <button
-                onClick={handleDisconnectLobby}
-                className="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 bg-rossoTesto text-white px-3 py-1.5 rounded hover:opacity-90"
-              >
-                <FontAwesomeIcon icon={faPlugCircleXmark} className="text-base md:text-sm" />
-                <span className="text-xs md:text-sm leading-none">Disconnect</span>
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  setLobbyPasswordInput("");
-                  // On mobile open the combined modal; on desktop open the password-only modal
-                  if (window.innerWidth < 768) {
-                    setLobbyMobileModalOpen(true);
-                  } else {
-                    setLobbyPasswordModalOpen(true);
-                  }
-                }}
-                className="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 bg-rossoTesto text-white px-3 py-1.5 rounded hover:opacity-90"
-              >
-                <FontAwesomeIcon icon={faBroadcastTower} className="text-base md:text-sm" />
-                <span className="text-xs md:text-sm leading-none">Connect lobby</span>
-              </button>
-            )}
-
-            {/* Participants */}
             <button
               onClick={() => setParticipantsOpen(true)}
               className="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 bg-rossoTesto text-white px-3 py-1.5 rounded hover:opacity-90"
@@ -229,44 +154,32 @@ export default function ManagePage() {
       />
 
       {canControl && tournamentId && (
-        <ManageParticipantsModal
-          open={participantsOpen}
-          onClose={() => setParticipantsOpen(false)}
-          canEditHelpers={canEditHelpers}
-          players={{
-            tournamentPlayers,
-            availableToAdd: availablePlayersToAdd,
-            onAdd: handleAddPlayer,
-            onRemove: handleRemovePlayer,
-          }}
-          helpers={{
-            helpers: helpersState.helpers,
-            availableCandidates,
-            onAdd: (id) => helpersActions.addHelper(id),
-            onRemove: (id) => helpersActions.removeHelper(id),
-          }}
-        />
+        <>
+          <ManageParticipantsModal
+            open={participantsOpen}
+            onClose={() => setParticipantsOpen(false)}
+            canEditHelpers={canEditHelpers}
+            players={{
+              tournamentPlayers,
+              availableToAdd: availablePlayersToAdd,
+              onAdd: handleAddPlayer,
+              onRemove: handleRemovePlayer,
+            }}
+            helpers={{
+              helpers: helpersState.helpers,
+              availableCandidates,
+              onAdd: (id) => helpersActions.addHelper(id),
+              onRemove: (id) => helpersActions.removeHelper(id),
+            }}
+          />
+
+          <LobbiesModal
+            open={lobbiesModalOpen}
+            tournamentId={tournamentId}
+            onClose={() => setLobbiesModalOpen(false)}
+          />
+        </>
       )}
-
-      <LobbyPasswordModal
-        open={lobbyPasswordModalOpen}
-        password={lobbyPasswordInput}
-        onPasswordChange={setLobbyPasswordInput}
-        onConfirm={handleConnectLobbyConfirm}
-        onCancel={() => setLobbyPasswordModalOpen(false)}
-      />
-
-      {/* Mobile-only lobby modal: combines lobby code save + password + connect */}
-      <LobbyConnectMobileModal
-        open={lobbyMobileModalOpen}
-        lobbyCode={lobbyCode}
-        onLobbyCodeChange={setLobbyCode}
-        onSaveLobbyCode={() => { handleSaveLobbyCode(); }}
-        password={lobbyPasswordInput}
-        onPasswordChange={setLobbyPasswordInput}
-        onConnect={() => { setLobbyMobileModalOpen(false); handleConnectLobbyConfirm(); }}
-        onCancel={() => setLobbyMobileModalOpen(false)}
-      />
     </div>
   );
 }
