@@ -1,6 +1,7 @@
 import { Link, useMatch, useLocation, useNavigate } from "react-router-dom";
 import Logo from "@/assets/icon.png";
 import { useAuthContext } from "@/services/auth/AuthContext";
+import { usePageTitle } from "@/services/PageTitleContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -19,17 +20,19 @@ export function MobileTopBar() {
   const manageMatch = useMatch("/manage/:tournamentId");
   const viewMatch = useMatch("/view/:tournamentId");
   const tournamentMatch = manageMatch ?? viewMatch;
-  const [activeTournamentName, setActiveTournamentName] = useState<string | null>(null);
+  const [routeTournamentName, setRouteTournamentName] = useState<string | null>(null);
+  const { pageTitle } = usePageTitle();
+  const activeTournamentName = pageTitle ?? routeTournamentName;
 
   useEffect(() => {
     const tid = tournamentMatch?.params?.tournamentId;
     if (tid) {
       axios
         .get<{ name: string }>(`tournaments/${tid}`)
-        .then((r) => setActiveTournamentName(r.data.name))
-        .catch(() => setActiveTournamentName(null));
+        .then((r) => setRouteTournamentName(r.data.name))
+        .catch(() => setRouteTournamentName(null));
     } else {
-      setActiveTournamentName(null);
+      setRouteTournamentName(null);
     }
   }, [tournamentMatch?.params?.tournamentId]);
 

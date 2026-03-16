@@ -2,15 +2,17 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import SongsList from "@/components/manage/songs/SongsList";
 import { useAuthContext } from "@/services/auth/AuthContext";
+import { usePageTitle } from "@/services/PageTitleContext";
 import { Tournament } from "@/models/Tournament";
-import Select from "react-select";
-import { selectStyles } from "@/styles/selectStyles";
+import TournamentSelector from "@/components/TournamentSelector";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function SongsPage() {
   const { state: authState } = useAuthContext();
   const [isHelper, setIsHelper] = useState(false);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
-  const [selectedTournamentId, setSelectedTournamentId] = useState<number | null>(null);
+  const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,29 +38,33 @@ export default function SongsPage() {
     !!authState.account &&
     (authState.account.isAdmin || authState.account.isTournamentCreator || isHelper);
 
-  if (isLoading) return <p className="text-gray-400">Loading...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  const { setPageTitle } = usePageTitle();
+  useEffect(() => {
+    setPageTitle(selectedTournament?.name ?? null);
+    return () => setPageTitle(null);
+  }, [selectedTournament?.name]);
+
+  if (!selectedTournament) {
+    return (
+      <TournamentSelector
+        tournaments={tournaments}
+        onSelect={setSelectedTournament}
+        loading={isLoading}
+        error={error}
+      />
+    );
+  }
 
   return (
-    <div className="text-white">
-      <div className="mb-4">
-        <label className="block text-sm mb-1 text-rossoTesto">Tournament</label>
-        <Select
-          options={tournaments.map((t) => ({ value: t.id, label: t.name }))}
-          placeholder="Select tournament..."
-          className="w-[300px]"
-          value={
-            selectedTournamentId != null
-              ? { value: selectedTournamentId, label: tournaments.find((t) => t.id === selectedTournamentId)?.name ?? "" }
-              : null
-          }
-          onChange={(selected) =>
-            setSelectedTournamentId(selected ? selected.value : null)
-          }
-          styles={selectStyles}
-        />
-      </div>
-      <SongsList canEdit={canEdit} tournamentId={selectedTournamentId ?? undefined} />
+    <div>
+      <button
+        onClick={() => setSelectedTournament(null)}
+        className="flex items-center gap-2 text-rossoTesto hover:underline mb-4 text-sm"
+      >
+        <FontAwesomeIcon icon={faArrowLeft} />
+        Back to tournament list
+      </button>
+      <SongsList canEdit={canEdit} tournamentId={selectedTournament.id} />
     </div>
   );
 }
