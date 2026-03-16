@@ -1,4 +1,5 @@
 import { Outlet, Route, Routes } from "react-router-dom";
+import { PageTitleProvider } from "@/services/PageTitleContext";
 import "./App.css";
 import ViewPage from "@/pages/ViewPage";
 import ManagePage from "@/pages/ManagePage";
@@ -33,6 +34,7 @@ function MainLayout() {
 
 function App() {
   return (
+    <PageTitleProvider>
     <Routes>
       {/* Standalone route — no sidebar/nav, used as OBS browser source */}
       <Route path="/obs/:lobbyId" element={<OBSPage />} />
@@ -59,6 +61,7 @@ function App() {
         <Route path="*" element={<ViewPage />} />
       </Route>
     </Routes>
+  </PageTitleProvider>
   );
 }
 

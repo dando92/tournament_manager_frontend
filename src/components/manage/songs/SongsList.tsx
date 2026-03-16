@@ -9,15 +9,16 @@ import { useEffect, useRef, useState } from "react";
 import { Song } from "@/models/Song";
 import axios from "axios";
 import { toast } from "react-toastify";
+import Select from "react-select";
+import { selectStyles } from "@/styles/selectStyles";
+import { btnTrash } from "@/styles/buttonStyles";
+import CreateSongModal from "@/components/modals/CreateSongModal";
 
 interface SongScore {
   playerName: string;
   percentage: number;
   isFailed: boolean;
 }
-import Select from "react-select";
-import { selectStyles } from "@/styles/selectStyles";
-import { btnTrash } from "@/styles/buttonStyles";
 
 type SongsListProps = {
   canEdit?: boolean;
@@ -31,8 +32,10 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
 
   const [search, setSearch] = useState<string>("");
   const [selectedGroupName, setSelectedGroupName] = useState<string>("");
-
   const [selectedSongId, setSelectedSongId] = useState<number>(-1);
+
+  const [addInGroupOpen, setAddInGroupOpen] = useState(false);
+  const [addInNewGroupOpen, setAddInNewGroupOpen] = useState(false);
 
   useEffect(() => {
     const url = tournamentId ? `songs?tournamentId=${tournamentId}` : "songs";
@@ -45,44 +48,16 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
     });
   }, [tournamentId]);
 
-  const addNewSongInGroup = () => {
-    const title = prompt("Enter song title");
-
-    if (!title) return;
-
-    const difficulty = prompt("Enter song difficulty");
-
-    if (title && difficulty) {
-      axios
-        .post<Song>("songs", { title, difficulty, group: selectedGroupName, tournamentId })
-        .then((response) => {
-          setSongs([...songs, response.data]);
-        });
-    }
-  };
-
-  const addNewSongInNewGroup = () => {
-    const title = prompt("Enter song title");
-
-    if (!title) return;
-
-    const difficulty = prompt("Enter song difficulty");
-
-    if (!difficulty) return;
-
-    const group = prompt("Enter group name");
-
-    if (group && groups.includes(group)) return alert("Group already exists");
-
-    if (title && difficulty && group) {
-      axios
-        .post<Song>("songs", { title, difficulty, group, tournamentId })
-        .then((response) => {
-          setSongs([...songs, response.data]);
-          setGroups([...groups, group]);
-          setSelectedGroupName(group);
-        });
-    }
+  const handleCreateSong = (title: string, difficulty: number, group: string) => {
+    axios
+      .post<Song>("songs", { title, difficulty, group, tournamentId })
+      .then((response) => {
+        setSongs((prev) => [...prev, response.data]);
+        if (!groups.includes(group)) {
+          setGroups((prev) => [...prev, group]);
+        }
+        setSelectedGroupName(group);
+      });
   };
 
   const handleBulkImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,27 +104,36 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
 
   return (
     <div>
+      <CreateSongModal
+        open={addInGroupOpen}
+        onClose={() => setAddInGroupOpen(false)}
+        initialGroup={selectedGroupName}
+        onCreate={handleCreateSong}
+      />
+      <CreateSongModal
+        open={addInNewGroupOpen}
+        onClose={() => setAddInNewGroupOpen(false)}
+        existingGroups={groups}
+        onCreate={handleCreateSong}
+      />
+
       <div className="flex flex-col justify-start gap-3">
         <div className="flex flex-row gap-3">
           <h2 className="text-rossoTesto">Songs List</h2>
           {canEdit && (
             <>
               <button
-                title={
-                  !selectedGroupName
-                    ? "plz select group"
-                    : "Add song in selected group"
-                }
+                title={!selectedGroupName ? "Select a group first" : "Add song in selected group"}
                 disabled={!selectedGroupName}
-                onClick={addNewSongInGroup}
+                onClick={() => setAddInGroupOpen(true)}
                 className="disabled:opacity-50 w-4 text-green-700"
               >
                 <FontAwesomeIcon icon={faPlus} />
               </button>
               <button
-                title={"Add song in new group"}
-                onClick={addNewSongInNewGroup}
-                className="disabled:opacity-50 w-4 text-green-700"
+                title="Add song in new group"
+                onClick={() => setAddInNewGroupOpen(true)}
+                className="w-4 text-green-700"
               >
                 <FontAwesomeIcon icon={faLayerGroup} />
               </button>
@@ -171,23 +155,15 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
           )}
         </div>
         <Select
-          options={groups.map((g) => {
-            return { value: g, label: g };
-          })}
+          options={groups.map((g) => ({ value: g, label: g }))}
           placeholder="Select group..."
           className="w-[300px]"
           styles={selectStyles}
-          value={
-            selectedGroupName
-              ? { value: selectedGroupName, label: selectedGroupName }
-              : null
-          }
+          value={selectedGroupName ? { value: selectedGroupName, label: selectedGroupName } : null}
           onChange={(selected) =>
-            selected
-              ? setSelectedGroupName(selected.value)
-              : setSelectedGroupName("")
+            selected ? setSelectedGroupName(selected.value) : setSelectedGroupName("")
           }
-        ></Select>
+        />
         <div className="flex flex-row gap-3">
           <div className="relative bg-gray-100 text-gray-800 w-[400px] h-[400px] overflow-auto">
             <input
@@ -200,49 +176,43 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
             {songs
               .filter((s) => {
                 const isInGroup = s.group === selectedGroupName;
-
                 const found =
                   search.length < 0
                     ? true
                     : s.title.toLowerCase().includes(search.toLowerCase());
-
                 return isInGroup && found;
               })
               .sort((a, b) => a.title.localeCompare(b.title))
-              .map((song) => {
-                return (
-                  <div
-                    key={song.id}
-                    role="button"
-                    onClick={() => setSelectedSongId(song.id)}
-                    className={`${
-                      selectedSongId === song.id
-                        ? "bg-rossoTag text-white"
-                        : "hover:bg-rossoTag hover:text-white"
-                    } cursor-pointer py-2 px-3 flex justify-between items-center gap-3 `}
-                  >
-                    <span>{song.title}</span>
-                    {canEdit && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteSong(song.id);
-                        }}
-                        className={btnTrash}
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
+              .map((song) => (
+                <div
+                  key={song.id}
+                  role="button"
+                  onClick={() => setSelectedSongId(song.id)}
+                  className={`${
+                    selectedSongId === song.id
+                      ? "bg-rossoTag text-white"
+                      : "hover:bg-rossoTag hover:text-white"
+                  } cursor-pointer py-2 px-3 flex justify-between items-center gap-3`}
+                >
+                  <span>{song.title}</span>
+                  {canEdit && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteSong(song.id);
+                      }}
+                      className={btnTrash}
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                  )}
+                </div>
+              ))}
             {search.length > 0 &&
               songs.filter((s) =>
                 s.title.toLowerCase().includes(search.toLowerCase()),
               ).length === 0 && (
-                <div className="text-center py-2 text-rossoTesto">
-                  No song found
-                </div>
+                <div className="text-center py-2 text-rossoTesto">No song found</div>
               )}
           </div>
           <div>
@@ -250,9 +220,7 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
               <div>Select a song from the list to view informations.</div>
             )}
             {selectedSongId >= 0 && (
-              <SongItem
-                song={songs.find((s) => s.id === selectedSongId) as Song}
-              />
+              <SongItem song={songs.find((s) => s.id === selectedSongId) as Song} />
             )}
           </div>
         </div>
@@ -320,7 +288,10 @@ function SongItem({ song }: { song: Song }) {
 
       <div className="mt-4">
         <h4 className="text-rossoTesto font-semibold mb-2">
-          Player Scores{scores.length > 0 && <span className="text-gray-400 font-normal text-sm ml-1">({scores.length})</span>}
+          Player Scores
+          {scores.length > 0 && (
+            <span className="text-gray-400 font-normal text-sm ml-1">({scores.length})</span>
+          )}
         </h4>
         {scores.length === 0 ? (
           <p className="text-gray-400 text-sm">No scores on record for this song.</p>
@@ -332,9 +303,7 @@ function SongItem({ song }: { song: Song }) {
                 className="flex items-center justify-between gap-3 px-3 py-1.5 rounded border bg-white"
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-xs text-gray-400 w-5 text-right shrink-0">
-                    #{i + 1}
-                  </span>
+                  <span className="text-xs text-gray-400 w-5 text-right shrink-0">#{i + 1}</span>
                   <span className="text-sm text-gray-800 truncate">{s.playerName}</span>
                 </div>
                 <span
