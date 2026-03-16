@@ -6,7 +6,6 @@ import TournamentSelectPage from "@/pages/TournamentSelectPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import AccountInfoPage from "@/pages/AccountInfoPage";
-import CreateTournamentPage from "@/pages/CreateTournamentPage";
 import ManageRolesPage from "@/pages/ManageRolesPage";
 import SongsPage from "@/pages/SongsPage";
 import OBSPage from "@/pages/OBSPage";
@@ -51,10 +50,6 @@ function App() {
           <Route path="/account" element={<AccountInfoPage />} />
           <Route path="/manage" element={<TournamentSelectPage />} />
           <Route path="/manage/:tournamentId" element={<ManagePage />} />
-        </Route>
-
-        <Route element={<ProtectedRoute require="owner" />}>
-          <Route path="/create-tournament" element={<CreateTournamentPage />} />
         </Route>
 
         <Route element={<ProtectedRoute require="admin" />}>
