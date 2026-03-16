@@ -1,5 +1,6 @@
 import TournamentSettings from "@/components/manage/tournament/TournamentSettings";
 import LobbiesModal from "@/components/manage/tournament/LobbiesModal";
+import { btnPrimary } from "@/utils/buttonStyles";
 import { useParams, useNavigate } from "react-router-dom";
 import { faArrowLeft, faBroadcastTower, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -130,7 +131,7 @@ export default function ManagePage() {
           <div className="flex items-center gap-2 ml-auto">
             <button
               onClick={() => setLobbiesModalOpen(true)}
-              className="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 bg-rossoTesto text-white px-3 py-1.5 rounded hover:opacity-90"
+              className={`flex flex-col md:flex-row items-center gap-0.5 md:gap-2 ${btnPrimary}`}
             >
               <FontAwesomeIcon icon={faBroadcastTower} className="text-base md:text-sm" />
               <span className="text-xs md:text-sm leading-none">Lobbies</span>
@@ -138,7 +139,7 @@ export default function ManagePage() {
 
             <button
               onClick={() => setParticipantsOpen(true)}
-              className="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 bg-rossoTesto text-white px-3 py-1.5 rounded hover:opacity-90"
+              className={`flex flex-col md:flex-row items-center gap-0.5 md:gap-2 ${btnPrimary}`}
             >
               <FontAwesomeIcon icon={faUsers} className="text-base md:text-sm" />
               <span className="text-xs md:text-sm leading-none">Participants</span>

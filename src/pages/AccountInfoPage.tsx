@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuthContext } from "@/services/auth/AuthContext";
 import axios from "axios";
+import { btnPrimary } from "@/utils/buttonStyles";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faPen, faCamera } from "@fortawesome/free-solid-svg-icons";
@@ -224,7 +225,7 @@ export default function AccountInfoPage() {
                 <button
                   onClick={saveProfile}
                   disabled={saving}
-                  className="text-sm bg-rossoTesto text-white px-4 py-1.5 rounded hover:opacity-90 disabled:opacity-50"
+                  className={`text-sm ${btnPrimary}`}
                 >
                   Save
                 </button>

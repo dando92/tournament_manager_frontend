@@ -1,5 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
+import { btnPrimary } from "@/utils/buttonStyles";
 
 type Props = {
   open: boolean;
@@ -98,7 +99,7 @@ export default function GenerateBracketModal({
                   <button
                     onClick={handleGenerate}
                     disabled={generating || !selectedBracketType}
-                    className="px-4 py-2 text-sm rounded bg-rossoTesto text-white disabled:opacity-50"
+                    className={`text-sm ${btnPrimary}`}
                   >
                     {generating ? "Generating..." : "Generate"}
                   </button>

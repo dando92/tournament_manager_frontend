@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
+import { btnPrimary } from "@/utils/buttonStyles";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -102,7 +103,7 @@ export default function LobbiesModal({ open, tournamentId, onClose }: Props) {
                       </span>
                       <button
                         onClick={() => handleDisconnect(lobby.id)}
-                        className="ml-4 shrink-0 bg-rossoTesto text-white text-xs px-2 py-1 rounded hover:opacity-90"
+                        className={`ml-4 shrink-0 text-xs ${btnPrimary}`}
                       >
                         Disconnect
                       </button>
@@ -139,7 +140,7 @@ export default function LobbiesModal({ open, tournamentId, onClose }: Props) {
                 <button
                   onClick={handleConnect}
                   disabled={connecting}
-                  className="bg-rossoTesto text-white py-1.5 rounded text-sm hover:opacity-90 disabled:opacity-50"
+                  className={`text-sm ${btnPrimary}`}
                 >
                   {connecting ? "Connecting..." : "Connect"}
                 </button>
