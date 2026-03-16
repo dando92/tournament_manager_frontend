@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { btnPrimary } from "@/utils/buttonStyles";
 import axios from "axios";
 import { Tournament } from "@/models/Tournament";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -46,7 +47,7 @@ export default function TournamentSelectPage() {
         canCreate ? (
           <button
             onClick={() => navigate("/create-tournament")}
-            className="bg-rossoTesto text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold"
+            className={`${btnPrimary} flex items-center gap-2 text-sm font-semibold`}
           >
             <FontAwesomeIcon icon={faPlus} />
             New Tournament

@@ -1,5 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, PropsWithChildren } from "react";
+import { btnPrimary } from "@/utils/buttonStyles";
 
 type OkModalProps = {
   title: string;
@@ -56,7 +57,7 @@ export default function OkModal({
               <div className="mt-4 flex flex-row-reverse">
                 <button
                   type="button"
-                  className="bg-middle text-white px-3 py-2 rounded-lg"
+                  className={btnPrimary}
                   onClick={onOk}
                 >
                   {okText}

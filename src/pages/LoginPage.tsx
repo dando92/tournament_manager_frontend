@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthContext } from "@/services/auth/AuthContext";
+import { btnPrimary } from "@/utils/buttonStyles";
 
 export default function LoginPage() {
   const { actions } = useAuthContext();
@@ -78,7 +79,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="bg-rossoTesto text-white py-2 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50"
+          className={`${btnPrimary} w-full font-semibold`}
         >
           {loading ? "Logging in..." : "Login"}
         </button>

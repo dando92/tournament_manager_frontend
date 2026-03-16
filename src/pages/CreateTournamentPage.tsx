@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Tournament } from "@/models/Tournament";
+import { btnPrimary } from "@/utils/buttonStyles";
 
 export default function CreateTournamentPage() {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ export default function CreateTournamentPage() {
           <button
             type="submit"
             disabled={loading || !name.trim()}
-            className="flex-1 bg-rossoTesto text-white py-2 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50"
+            className={`flex-1 ${btnPrimary} font-semibold`}
           >
             {loading ? "Creating..." : "Create"}
           </button>
