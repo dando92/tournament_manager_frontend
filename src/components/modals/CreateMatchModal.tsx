@@ -1,15 +1,15 @@
 import {useEffect, useState} from "react";
-import OkModal from "@/components/layout/OkModal";
+import OkModal from "@/components/modals/OkModal";
 import {Player} from "@/models/Player";
 import axios from "axios";
-import Select from "react-select";
-import { selectPortalStyles } from "@/utils/selectStyles";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMinusCircle, faPlusCircle} from "@fortawesome/free-solid-svg-icons";
 import {Song} from "@/models/Song";
 import {Division} from "@/models/Division";
 import {Phase} from "@/models/Phase";
 import {CreateMatchRequest} from "@/models/requests/match-requests";
+import { selectPortalStyles } from "@/utils/selectStyles";
+import Select from "react-select";
 
 type CreateMatchModal = {
     open: boolean;
@@ -218,7 +218,7 @@ export default function CreateMatchModal({
                                             : setSelectedGroupName("")
                                     }
                                     menuPortalTarget={document.body}
-                                    styles={{menuPortal: (base) => ({...base, zIndex: 9999})}}
+                                    styles={selectPortalStyles}
                                 ></Select>
                             </div>
 
@@ -282,7 +282,7 @@ export default function CreateMatchModal({
                                     label: s.title,
                                 }))}
                                 menuPortalTarget={document.body}
-                                styles={{menuPortal: (base) => ({...base, zIndex: 9999})}}
+                                styles={selectPortalStyles}
                             />
                         </div>
                     )}

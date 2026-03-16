@@ -1,5 +1,5 @@
 import TournamentSettings from "@/components/manage/tournament/TournamentSettings";
-import LobbiesModal from "@/components/manage/tournament/LobbiesModal";
+import LobbiesModal from "@/components/modals/LobbiesModal";
 import { btnPrimary } from "@/utils/buttonStyles";
 import { useParams, useNavigate } from "react-router-dom";
 import { faArrowLeft, faBroadcastTower, faUsers } from "@fortawesome/free-solid-svg-icons";
@@ -10,7 +10,7 @@ import axios from "axios";
 import { useAuthContext } from "@/services/auth/AuthContext";
 import { useHelpers } from "@/services/helpers/useHelpers";
 import { Player } from "@/models/Player";
-import ManageParticipantsModal from "@/components/manage/ManageParticipantsModal";
+import ManageParticipantsModal from "@/components/modals/ManageParticipantsModal";
 import { toast } from "react-toastify";
 
 export default function ManagePage() {
