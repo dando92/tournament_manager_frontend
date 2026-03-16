@@ -1,4 +1,4 @@
-import { Outlet, Route, Routes } from "react-router-dom";
+import { Outlet, Route, Routes, useParams } from "react-router-dom";
 import { PageTitleProvider } from "@/services/PageTitleContext";
 import { SidebarProvider } from "@/context/SidebarContext";
 import "./App.css";
@@ -17,6 +17,16 @@ import { MobileTopBar, MobileBottomNav } from "@/components/layout/MobileNav";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+function KeyedManagePage() {
+  const { tournamentId } = useParams<{ tournamentId: string }>();
+  return <ManagePage key={tournamentId} />;
+}
+
+function KeyedViewPage() {
+  const { tournamentId } = useParams<{ tournamentId: string }>();
+  return <ViewPage key={tournamentId ?? "none"} />;
+}
 
 function MainLayout() {
   return (
@@ -47,7 +57,7 @@ function App() {
             {/* Root and /view redirect to last selected tournament or /select */}
             <Route path="/" element={<ViewPage />} />
             <Route path="/view" element={<ViewPage />} />
-            <Route path="/view/:tournamentId" element={<ViewPage />} />
+            <Route path="/view/:tournamentId" element={<KeyedViewPage />} />
 
             {/* Tournament browser (used by search button) */}
             <Route path="/select" element={<SelectTournamentPage />} />
@@ -59,7 +69,7 @@ function App() {
             <Route element={<ProtectedRoute require="auth" />}>
               <Route path="/account" element={<AccountInfoPage />} />
               <Route path="/manage" element={<TournamentSelectPage />} />
-              <Route path="/manage/:tournamentId" element={<ManagePage />} />
+              <Route path="/manage/:tournamentId" element={<KeyedManagePage />} />
             </Route>
 
             <Route element={<ProtectedRoute require="admin" />}>

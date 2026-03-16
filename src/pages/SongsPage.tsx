@@ -1,17 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import SongsList from "@/components/manage/songs/SongsList";
 import { useAuthContext } from "@/services/auth/AuthContext";
 import { usePageTitle } from "@/services/PageTitleContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { getSelectedTournament } from "@/services/recentTournaments";
 
 export default function SongsPage() {
   const { state: authState } = useAuthContext();
   const [isHelper, setIsHelper] = useState(false);
   const { setPageTitle } = usePageTitle();
+  const location = useLocation();
 
-  const selected = getSelectedTournament();
+  const selected = useMemo(() => getSelectedTournament(), [location.key]);
 
   useEffect(() => {
     const account = authState.account;
