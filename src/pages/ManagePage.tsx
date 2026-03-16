@@ -116,33 +116,30 @@ export default function ManagePage() {
 
   return (
     <div>
-      {/* Action buttons */}
-      {canControl && tournamentId && (
-        <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
-          <div className="flex items-center gap-2 ml-auto">
-            <button
-              onClick={() => setLobbiesModalOpen(true)}
-              className={`flex flex-col md:flex-row items-center gap-0.5 md:gap-2 ${btnPrimary}`}
-            >
-              <FontAwesomeIcon icon={faBroadcastTower} className="text-base md:text-sm" />
-              <span className="text-xs md:text-sm leading-none">Lobbies</span>
-            </button>
-
-            <button
-              onClick={() => setParticipantsOpen(true)}
-              className={`flex flex-col md:flex-row items-center gap-0.5 md:gap-2 ${btnPrimary}`}
-            >
-              <FontAwesomeIcon icon={faUsers} className="text-base md:text-sm" />
-              <span className="text-xs md:text-sm leading-none">Participants</span>
-            </button>
-          </div>
-        </div>
-      )}
-
       <TournamentSettings
         controls={canControl}
         tournamentId={Number(tournamentId)}
         matchUpdateSignal={matchUpdateSignal}
+        headerActions={
+          canControl && tournamentId ? (
+            <>
+              <button
+                onClick={() => setLobbiesModalOpen(true)}
+                className={`flex flex-col md:flex-row items-center gap-0.5 md:gap-2 ${btnPrimary}`}
+              >
+                <FontAwesomeIcon icon={faBroadcastTower} className="text-base md:text-sm" />
+                <span className="text-xs md:text-sm leading-none">Lobbies</span>
+              </button>
+              <button
+                onClick={() => setParticipantsOpen(true)}
+                className={`flex flex-col md:flex-row items-center gap-0.5 md:gap-2 ${btnPrimary}`}
+              >
+                <FontAwesomeIcon icon={faUsers} className="text-base md:text-sm" />
+                <span className="text-xs md:text-sm leading-none">Participants</span>
+              </button>
+            </>
+          ) : undefined
+        }
       />
 
       {canControl && tournamentId && (

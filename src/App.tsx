@@ -18,6 +18,11 @@ import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+function KeyedSongsPage() {
+  const { tournamentId } = useParams<{ tournamentId: string }>();
+  return <SongsPage key={tournamentId} />;
+}
+
 function KeyedManagePage() {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   return <ManagePage key={tournamentId} />;
@@ -63,6 +68,7 @@ function App() {
             <Route path="/select" element={<SelectTournamentPage />} />
 
             <Route path="/songs" element={<SongsPage />} />
+            <Route path="/songs/:tournamentId" element={<KeyedSongsPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
