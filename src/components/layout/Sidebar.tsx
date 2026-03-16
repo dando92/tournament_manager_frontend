@@ -147,11 +147,22 @@ export default function Sidebar() {
   const canManage = state.account && (isAdmin || state.account.isTournamentCreator || isHelper);
   const selectedTournament = recentTournaments[0] ?? null;
 
+  const accountPages = ["/account", "/login", "/register", "/admin/roles"];
+
   function handleTournamentClick(t: RecentTournament) {
     selectRecentTournament(t.id);
     setRecentTournaments(getRecentTournaments());
-    navigate(`/view/${t.id}`);
     close();
+
+    if (accountPages.some((p) => location.pathname === p)) return;
+
+    if (location.pathname.startsWith("/manage/")) {
+      navigate(`/manage/${t.id}`);
+    } else if (location.pathname === "/songs") {
+      navigate("/songs");
+    } else {
+      navigate(`/view/${t.id}`);
+    }
   }
 
   const isOnView =
