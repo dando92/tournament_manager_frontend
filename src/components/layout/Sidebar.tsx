@@ -6,6 +6,7 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faHouse,
+  faMagnifyingGlass,
   faMusic,
   faGear,
   faShield,
@@ -178,9 +179,24 @@ export default function Sidebar() {
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b border-white/10 shrink-0">
         <img src={Logo} alt="logo" className="h-10 w-10 rounded-lg shrink-0" />
-        <h2 className="text-white font-bold text-base leading-tight truncate">
-          Tournament Manager
+        <h2 className="text-white font-bold text-base leading-tight">
+          Tournament<br />Manager
         </h2>
+      </div>
+
+      {/* Search — hidden on mobile (bottom nav has it) */}
+      <div className="hidden md:block p-3 border-b border-white/10 shrink-0">
+        <button
+          onClick={() => { navigate("/select"); close(); }}
+          className={`flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors w-full text-left ${
+            location.pathname === "/select"
+              ? "bg-white/20 text-white font-semibold"
+              : "text-red-100 hover:bg-white/10 hover:text-white"
+          }`}
+        >
+          <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 shrink-0" />
+          <span>Search tournament</span>
+        </button>
       </div>
 
       {/* Recent tournaments */}
