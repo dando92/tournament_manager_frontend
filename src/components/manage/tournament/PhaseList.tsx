@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Phase } from "@/models/Phase";
 import { Division } from "@/models/Division";
 import Select from "react-select";
+import { selectStyles } from "@/utils/selectStyles";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash, faDiagramProject } from "@fortawesome/free-solid-svg-icons";
@@ -114,6 +115,7 @@ export default function PhaseList({
         <Select
           className="min-w-[300px]"
           placeholder="Select phase"
+          styles={selectStyles}
           options={phases.map((p) => ({ value: p.id, label: p.name }))}
           onChange={(e) => {
             onPhaseSelect(phases.find((p) => p.id === e?.value) ?? null);

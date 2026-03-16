@@ -3,6 +3,7 @@ import OkModal from "@/components/layout/OkModal";
 import { Song } from "@/models/Song";
 import axios from "axios";
 import Select from "react-select";
+import { selectPortalStyles } from "@/utils/selectStyles";
 
 type AddSongToMatchModalProps = {
   divisionId: number;
@@ -184,7 +185,7 @@ export default function AddEditSongToMatchModal({
                     : setSelectedGroupName("")
                 }
                 menuPortalTarget={document.body}
-                styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+                styles={selectPortalStyles}
               ></Select>
             </div>
 

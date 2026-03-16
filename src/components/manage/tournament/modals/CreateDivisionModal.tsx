@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import OkModal from "@/components/layout/OkModal";
 import axios from "axios";
 import Select from "react-select";
+import { selectPortalStyles } from "@/utils/selectStyles";
 
 type CreateDivisionModalProps = {
   open: boolean;
@@ -61,7 +62,7 @@ export default function CreateDivisionModal({
             onChange={(selected) => setBracketType(selected?.value ?? "")}
             placeholder="Select bracket type..."
             menuPortalTarget={document.body}
-            styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+            styles={selectPortalStyles}
           />
         </div>
       </div>

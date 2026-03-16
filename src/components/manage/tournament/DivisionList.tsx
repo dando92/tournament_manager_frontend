@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Division } from "@/models/Division";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
+import { selectStyles } from "@/utils/selectStyles";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import CreateDivisionModal from "@/components/manage/tournament/modals/CreateDivisionModal";
@@ -83,6 +84,7 @@ export default function DivisionList({
       <Select
         className="min-w-[300px]"
         placeholder="Select division"
+        styles={selectStyles}
         options={divisions.map((d) => ({ value: d.id, label: d.name }))}
         onChange={(e) => {
           onDivisionSelect(divisions.find((d) => d.id === e?.value) ?? null);

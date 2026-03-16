@@ -4,6 +4,7 @@ import SongsList from "@/components/manage/songs/SongsList";
 import { useAuthContext } from "@/services/auth/AuthContext";
 import { Tournament } from "@/models/Tournament";
 import Select from "react-select";
+import { selectStyles } from "@/utils/selectStyles";
 
 export default function SongsPage() {
   const { state: authState } = useAuthContext();
@@ -54,6 +55,7 @@ export default function SongsPage() {
           onChange={(selected) =>
             setSelectedTournamentId(selected ? selected.value : null)
           }
+          styles={selectStyles}
         />
       </div>
       <SongsList canEdit={canEdit} tournamentId={selectedTournamentId ?? undefined} />
