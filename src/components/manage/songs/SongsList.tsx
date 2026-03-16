@@ -16,7 +16,8 @@ interface SongScore {
   isFailed: boolean;
 }
 import Select from "react-select";
-import { selectStyles } from "@/utils/selectStyles";
+import { selectStyles } from "@/styles/selectStyles";
+import { btnTrash } from "@/styles/buttonStyles";
 
 type SongsListProps = {
   canEdit?: boolean;
@@ -227,7 +228,7 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
                           e.stopPropagation();
                           deleteSong(song.id);
                         }}
-                        className="text-sm"
+                        className={btnTrash}
                       >
                         <FontAwesomeIcon icon={faTrash} />
                       </button>

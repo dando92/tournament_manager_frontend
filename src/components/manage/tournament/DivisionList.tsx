@@ -2,7 +2,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Division } from "@/models/Division";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
-import { selectStyles } from "@/utils/selectStyles";
+import { selectStyles } from "@/styles/selectStyles";
+import { btnTrash } from "@/styles/buttonStyles";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import CreateDivisionModal from "@/components/modals/CreateDivisionModal";
@@ -110,7 +111,7 @@ export default function DivisionList({
           </button>
           <button
             onClick={() => setDeleteStep(1)}
-            className="text-red-700 disabled:text-red-200"
+            className={btnTrash}
             disabled={selectedDivisionId === -1}
             title={
               selectedDivisionId === -1

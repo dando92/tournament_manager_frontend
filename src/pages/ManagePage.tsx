@@ -1,6 +1,6 @@
 import TournamentSettings from "@/components/manage/tournament/TournamentSettings";
 import LobbiesModal from "@/components/modals/LobbiesModal";
-import { btnPrimary } from "@/utils/buttonStyles";
+import { btnPrimary } from "@/styles/buttonStyles";
 import { useParams, useNavigate } from "react-router-dom";
 import { faArrowLeft, faBroadcastTower, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

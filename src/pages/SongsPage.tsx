@@ -4,7 +4,7 @@ import SongsList from "@/components/manage/songs/SongsList";
 import { useAuthContext } from "@/services/auth/AuthContext";
 import { Tournament } from "@/models/Tournament";
 import Select from "react-select";
-import { selectStyles } from "@/utils/selectStyles";
+import { selectStyles } from "@/styles/selectStyles";
 
 export default function SongsPage() {
   const { state: authState } = useAuthContext();

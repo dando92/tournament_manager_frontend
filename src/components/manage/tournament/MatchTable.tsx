@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import StandingModal from "@/components/modals/StandingModal";
 import EditMatchNotesModal from "@/components/modals/EditMatchNotesModal";
 import { Tab } from "@headlessui/react";
-import { classNames } from "@/utils/classNames";
+import { classNames } from "@/styles/classNames";
 import MatchHeader from "@/components/manage/tournament/MatchHeader";
 import StandingsTable from "@/components/manage/tournament/StandingsTable";
 

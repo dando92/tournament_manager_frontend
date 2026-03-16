@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faInfoCircle, faPlus, faStickyNote, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Match } from "@/models/Match";
+import { btnTrash } from "@/styles/buttonStyles";
 
 type Props = {
   match: Match;
@@ -52,7 +53,7 @@ export default function MatchHeader({
           </button>
           <button
             onClick={() => onDeleteMatch(match.id)}
-            className="ml-3 text-red-800 font-bold flex flex-row gap-2"
+            className={`ml-3 flex flex-row gap-2 ${btnTrash}`}
           >
             <FontAwesomeIcon icon={faTrash} />
           </button>
