@@ -12,9 +12,9 @@ export default function LobbyLiveBlock({ lobbyState }: Props) {
 
   return (
     <div className="mb-6">
-      <div className="flex items-center justify-between mb-2">
-        <div>
-          <h3 className="text-lg font-bold text-white">{lobbyState.lobbyName}</h3>
+      <div className="flex items-stretch justify-between mb-2">
+        <div className="flex flex-col justify-center">
+          <span className="text-lg font-bold text-rossoTesto">{lobbyState.lobbyName}</span>
           {lobbyState.lobbyCode && (
             <span className="text-xs text-gray-400">{lobbyState.lobbyCode}</span>
           )}
