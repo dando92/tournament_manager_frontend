@@ -10,6 +10,7 @@ import {
   faGear,
   faUser,
   faRightToBracket,
+  faUserShield,
 } from "@fortawesome/free-solid-svg-icons";
 import type { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 
@@ -105,6 +106,9 @@ export function MobileBottomNav() {
       <NavItem to="/songs" icon={faMusic} label="Songs" active={location.pathname === "/songs"} />
       {canManage && (
         <NavItem to="/manage" icon={faGear} label="Manage" active={isOnManage} />
+      )}
+      {isAdmin && (
+        <NavItem to="/admin/roles" icon={faUserShield} label="Roles" active={location.pathname === "/admin/roles"} />
       )}
       <button
         onClick={handleAccountNav}
