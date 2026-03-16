@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import OkModal from "@/components/modals/OkModal";
 import axios from "axios";
 import Select from "react-select";
-import { selectPortalStyles } from "@/utils/selectStyles";
+import { selectPortalStyles } from "@/styles/selectStyles";
 
 type CreateDivisionModalProps = {
   open: boolean;

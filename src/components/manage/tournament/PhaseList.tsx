@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Phase } from "@/models/Phase";
 import { Division } from "@/models/Division";
 import Select from "react-select";
-import { selectStyles } from "@/utils/selectStyles";
+import { selectStyles } from "@/styles/selectStyles";
+import { btnTrash } from "@/styles/buttonStyles";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash, faDiagramProject } from "@fortawesome/free-solid-svg-icons";
@@ -141,7 +142,7 @@ export default function PhaseList({
             </button>
             <button
               onClick={() => setDeleteConfirmOpen(true)}
-              className="text-red-700 disabled:text-red-200"
+              className={btnTrash}
               disabled={selectedPhaseId === -1}
               title={selectedPhaseId === -1 ? "Select a phase to delete" : "Delete phase"}
             >

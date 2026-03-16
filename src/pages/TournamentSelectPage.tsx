@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { btnPrimary } from "@/utils/buttonStyles";
+import { btnPrimary, btnTrash } from "@/styles/buttonStyles";
 import axios from "axios";
 import { Tournament } from "@/models/Tournament";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -67,7 +67,7 @@ export default function TournamentSelectPage() {
             ? (t) => (
                 <button
                   onClick={() => handleDelete(t.id)}
-                  className="text-red-500 hover:text-red-700 px-1"
+                  className={`px-1 ${btnTrash}`}
                   title="Delete tournament"
                 >
                   <FontAwesomeIcon icon={faTrash} />

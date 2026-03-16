@@ -1,5 +1,5 @@
 import { Tab } from "@headlessui/react";
-import { classNames } from "@/utils/classNames";
+import { classNames } from "@/styles/classNames";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faCircle, faTrophy } from "@fortawesome/free-solid-svg-icons";
 import LivePhase from "@/components/view/LivePhase";

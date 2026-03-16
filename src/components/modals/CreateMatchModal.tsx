@@ -8,7 +8,7 @@ import {Song} from "@/models/Song";
 import {Division} from "@/models/Division";
 import {Phase} from "@/models/Phase";
 import {CreateMatchRequest} from "@/models/requests/match-requests";
-import { selectPortalStyles } from "@/utils/selectStyles";
+import { selectPortalStyles } from "@/styles/selectStyles";
 import Select from "react-select";
 
 type CreateMatchModal = {

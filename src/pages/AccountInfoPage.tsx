@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuthContext } from "@/services/auth/AuthContext";
 import axios from "axios";
-import { btnPrimary } from "@/utils/buttonStyles";
+import { btnPrimary } from "@/styles/buttonStyles";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faPen, faCamera } from "@fortawesome/free-solid-svg-icons";

@@ -1,6 +1,6 @@
 import { PropsWithChildren } from "react";
 import BaseModal from "@/components/modals/BaseModal";
-import { btnPrimary } from "@/utils/buttonStyles";
+import { btnPrimary } from "@/styles/buttonStyles";
 
 type OkModalProps = {
   title: string;

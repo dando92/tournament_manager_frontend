@@ -3,7 +3,7 @@ import OkModal from "@/components/modals/OkModal";
 import { Song } from "@/models/Song";
 import axios from "axios";
 import Select from "react-select";
-import { selectPortalStyles } from "@/utils/selectStyles";
+import { selectPortalStyles } from "@/styles/selectStyles";
 
 type AddSongToMatchModalProps = {
   divisionId: number;

@@ -1,5 +1,5 @@
 import BaseModal from "@/components/modals/BaseModal";
-import { btnPrimary } from "@/utils/buttonStyles";
+import { btnPrimary } from "@/styles/buttonStyles";
 
 type Props = {
   open: boolean;
