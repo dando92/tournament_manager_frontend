@@ -1,8 +1,8 @@
 import TournamentSettings from "@/components/manage/tournament/TournamentSettings";
 import LobbiesModal from "@/components/modals/LobbiesModal";
 import { btnPrimary } from "@/styles/buttonStyles";
-import { useParams, useNavigate } from "react-router-dom";
-import { faArrowLeft, faBroadcastTower, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { useParams } from "react-router-dom";
+import { faBroadcastTower, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState, useCallback } from "react";
 import { useMatchHub } from "@/services/useMatchHub";
@@ -15,7 +15,6 @@ import { toast } from "react-toastify";
 
 export default function ManagePage() {
   const { tournamentId } = useParams<{ tournamentId: string }>();
-  const navigate = useNavigate();
   const [lobbiesModalOpen, setLobbiesModalOpen] = useState(false);
   const { state: authState } = useAuthContext();
   const account = authState.account;
@@ -117,17 +116,9 @@ export default function ManagePage() {
 
   return (
     <div>
-      {/* Back button (left) + action buttons (right) */}
-      <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
-        <button
-          onClick={() => navigate("/manage")}
-          className="text-rossoTesto hover:underline flex items-center gap-1.5 text-sm"
-        >
-          <FontAwesomeIcon icon={faArrowLeft} />
-          <span>Back</span>
-        </button>
-
-        {canControl && tournamentId && (
+      {/* Action buttons */}
+      {canControl && tournamentId && (
+        <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
           <div className="flex items-center gap-2 ml-auto">
             <button
               onClick={() => setLobbiesModalOpen(true)}
@@ -145,8 +136,8 @@ export default function ManagePage() {
               <span className="text-xs md:text-sm leading-none">Participants</span>
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <TournamentSettings
         controls={canControl}
