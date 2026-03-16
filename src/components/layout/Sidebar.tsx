@@ -47,7 +47,9 @@ export default function Sidebar() {
   const location = useLocation();
   const isAdmin = state.account?.isAdmin;
 
-  const tournamentMatch = useMatch("/manage/:tournamentId");
+  const manageMatch = useMatch("/manage/:tournamentId");
+  const viewMatch = useMatch("/view/:tournamentId");
+  const tournamentMatch = manageMatch ?? viewMatch;
   const [activeTournamentName, setActiveTournamentName] = useState<string | null>(null);
   const [isHelper, setIsHelper] = useState(false);
 

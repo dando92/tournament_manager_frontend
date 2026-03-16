@@ -22,6 +22,9 @@ export type LobbyPlayerDto = {
 
 export type TournamentLobbyStateDto = {
   tournamentId: number;
+  lobbyId: string;
+  lobbyName: string;
+  lobbyCode: string;
   songTitle: string;
   songPath: string;
   players: LobbyPlayerDto[];
@@ -40,7 +43,7 @@ function wsUrl(path: string): string {
  */
 export function useScoreHub(
   onLobbyState: (data: TournamentLobbyStateDto) => void,
-  onLobbyDisconnected?: (tournamentId: number) => void,
+  onLobbyDisconnected?: (tournamentId: number, lobbyId: string) => void,
 ) {
   useEffect(() => {
     const ws = new WebSocket(wsUrl('scoreupdatehub'));
@@ -51,7 +54,7 @@ export function useScoreHub(
         if (msg.event === 'OnLobbyState') {
           onLobbyState(msg.data as TournamentLobbyStateDto);
         } else if (msg.event === 'OnLobbyDisconnected') {
-          onLobbyDisconnected?.(msg.data.tournamentId as number);
+          onLobbyDisconnected?.(msg.data.tournamentId as number, msg.data.lobbyId as string);
         }
       // eslint-disable-next-line no-empty
       } catch {}
