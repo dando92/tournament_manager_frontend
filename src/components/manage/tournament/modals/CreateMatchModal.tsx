@@ -3,6 +3,7 @@ import OkModal from "@/components/layout/OkModal";
 import {Player} from "@/models/Player";
 import axios from "axios";
 import Select from "react-select";
+import { selectPortalStyles } from "@/utils/selectStyles";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMinusCircle, faPlusCircle} from "@fortawesome/free-solid-svg-icons";
 import {Song} from "@/models/Song";
@@ -154,7 +155,7 @@ export default function CreateMatchModal({
                         value={{value: scoringSystem, label: scoringSystem}}
                         onChange={(selected) => setScoringSystem(selected!.value)}
                         menuPortalTarget={document.body}
-                        styles={{menuPortal: (base) => ({...base, zIndex: 9999})}}
+                        styles={selectPortalStyles}
                     ></Select>
                 </div>
                 <div className="w-full">
@@ -169,7 +170,7 @@ export default function CreateMatchModal({
                         }}
                         value={selectedPlayers.map((p) => ({value: p.id, label: p.playerName}))}
                         menuPortalTarget={document.body}
-                        styles={{menuPortal: (base) => ({...base, zIndex: 9999})}}
+                        styles={selectPortalStyles}
                     />
                 </div>
                 <div className="w-full">

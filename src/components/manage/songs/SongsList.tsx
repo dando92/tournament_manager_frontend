@@ -16,6 +16,7 @@ interface SongScore {
   isFailed: boolean;
 }
 import Select from "react-select";
+import { selectStyles } from "@/utils/selectStyles";
 
 type SongsListProps = {
   canEdit?: boolean;
@@ -174,6 +175,7 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
           })}
           placeholder="Select group..."
           className="w-[300px]"
+          styles={selectStyles}
           value={
             selectedGroupName
               ? { value: selectedGroupName, label: selectedGroupName }
