@@ -8,7 +8,7 @@ type Props = {
   /** Pre-filled and locked — "add to existing group" mode. Omit for "new group" mode. */
   initialGroup?: string;
   existingGroups?: string[];
-  onCreate: (title: string, difficulty: number, group: string) => void;
+  onCreate: (title: string, difficulty: number, group: string, artist?: string) => void;
 };
 
 export default function CreateSongModal({
@@ -19,6 +19,7 @@ export default function CreateSongModal({
   onCreate,
 }: Props) {
   const [title, setTitle] = useState("");
+  const [artist, setArtist] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [group, setGroup] = useState("");
   const [groupError, setGroupError] = useState<string | null>(null);
@@ -28,6 +29,7 @@ export default function CreateSongModal({
   useEffect(() => {
     if (open) {
       setTitle("");
+      setArtist("");
       setDifficulty("");
       setGroup(initialGroup ?? "");
       setGroupError(null);
@@ -49,7 +51,7 @@ export default function CreateSongModal({
       setGroupError("Group already exists.");
       return;
     }
-    onCreate(title.trim(), diff, resolvedGroup);
+    onCreate(title.trim(), diff, resolvedGroup, artist.trim() || undefined);
     onClose();
   };
 
@@ -81,6 +83,16 @@ export default function CreateSongModal({
             placeholder="Song title"
             autoFocus
             required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Artist <span className="text-gray-400 font-normal">(optional)</span></label>
+          <input
+            type="text"
+            value={artist}
+            onChange={(e) => setArtist(e.target.value)}
+            className="w-full border rounded px-3 py-1.5 text-sm"
+            placeholder="Artist name"
           />
         </div>
         <div>
