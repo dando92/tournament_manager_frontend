@@ -4,12 +4,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle, faTrophy } from "@fortawesome/free-solid-svg-icons";
 import LivePhase from "@/components/view/LivePhase";
 import TournamentSettings from "@/components/manage/tournament/TournamentSettings";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import axios from "axios";
 import { Tournament } from "@/models/Tournament";
 import { useMatchHub } from "@/services/useMatchHub";
 import { addRecentTournament, getSelectedTournament } from "@/services/recentTournaments";
+import { ActiveLobbyDto } from "@/services/useScoreHub";
 
 export default function ViewPage() {
   const { tournamentId: tidParam } = useParams<{ tournamentId?: string }>();
@@ -28,7 +29,12 @@ export default function ViewPage() {
   return <ViewTournament tournamentId={selectedTournamentId} />;
 }
 
+type LobbyStatus = { id: string; name: string; lobbyCode: string; isActive: boolean; isConnected: boolean };
+
 function ViewTournament({ tournamentId }: { tournamentId: number }) {
+  const [initialActiveLobbies, setInitialActiveLobbies] = useState<ActiveLobbyDto[]>([]);
+  const fetchedLobbies = useRef(false);
+
   useEffect(() => {
     axios
       .get<Tournament>(`tournaments/${tournamentId}`)
@@ -36,6 +42,19 @@ function ViewTournament({ tournamentId }: { tournamentId: number }) {
         addRecentTournament({ id: r.data.id, name: r.data.name });
       })
       .catch(() => {});
+
+    if (!fetchedLobbies.current) {
+      fetchedLobbies.current = true;
+      axios
+        .get<LobbyStatus[]>(`tournaments/${tournamentId}/lobbies/status`)
+        .then((r) => {
+          const active = r.data
+            .filter((l) => l.isActive && l.isConnected)
+            .map((l) => ({ tournamentId, lobbyId: l.id, lobbyName: l.name, lobbyCode: l.lobbyCode }));
+          setInitialActiveLobbies(active);
+        })
+        .catch(() => {});
+    }
   }, [tournamentId]);
 
   const [matchUpdateSignal, setMatchUpdateSignal] = useState(0);
@@ -84,7 +103,7 @@ function ViewTournament({ tournamentId }: { tournamentId: number }) {
           </Tab.Panel>
 
           <Tab.Panel>
-            <LivePhase tournamentId={tournamentId} />
+            <LivePhase tournamentId={tournamentId} initialActiveLobbies={initialActiveLobbies} />
           </Tab.Panel>
         </Tab.Panels>
       </Tab.Group>
