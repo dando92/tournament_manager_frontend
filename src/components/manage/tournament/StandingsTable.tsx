@@ -146,7 +146,7 @@ export default function StandingsTable({
                       <div className="flex flex-col items-center gap-0.5">
                         <div className="flex items-center gap-1">
                           <span className={`font-bold text-sm ${scoreData.isFailed ? "text-red-600" : "text-gray-800"}`}>
-                            {scoreData.percentage.toFixed(1)}%
+                            {scoreData.percentage.toFixed(2)}%
                           </span>
                           {scoreData.isFailed && (
                             <span className="text-xs bg-red-100 text-red-600 px-1 rounded font-semibold">F</span>

@@ -95,7 +95,7 @@ export default function MatchTable({
       const key = `${standing.score.player.id}-${standing.score.song.id}`;
       scoreTable[key] = {
         score: standing.points,
-        percentage: standing.score.percentage,
+        percentage: Number(standing.score.percentage),
         isFailed: standing.score.isFailed,
       };
     });
