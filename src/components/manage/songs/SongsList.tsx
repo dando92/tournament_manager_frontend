@@ -2,23 +2,16 @@ import {
   faFileImport,
   faLayerGroup,
   faPlus,
-  faTrash,
+  faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Song } from "@/models/Song";
+import { btnPrimary } from "@/styles/buttonStyles";
 import axios from "axios";
 import { toast } from "react-toastify";
-import Select from "react-select";
-import { selectStyles } from "@/styles/selectStyles";
-import { btnTrash } from "@/styles/buttonStyles";
 import CreateSongModal from "@/components/modals/CreateSongModal";
-
-interface SongScore {
-  playerName: string;
-  percentage: number;
-  isFailed: boolean;
-}
+import SongListView from "./SongListView";
 
 type SongsListProps = {
   canEdit?: boolean;
@@ -30,9 +23,8 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
   const [groups, setGroups] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [search, setSearch] = useState<string>("");
-  const [selectedGroupName, setSelectedGroupName] = useState<string>("");
-  const [selectedSongId, setSelectedSongId] = useState<number>(-1);
+  const [packFilter, setPackFilter] = useState("");
+  const [songSearch, setSongSearch] = useState("");
 
   const [addInGroupOpen, setAddInGroupOpen] = useState(false);
   const [addInNewGroupOpen, setAddInNewGroupOpen] = useState(false);
@@ -42,21 +34,21 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
     axios.get<Song[]>(url).then((response) => {
       const { data } = response;
       setSongs(data);
-      setGroups([...new Set(data.map((s) => s.group))]);
-      setSelectedGroupName(data.length > 0 ? data[0].group : "");
-      setSelectedSongId(-1);
+      setGroups([...new Set(data.map((s) => s.group))].sort());
     });
   }, [tournamentId]);
 
-  const handleCreateSong = (title: string, difficulty: number, group: string) => {
+  const selectedGroupName = groups[0] ?? "";
+
+  const handleCreateSong = (title: string, difficulty: number, group: string, artist?: string) => {
     axios
-      .post<Song>("songs", { title, difficulty, group, tournamentId })
+      .post<Song>("songs", { title, artist, difficulty, group, tournamentId })
       .then((response) => {
-        setSongs((prev) => [...prev, response.data]);
-        if (!groups.includes(group)) {
-          setGroups((prev) => [...prev, group]);
-        }
-        setSelectedGroupName(group);
+        setSongs((prev) => {
+          const merged = [...prev, response.data];
+          setGroups([...new Set(merged.map((s) => s.group))].sort());
+          return merged;
+        });
       });
   };
 
@@ -80,7 +72,7 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
       const failed = results.filter((r) => r.status === "rejected").length;
       setSongs((prev) => {
         const merged = [...prev, ...created];
-        setGroups([...new Set(merged.map((s) => s.group))]);
+        setGroups([...new Set(merged.map((s) => s.group))].sort());
         return merged;
       });
       if (failed > 0) {
@@ -96,14 +88,31 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
   const deleteSong = (id: number) => {
     if (window.confirm("Are you sure you want to delete this song?")) {
       axios.delete(`songs/${id}`).then(() => {
-        setSongs(songs.filter((p) => p.id !== id));
-        setSelectedSongId(-1);
+        setSongs((prev) => {
+          const merged = prev.filter((s) => s.id !== id);
+          setGroups([...new Set(merged.map((s) => s.group))].sort());
+          return merged;
+        });
       });
     }
   };
 
+  const deletePack = (pack: string) => {
+    const packSongs = songs.filter((s) => s.group === pack);
+    if (!window.confirm(`Delete all ${packSongs.length} song(s) in pack "${pack}"?`)) return;
+    Promise.allSettled(packSongs.map((s) => axios.delete(`songs/${s.id}`))).then(() => {
+      setSongs((prev) => {
+        const merged = prev.filter((s) => s.group !== pack);
+        setGroups([...new Set(merged.map((s) => s.group))].sort());
+        return merged;
+      });
+    });
+  };
+
+  const packOptions = useMemo(() => groups, [groups]);
+
   return (
-    <div>
+    <div className="flex flex-col gap-4 max-w-3xl mx-auto">
       <CreateSongModal
         open={addInGroupOpen}
         onClose={() => setAddInGroupOpen(false)}
@@ -116,206 +125,90 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
         existingGroups={groups}
         onCreate={handleCreateSong}
       />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json"
+        className="hidden"
+        onChange={handleBulkImport}
+      />
 
-      <div className="flex flex-col justify-start gap-3">
-        <div className="flex flex-row gap-3">
-          <h2 className="text-rossoTesto">Songs List</h2>
-          {canEdit && (
-            <>
-              <button
-                title={!selectedGroupName ? "Select a group first" : "Add song in selected group"}
-                disabled={!selectedGroupName}
-                onClick={() => setAddInGroupOpen(true)}
-                className="disabled:opacity-50 w-4 text-green-700"
-              >
-                <FontAwesomeIcon icon={faPlus} />
-              </button>
-              <button
-                title="Add song in new group"
-                onClick={() => setAddInNewGroupOpen(true)}
-                className="w-4 text-green-700"
-              >
-                <FontAwesomeIcon icon={faLayerGroup} />
-              </button>
-              <button
-                title="Bulk import songs from JSON"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-4 text-green-700"
-              >
-                <FontAwesomeIcon icon={faFileImport} />
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                className="hidden"
-                onChange={handleBulkImport}
-              />
-            </>
-          )}
-        </div>
-        <Select
-          options={groups.map((g) => ({ value: g, label: g }))}
-          placeholder="Select group..."
-          className="w-[300px]"
-          styles={selectStyles}
-          value={selectedGroupName ? { value: selectedGroupName, label: selectedGroupName } : null}
-          onChange={(selected) =>
-            selected ? setSelectedGroupName(selected.value) : setSelectedGroupName("")
-          }
-        />
-        <div className="flex flex-row gap-3">
-          <div className="relative bg-gray-100 text-gray-800 w-[400px] h-[400px] overflow-auto">
-            <input
-              className="p-1 w-full sticky inset-0 border-blu border outline-none"
-              type="search"
-              placeholder="Search song..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            {songs
-              .filter((s) => {
-                const isInGroup = s.group === selectedGroupName;
-                const found =
-                  search.length < 0
-                    ? true
-                    : s.title.toLowerCase().includes(search.toLowerCase());
-                return isInGroup && found;
-              })
-              .sort((a, b) => a.title.localeCompare(b.title))
-              .map((song) => (
-                <div
-                  key={song.id}
-                  role="button"
-                  onClick={() => setSelectedSongId(song.id)}
-                  className={`${
-                    selectedSongId === song.id
-                      ? "bg-rossoTag text-white"
-                      : "hover:bg-rossoTag hover:text-white"
-                  } cursor-pointer py-2 px-3 flex justify-between items-center gap-3`}
-                >
-                  <span>{song.title}</span>
-                  {canEdit && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteSong(song.id);
-                      }}
-                      className={btnTrash}
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                  )}
-                </div>
-              ))}
-            {search.length > 0 &&
-              songs.filter((s) =>
-                s.title.toLowerCase().includes(search.toLowerCase()),
-              ).length === 0 && (
-                <div className="text-center py-2 text-rossoTesto">No song found</div>
-              )}
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <h2 className="text-rossoTesto font-bold text-xl">Songs</h2>
+        {canEdit && (
+          <div className="flex items-center gap-2">
+            <button
+              title={!selectedGroupName ? "No groups yet" : "Add song to current pack"}
+              disabled={!selectedGroupName}
+              onClick={() => setAddInGroupOpen(true)}
+              className={`${btnPrimary} flex items-center gap-1.5 text-sm`}
+            >
+              <FontAwesomeIcon icon={faPlus} />
+              <span className="hidden sm:inline">Add song</span>
+            </button>
+            <button
+              title="Add song in new pack"
+              onClick={() => setAddInNewGroupOpen(true)}
+              className={`${btnPrimary} flex items-center gap-1.5 text-sm`}
+            >
+              <FontAwesomeIcon icon={faLayerGroup} />
+              <span className="hidden sm:inline">New pack</span>
+            </button>
+            <button
+              title="Bulk import songs from JSON"
+              onClick={() => fileInputRef.current?.click()}
+              className={`${btnPrimary} flex items-center gap-1.5 text-sm`}
+            >
+              <FontAwesomeIcon icon={faFileImport} />
+              <span className="hidden sm:inline">Import</span>
+            </button>
           </div>
-          <div>
-            {selectedSongId < 0 && (
-              <div>Select a song from the list to view informations.</div>
-            )}
-            {selectedSongId >= 0 && (
-              <SongItem song={songs.find((s) => s.id === selectedSongId) as Song} />
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function scoreBadgeClass(percentage: number, isFailed: boolean): string {
-  if (isFailed) return "bg-red-100 text-red-700 border-red-200";
-  if (percentage >= 99) return "bg-purple-100 text-purple-800 border-purple-200";
-  if (percentage >= 95) return "bg-blue-100 text-blue-800 border-blue-200";
-  if (percentage >= 90) return "bg-green-100 text-green-800 border-green-200";
-  if (percentage >= 80) return "bg-yellow-100 text-yellow-800 border-yellow-200";
-  return "bg-gray-100 text-gray-600 border-gray-200";
-}
-
-function SongItem({ song }: { song: Song }) {
-  const [scores, setScores] = useState<SongScore[]>([]);
-
-  useEffect(() => {
-    axios
-      .get<{ player: { playerName: string }; percentage: number; isFailed: boolean }[]>(
-        `songs/${song.id}/scores`,
-      )
-      .then((r) =>
-        setScores(
-          r.data.map((s) => ({
-            playerName: s.player?.playerName ?? "Unknown",
-            percentage: s.percentage,
-            isFailed: s.isFailed,
-          })),
-        ),
-      )
-      .catch(() => setScores([]));
-  }, [song.id]);
-
-  const sorted = [...scores].sort((a, b) =>
-    a.isFailed !== b.isFailed ? (a.isFailed ? 1 : -1) : b.percentage - a.percentage,
-  );
-
-  return (
-    <div className="text-gray-800">
-      <h3 className="text-2xl text-rossoTesto font-bold">Song Information</h3>
-
-      <div className="mt-3 flex items-baseline gap-2">
-        <span className="text-rossoTesto font-semibold">Title:</span>
-        <span className="text-gray-900">{song.title}</span>
-      </div>
-
-      <div className="mt-2 flex items-center gap-2">
-        <span className="text-rossoTesto font-semibold">Difficulty:</span>
-        <div className="flex items-center gap-0.5">
-          {[...Array(13)].map((_, i) => (
-            <span
-              key={i}
-              className={`${
-                i + 1 <= song.difficulty ? "bg-rossoTesto" : "bg-gray-300"
-              } h-4 rounded-sm w-2`}
-            />
-          ))}
-          <span className="ml-2 font-bold text-gray-900">{song.difficulty}</span>
-        </div>
-      </div>
-
-      <div className="mt-4">
-        <h4 className="text-rossoTesto font-semibold mb-2">
-          Player Scores
-          {scores.length > 0 && (
-            <span className="text-gray-400 font-normal text-sm ml-1">({scores.length})</span>
-          )}
-        </h4>
-        {scores.length === 0 ? (
-          <p className="text-gray-400 text-sm">No scores on record for this song.</p>
-        ) : (
-          <ul className="flex flex-col gap-1 max-h-64 overflow-y-auto pr-1">
-            {sorted.map((s, i) => (
-              <li
-                key={i}
-                className="flex items-center justify-between gap-3 px-3 py-1.5 rounded border bg-white"
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-xs text-gray-400 w-5 text-right shrink-0">#{i + 1}</span>
-                  <span className="text-sm text-gray-800 truncate">{s.playerName}</span>
-                </div>
-                <span
-                  className={`text-xs font-semibold px-2 py-0.5 rounded border shrink-0 ${scoreBadgeClass(s.percentage, s.isFailed)}`}
-                >
-                  {s.isFailed ? "FAILED" : `${Number(s.percentage).toFixed(2)}%`}
-                </span>
-              </li>
-            ))}
-          </ul>
         )}
       </div>
+
+      {/* Search / filter bar */}
+      <div className="flex flex-col sm:flex-row gap-2">
+        {/* Pack filter */}
+        <div className="relative sm:w-48 shrink-0">
+          <select
+            value={packFilter}
+            onChange={(e) => setPackFilter(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white appearance-none pr-8 focus:outline-none focus:ring-2 focus:ring-rossoTesto/30"
+          >
+            <option value="">All packs</option>
+            {packOptions.map((g) => (
+              <option key={g} value={g}>{g}</option>
+            ))}
+          </select>
+          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▼</span>
+        </div>
+
+        {/* Song search */}
+        <div className="relative flex-1">
+          <FontAwesomeIcon
+            icon={faSearch}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
+          />
+          <input
+            type="search"
+            placeholder="Search by title or artist…"
+            value={songSearch}
+            onChange={(e) => setSongSearch(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rossoTesto/30"
+          />
+        </div>
+      </div>
+
+      {/* Song list */}
+      <SongListView
+        songs={songs}
+        packFilter={packFilter}
+        songSearch={songSearch}
+        canEdit={canEdit}
+        onDelete={deleteSong}
+        onDeletePack={deletePack}
+      />
     </div>
   );
 }
