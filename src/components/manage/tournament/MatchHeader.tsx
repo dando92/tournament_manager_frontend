@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faInfoCircle, faPlus, faStickyNote, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faStickyNote, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Match } from "@/models/Match";
 import { btnTrash } from "@/styles/buttonStyles";
 
@@ -19,41 +19,41 @@ export default function MatchHeader({
   onOpenAddSong,
 }: Props) {
   return (
-    <div className="flex flex-row mb-6 justify-center items-center">
+    <div className="flex items-start justify-between gap-3 mb-3">
       <div>
-        <h2 className="text-center text-4xl font-bold text-rossoTesto">
-          <div className="flex flex-row justify-center items-center gap-3">
-            <span className="text-xl">{match.name}</span>
-            {controls && (
-              <button
-                className="text-lg"
-                title={match.notes ? match.notes : "Add notes"}
-                onClick={onOpenEditNotes}
-              >
-                <FontAwesomeIcon icon={faStickyNote} />
-              </button>
-            )}
-          </div>
-        </h2>
+        <div className="flex items-center gap-2">
+          <h3 className="text-base font-semibold text-gray-800">{match.name}</h3>
+          {controls ? (
+            <button
+              onClick={onOpenEditNotes}
+              title={match.notes || "Add notes"}
+              className={`text-sm ${match.notes ? "text-amber-500 hover:text-amber-700" : "text-gray-300 hover:text-gray-500"}`}
+            >
+              <FontAwesomeIcon icon={faStickyNote} />
+            </button>
+          ) : match.notes ? (
+            <span title={match.notes} className="text-amber-400 cursor-help text-sm">
+              <FontAwesomeIcon icon={faStickyNote} />
+            </span>
+          ) : null}
+        </div>
         {match.subtitle && (
-          <p className="text-sm font-normal text-rossoTesto flex flex-row items-center gap-1">
-            <FontAwesomeIcon icon={faInfoCircle} />
-            {match.subtitle}
-          </p>
+          <p className="text-xs text-gray-400 mt-0.5">{match.subtitle}</p>
         )}
       </div>
       {controls && (
-        <div className="ml-3 bg-gray-300 rounded-xl p-3 flex flex-row gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <button
-            title="Add a new round/song to the match"
             onClick={onOpenAddSong}
-            className="text-green-800 font-bold flex flex-row gap-2"
+            title="Add song/round"
+            className="text-green-700 hover:text-green-900 text-sm"
           >
             <FontAwesomeIcon icon={faPlus} />
           </button>
           <button
             onClick={() => onDeleteMatch(match.id)}
-            className={`ml-3 flex flex-row gap-2 ${btnTrash}`}
+            title="Delete match"
+            className={`text-sm ${btnTrash}`}
           >
             <FontAwesomeIcon icon={faTrash} />
           </button>

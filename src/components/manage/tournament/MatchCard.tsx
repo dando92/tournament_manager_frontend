@@ -8,7 +8,7 @@ import EditMatchNotesModal from "@/components/modals/EditMatchNotesModal";
 import MatchHeader from "@/components/manage/tournament/MatchHeader";
 import StandingsTable from "@/components/manage/tournament/StandingsTable";
 
-type MatchTableProps = {
+type MatchCardProps = {
   division: Division;
   phase: Phase;
   match: Match;
@@ -60,7 +60,7 @@ const closedModal: StandingModalState = {
   songTitle: "",
 };
 
-export default function MatchTable({
+export default function MatchCard({
   division,
   phase,
   match,
@@ -77,7 +77,7 @@ export default function MatchTable({
   onEditMatchNotes,
   onDeleteStanding,
   onEditStanding,
-}: MatchTableProps) {
+}: MatchCardProps) {
   const scoreTable: {
     [key: string]: { score: number; percentage: number; isFailed: boolean };
   } = {};

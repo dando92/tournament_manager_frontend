@@ -1,46 +1,45 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Phase } from "@/models/Phase";
+import { Division } from "@/models/Division";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import CreateMatchModal from "@/components/modals/CreateMatchModal";
-import { Division } from "@/models/Division";
-import MatchTable from "@/components/manage/tournament/MatchTable";
+import MatchCard from "@/components/manage/tournament/MatchCard";
 import { useMatches } from "@/services/matches/useMatches";
 
-type MatchesViewProps = {
+type MatchListProps = {
   phaseId: number;
-  controls?: boolean;
   division: Division;
+  controls?: boolean;
   tournamentId?: number;
   matchUpdateSignal?: number;
 };
 
-export default function MatchesView({
+export default function MatchList({
   phaseId,
   division,
   controls = false,
   tournamentId,
   matchUpdateSignal,
-}: MatchesViewProps) {
+}: MatchListProps) {
   const [phase, setPhase] = useState<Phase | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { state, actions } = useMatches(phaseId);
 
-  const [createMatchModalOpened, setCreateMatchModalOpened] = useState(false);
+  const [createMatchModalOpen, setCreateMatchModalOpen] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
     axios.get<Phase>(`/phases/${phaseId}`)
-      .then((response) => {
-        setPhase(response.data);
+      .then((r) => {
+        setPhase(r.data);
         setError(null);
         actions.list();
       })
       .catch(() => setError("Failed to load phase."))
       .finally(() => setIsLoading(false));
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phaseId]);
 
@@ -54,32 +53,31 @@ export default function MatchesView({
           phase={phase}
           division={division}
           tournamentId={tournamentId}
-          open={createMatchModalOpened}
-          onClose={() => setCreateMatchModalOpened(false)}
+          open={createMatchModalOpen}
+          onClose={() => setCreateMatchModalOpen(false)}
           onCreate={actions.create}
         />
       )}
 
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-lg font-semibold text-rossoTesto">{phase?.name}</h2>
-        {controls && (
+      {controls && (
+        <div className="flex justify-end mb-3">
           <button
-            onClick={() => setCreateMatchModalOpened(true)}
+            onClick={() => setCreateMatchModalOpen(true)}
             className="flex items-center gap-1.5 text-sm text-green-700 hover:text-green-900 font-medium"
           >
             <FontAwesomeIcon icon={faPlus} />
             New match
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {state.matches.length === 0 ? (
         <p className="text-center text-gray-400 text-sm py-8">No matches yet.</p>
       ) : (
-        <div className="flex flex-col gap-0">
+        <div>
           {phase &&
             state.matches.map((match) => (
-              <MatchTable
+              <MatchCard
                 key={match.id}
                 controls={controls}
                 division={division}

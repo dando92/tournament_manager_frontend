@@ -89,7 +89,7 @@ export default function CreateTournamentModal({ open, onClose, onCreated }: Prop
             value={syncstartUrl}
             onChange={(e) => setSyncstartUrl(e.target.value)}
             className="w-full border rounded px-3 py-2"
-            placeholder="wss://syncservice.groovestats.com:1337"
+            placeholder="ws://syncservice.groovestats.com:1337"
           />
         </div>
         {apiError && <p className="text-red-500 text-sm">{apiError}</p>}

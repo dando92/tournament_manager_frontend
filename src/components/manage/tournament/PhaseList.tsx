@@ -1,105 +1,124 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Phase } from "@/models/Phase";
 import { Division } from "@/models/Division";
-import Select from "react-select";
-import { selectStyles } from "@/styles/selectStyles";
-import { btnTrash } from "@/styles/buttonStyles";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTrash, faDiagramProject } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faEllipsisV, faDiagramProject } from "@fortawesome/free-solid-svg-icons";
 import GenerateBracketModal from "@/components/modals/GenerateBracketModal";
 import CreatePhaseModal from "@/components/modals/CreatePhaseModal";
 import OkModal from "@/components/modals/OkModal";
+import MatchList from "@/components/manage/tournament/MatchList";
 
 type PhaseListProps = {
   divisionId: number;
   tournamentId?: number;
   controls?: boolean;
-  onPhaseSelect: (phase: Phase | null) => void;
+  matchUpdateSignal?: number;
 };
 
 export default function PhaseList({
   divisionId,
   tournamentId,
   controls = false,
-  onPhaseSelect,
+  matchUpdateSignal,
 }: PhaseListProps) {
+  const [division, setDivision] = useState<Division | null>(null);
   const [phases, setPhases] = useState<Phase[]>([]);
-  const [selectedPhaseId, setSelectedPhaseId] = useState<number>(-1);
+  const [activePhaseId, setActivePhaseId] = useState<number | null>(null);
   const [bracketTypes, setBracketTypes] = useState<string[]>([]);
-  const [generateModalOpen, setGenerateModalOpen] = useState(false);
-  const [createPhaseModalOpen, setCreatePhaseModalOpen] = useState(false);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [generateModalOpen, setGenerateModalOpen] = useState(false);
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [renamingPhaseId, setRenamingPhaseId] = useState<number | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const renameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setIsLoading(true);
     axios.get<Division>(`divisions/${divisionId}`)
-      .then((response) => {
-        const phases = response.data.phases;
-        setPhases(phases);
+      .then((r) => {
+        setDivision(r.data);
+        const loaded = r.data.phases ?? [];
+        setPhases(loaded);
+        setActivePhaseId(loaded.length > 0 ? loaded[0].id : null);
         setError(null);
-        if (phases.length > 0) {
-          setSelectedPhaseId(phases[0].id);
-          onPhaseSelect(phases[0]);
-        }
       })
       .catch(() => setError("Failed to load phases."))
       .finally(() => setIsLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [divisionId]);
 
   useEffect(() => {
     if (controls) {
-      axios.get<string[]>("match-operations/bracket-types").then((r) => {
-        setBracketTypes(r.data);
-      });
+      axios.get<string[]>("match-operations/bracket-types")
+        .then((r) => setBracketTypes(r.data))
+        .catch(() => {});
     }
   }, [controls]);
 
+  useEffect(() => {
+    if (renamingPhaseId !== null) renameInputRef.current?.focus();
+  }, [renamingPhaseId]);
+
   const handleCreatePhase = (name: string) => {
-    axios.post<Phase>(`phases`, { divisionId, name }).then((response) => {
-      setPhases([...phases, response.data]);
-      setSelectedPhaseId(response.data.id);
-      onPhaseSelect(response.data);
+    axios.post<Phase>("phases", { divisionId, name }).then((r) => {
+      setPhases((prev) => [...prev, r.data]);
+      setActivePhaseId(r.data.id);
     });
   };
 
   const handleDeletePhase = () => {
     setDeleteConfirmOpen(false);
-    axios.delete(`phases/${selectedPhaseId}`).then(() => {
-      const remaining = phases.filter((d) => d.id !== selectedPhaseId);
-      setPhases(remaining);
-      setSelectedPhaseId(-1);
-      onPhaseSelect(null);
+    if (!activePhaseId) return;
+    axios.delete(`phases/${activePhaseId}`).then(() => {
+      setPhases((prev) => {
+        const remaining = prev.filter((p) => p.id !== activePhaseId);
+        setActivePhaseId(remaining.length > 0 ? remaining[0].id : null);
+        return remaining;
+      });
     });
   };
 
-  async function handleGenerateBracket(bracketType: string, playerPerMatch: number) {
+  const commitRename = async () => {
+    const trimmed = renameValue.trim();
+    const id = renamingPhaseId;
+    setRenamingPhaseId(null);
+    if (!id || !trimmed) return;
+    try {
+      await axios.patch(`phases/${id}`, { name: trimmed });
+      setPhases((prev) => prev.map((p) => (p.id === id ? { ...p, name: trimmed } : p)));
+    } catch {
+      // silently keep old name on error
+    }
+  };
+
+  const handleGenerateBracket = async (bracketType: string, playerPerMatch: number) => {
     if (!tournamentId) return;
     await axios.post(`match-operations/divisions/${divisionId}/generate-bracket`, {
       bracketType,
       tournamentId,
       playerPerMatch,
     });
-    const response = await axios.get<Division>(`divisions/${divisionId}`);
-    const newPhases = response.data.phases;
+    const r = await axios.get<Division>(`divisions/${divisionId}`);
+    const newPhases = r.data.phases ?? [];
     setPhases(newPhases);
-    if (newPhases.length > 0) {
-      setSelectedPhaseId(newPhases[0].id);
-      onPhaseSelect(newPhases[0]);
-    }
-  }
+    setActivePhaseId(newPhases.length > 0 ? newPhases[0].id : null);
+  };
 
-  if (isLoading) return <p className="text-gray-400 mt-3">Loading phases...</p>;
-  if (error) return <p className="text-red-500 mt-3">{error}</p>;
+  if (isLoading) return <p className="text-gray-400 mt-3 text-sm">Loading phases...</p>;
+  if (error) return <p className="text-red-500 mt-3 text-sm">{error}</p>;
+
+  const activePhase = phases.find((p) => p.id === activePhaseId) ?? null;
 
   return (
-    <div className="flex flex-col gap-3 mt-3">
+    <div className="mt-4">
       <CreatePhaseModal
-        open={createPhaseModalOpen}
-        onClose={() => setCreatePhaseModalOpen(false)}
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
         onCreate={handleCreatePhase}
       />
       <OkModal
@@ -111,63 +130,122 @@ export default function PhaseList({
       >
         Are you sure you want to delete this phase?
       </OkModal>
-
-      <div className="flex flex-row gap-3 items-center">
-        <Select
-          className="min-w-[300px]"
-          placeholder="Select phase"
-          styles={selectStyles}
-          options={phases.map((p) => ({ value: p.id, label: p.name }))}
-          onChange={(e) => {
-            onPhaseSelect(phases.find((p) => p.id === e?.value) ?? null);
-            setSelectedPhaseId(e?.value ?? -1);
-          }}
-          value={
-            selectedPhaseId >= 0
-              ? {
-                  value: phases.find((d) => d.id === selectedPhaseId)?.id,
-                  label: phases.find((d) => d.id === selectedPhaseId)?.name,
-                }
-              : null
-          }
-        />
-        {controls && (
-          <>
-            <button
-              onClick={() => setCreatePhaseModalOpen(true)}
-              className="text-green-700"
-              title="Create new phase"
-            >
-              <FontAwesomeIcon icon={faPlus} />
-            </button>
-            <button
-              onClick={() => setDeleteConfirmOpen(true)}
-              className={btnTrash}
-              disabled={selectedPhaseId === -1}
-              title={selectedPhaseId === -1 ? "Select a phase to delete" : "Delete phase"}
-            >
-              <FontAwesomeIcon icon={faTrash} />
-            </button>
-            {phases.length === 0 && tournamentId && bracketTypes.length > 0 && (
-              <button
-                onClick={() => setGenerateModalOpen(true)}
-                className="text-rossoTesto flex items-center gap-1 text-sm"
-                title="Generate bracket"
-              >
-                <FontAwesomeIcon icon={faDiagramProject} />
-                Generate bracket
-              </button>
-            )}
-          </>
-        )}
-      </div>
-
       {generateModalOpen && (
         <GenerateBracketModal
           open={generateModalOpen}
           onClose={() => setGenerateModalOpen(false)}
           bracketTypes={bracketTypes}
           onGenerate={handleGenerateBracket}
+        />
+      )}
+
+      {/* Phase tab bar */}
+      {(phases.length > 0 || controls) && (
+        <div className="overflow-x-auto">
+          <div className="flex items-end border-b border-gray-200 min-w-max">
+            {phases.map((phase) => {
+              const isActive = phase.id === activePhaseId;
+              const isRenaming = renamingPhaseId === phase.id;
+              return (
+                <div
+                  key={phase.id}
+                  className={`relative flex items-center gap-1.5 px-4 py-2 cursor-pointer select-none text-sm border-b-2 transition-colors ${
+                    isActive
+                      ? "border-rossoTesto text-rossoTesto font-semibold"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
+                  onClick={() => { if (!isRenaming) setActivePhaseId(phase.id); }}
+                >
+                  {isRenaming ? (
+                    <input
+                      ref={renameInputRef}
+                      className="border-b border-rossoTesto outline-none text-sm w-32 bg-transparent"
+                      value={renameValue}
+                      onChange={(e) => setRenameValue(e.target.value)}
+                      onBlur={commitRename}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") commitRename();
+                        if (e.key === "Escape") setRenamingPhaseId(null);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : (
+                    <span>{phase.name}</span>
+                  )}
+
+                  {/* ⋯ options menu on active tab */}
+                  {isActive && controls && !isRenaming && (
+                    <div className="relative">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setMenuOpen((v) => !v); }}
+                        className="text-gray-400 hover:text-gray-600 px-0.5"
+                        title="Phase options"
+                      >
+                        <FontAwesomeIcon icon={faEllipsisV} className="text-xs" />
+                      </button>
+                      {menuOpen && (
+                        <>
+                          <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                          <div className="absolute left-0 top-full mt-1 z-20 bg-white rounded shadow-lg border border-gray-200 min-w-[130px]">
+                            <button
+                              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                              onClick={() => {
+                                setMenuOpen(false);
+                                setRenameValue(phase.name);
+                                setRenamingPhaseId(phase.id);
+                              }}
+                            >
+                              Rename
+                            </button>
+                            <button
+                              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-gray-50"
+                              onClick={() => { setMenuOpen(false); setDeleteConfirmOpen(true); }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Add phase button at the end of tabs */}
+            {controls && (
+              <button
+                onClick={() => setCreateModalOpen(true)}
+                className="px-3 py-2 text-sm text-green-700 hover:text-green-900 border-b-2 border-transparent"
+                title="Add phase"
+              >
+                <FontAwesomeIcon icon={faPlus} />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Generate bracket prompt when no phases exist */}
+      {phases.length === 0 && controls && tournamentId && bracketTypes.length > 0 && (
+        <button
+          onClick={() => setGenerateModalOpen(true)}
+          className="mt-3 text-rossoTesto flex items-center gap-1.5 text-sm"
+        >
+          <FontAwesomeIcon icon={faDiagramProject} />
+          Generate bracket
+        </button>
+      )}
+
+      {/* Matches for the active phase */}
+      {activePhase && division && (
+        <MatchList
+          key={activePhase.id}
+          phaseId={activePhase.id}
+          division={division}
+          controls={controls}
+          tournamentId={tournamentId}
+          matchUpdateSignal={matchUpdateSignal}
         />
       )}
     </div>
