@@ -19,11 +19,18 @@ export default function LobbiesModal({ open, tournamentId, onClose }: Props) {
   const [newPassword, setNewPassword] = useState("");
   const [connecting, setConnecting] = useState(false);
 
+  const [syncstartUrl, setSyncstartUrl] = useState("");
+  const [savingUrl, setSavingUrl] = useState(false);
+
   useEffect(() => {
     if (!open) return;
     axios
       .get<LobbyEntry[]>(`tournaments/${tournamentId}/lobbies`)
       .then((r) => setLobbies(r.data))
+      .catch(() => {});
+    axios
+      .get<{ syncstartUrl?: string }>(`tournaments/${tournamentId}`)
+      .then((r) => setSyncstartUrl(r.data.syncstartUrl ?? ""))
       .catch(() => {});
   }, [open, tournamentId]);
 
@@ -56,6 +63,18 @@ export default function LobbiesModal({ open, tournamentId, onClose }: Props) {
     }
   };
 
+  const handleSaveUrl = async () => {
+    setSavingUrl(true);
+    try {
+      await axios.patch(`tournaments/${tournamentId}`, { syncstartUrl });
+      toast.success("Syncstart URL saved.");
+    } catch {
+      toast.error("Failed to save URL.");
+    } finally {
+      setSavingUrl(false);
+    }
+  };
+
   const handleDisconnect = async (lobbyId: string) => {
     await axios
       .delete(`tournaments/${tournamentId}/lobbies/${lobbyId}/disconnect`)
@@ -66,6 +85,27 @@ export default function LobbiesModal({ open, tournamentId, onClose }: Props) {
 
   return (
     <BaseModal open={open} onClose={onClose} title="Lobby connections" maxWidth="max-w-md">
+      {/* Syncstart URL */}
+      <div className="flex flex-col gap-2 mb-4 pb-4 border-b">
+        <p className="text-sm font-semibold text-gray-600">Syncstart server URL</p>
+        <div className="flex gap-2">
+          <input
+            className="border rounded px-3 py-1.5 text-sm flex-1 min-w-0"
+            placeholder="ws://syncservice.groovestats.com:1337"
+            value={syncstartUrl}
+            onChange={(e) => setSyncstartUrl(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") handleSaveUrl(); }}
+          />
+          <button
+            onClick={handleSaveUrl}
+            disabled={savingUrl}
+            className={`shrink-0 text-sm ${btnPrimary}`}
+          >
+            {savingUrl ? "Saving…" : "Save"}
+          </button>
+        </div>
+      </div>
+
       {/* Active lobbies */}
       {lobbies.length > 0 ? (
         <div className="flex flex-col gap-2 mb-4">
