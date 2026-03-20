@@ -15,7 +15,7 @@ export default function LiveScores({ lobbyState, singleColumn }: Props) {
     return [...lobbyState.players].sort((a, b) => {
       if (a.isFailed && !b.isFailed) return 1;
       if (!a.isFailed && b.isFailed) return -1;
-      return b.scorePercent - a.scorePercent;
+      return (b.scorePercent ?? 0) - (a.scorePercent ?? 0);
     });
   }, [lobbyState]);
 
@@ -29,7 +29,7 @@ export default function LiveScores({ lobbyState, singleColumn }: Props) {
           <div
             key={player.name}
             className={`flex flex-col items-start p-2 rounded-md shadow-md transition-transform transform ${
-              player.isFailed ? "bg-red-300 opacity-50" : "bg-gray-700"
+              player.isFailed === true ? "bg-red-300 opacity-50" : "bg-gray-700"
             } text-sfondoPagina ${idx === 0 ? "animate-first-place" : ""}`}
           >
             <div className="flex flex-row gap-5 justify-between items-end w-full">
@@ -66,22 +66,24 @@ export default function LiveScores({ lobbyState, singleColumn }: Props) {
                 )}
               </div>
             )}
-            <div className="w-full flex flex-row items-center gap-3">
-              <FontAwesomeIcon icon={faHeart} className="text-white" />
-              <div className="relative w-full h-2 my-2 rounded-md bg-grigio overflow-hidden">
-                <div
-                  className={`absolute top-0 left-0 h-full transition-all ${
-                    player.health === 1
-                      ? "bg-green-500"
-                      : player.health < 0.2
-                        ? "bg-red-500"
-                        : "bg-blue-500"
-                  }`}
-                  // health is a 0–1 float; width must be dynamic — cannot use Tailwind static classes
-                  style={{ width: `${player.health * 100}%` }}
-                />
+            {player.health != null && (
+              <div className="w-full flex flex-row items-center gap-3">
+                <FontAwesomeIcon icon={faHeart} className="text-white" />
+                <div className="relative w-full h-2 my-2 rounded-md bg-grigio overflow-hidden">
+                  <div
+                    className={`absolute top-0 left-0 h-full transition-all ${
+                      player.health === 1
+                        ? "bg-green-500"
+                        : player.health < 0.2
+                          ? "bg-red-500"
+                          : "bg-blue-500"
+                    }`}
+                    // health is a 0–1 float; width must be dynamic — cannot use Tailwind static classes
+                    style={{ width: `${player.health * 100}%` }}
+                  />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         ))}
       </div>
