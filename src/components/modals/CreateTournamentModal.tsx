@@ -12,11 +12,13 @@ type Props = {
 
 export default function CreateTournamentModal({ open, onClose, onCreated }: Props) {
   const [name, setName] = useState("");
+  const [syncstartUrl, setSyncstartUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
   const handleClose = () => {
     setName("");
+    setSyncstartUrl("");
     setApiError(null);
     onClose();
   };
@@ -28,8 +30,11 @@ export default function CreateTournamentModal({ open, onClose, onCreated }: Prop
     setApiError(null);
     setLoading(true);
     try {
-      const response = await axios.post<Tournament>("tournaments", { name: trimmed });
+      const body: { name: string; syncstartUrl?: string } = { name: trimmed };
+      if (syncstartUrl.trim()) body.syncstartUrl = syncstartUrl.trim();
+      const response = await axios.post<Tournament>("tournaments", body);
       setName("");
+      setSyncstartUrl("");
       onCreated(response.data);
     } catch {
       setApiError("Failed to create tournament.");
@@ -64,18 +69,30 @@ export default function CreateTournamentModal({ open, onClose, onCreated }: Prop
         </div>
       }
     >
-      <form id="create-tournament-form" onSubmit={handleSubmit}>
-        <label className="block text-sm font-medium mb-1">Tournament Name</label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full border rounded px-3 py-2"
-          placeholder="e.g. Euro Cup 2026"
-          autoFocus
-          required
-        />
-        {apiError && <p className="text-red-500 text-sm mt-2">{apiError}</p>}
+      <form id="create-tournament-form" onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <div>
+          <label className="block text-sm font-medium mb-1">Tournament Name</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+            placeholder="e.g. Euro Cup 2026"
+            autoFocus
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Syncstart Server URL</label>
+          <input
+            type="text"
+            value={syncstartUrl}
+            onChange={(e) => setSyncstartUrl(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+            placeholder="wss://syncservice.groovestats.com:1337"
+          />
+        </div>
+        {apiError && <p className="text-red-500 text-sm">{apiError}</p>}
       </form>
     </BaseModal>
   );

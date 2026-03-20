@@ -2,7 +2,7 @@ import TournamentSettings from "@/components/manage/tournament/TournamentSetting
 import LobbiesModal from "@/components/modals/LobbiesModal";
 import { btnPrimary } from "@/styles/buttonStyles";
 import { useParams } from "react-router-dom";
-import { faBroadcastTower, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faBroadcastTower, faGear, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState, useCallback } from "react";
 import { useMatchHub } from "@/services/useMatchHub";
@@ -33,6 +33,7 @@ export default function ManagePage() {
   useMatchHub(onMatchUpdate, Number(tournamentId) || undefined);
 
   const [participantsOpen, setParticipantsOpen] = useState(false);
+  const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
   const [tournamentPlayers, setTournamentPlayers] = useState<Player[]>([]);
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
 
@@ -123,20 +124,57 @@ export default function ManagePage() {
         headerActions={
           canControl && tournamentId ? (
             <>
-              <button
-                onClick={() => setLobbiesModalOpen(true)}
-                className={`flex flex-col md:flex-row items-center gap-0.5 md:gap-2 ${btnPrimary}`}
-              >
-                <FontAwesomeIcon icon={faBroadcastTower} className="text-base md:text-sm" />
-                <span className="text-xs md:text-sm leading-none">Lobbies</span>
-              </button>
-              <button
-                onClick={() => setParticipantsOpen(true)}
-                className={`flex flex-col md:flex-row items-center gap-0.5 md:gap-2 ${btnPrimary}`}
-              >
-                <FontAwesomeIcon icon={faUsers} className="text-base md:text-sm" />
-                <span className="text-xs md:text-sm leading-none">Participants</span>
-              </button>
+              {/* Desktop: two separate buttons */}
+              <div className="hidden md:flex items-center gap-2">
+                <button
+                  onClick={() => setLobbiesModalOpen(true)}
+                  className={`flex items-center gap-2 ${btnPrimary}`}
+                >
+                  <FontAwesomeIcon icon={faBroadcastTower} className="text-sm" />
+                  <span className="text-sm">Lobbies</span>
+                </button>
+                <button
+                  onClick={() => setParticipantsOpen(true)}
+                  className={`flex items-center gap-2 ${btnPrimary}`}
+                >
+                  <FontAwesomeIcon icon={faUsers} className="text-sm" />
+                  <span className="text-sm">Participants</span>
+                </button>
+              </div>
+
+              {/* Mobile: single gear button with dropdown */}
+              <div className="relative md:hidden">
+                <button
+                  onClick={() => setSettingsMenuOpen((v) => !v)}
+                  className={`flex items-center justify-center w-9 h-9 ${btnPrimary}`}
+                >
+                  <FontAwesomeIcon icon={faGear} className="text-base" />
+                </button>
+                {settingsMenuOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setSettingsMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 top-full mt-1 z-20 bg-white rounded shadow-lg border border-gray-200 min-w-[150px]">
+                      <button
+                        onClick={() => { setSettingsMenuOpen(false); setLobbiesModalOpen(true); }}
+                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        <FontAwesomeIcon icon={faBroadcastTower} className="text-rossoTesto" />
+                        Lobbies
+                      </button>
+                      <button
+                        onClick={() => { setSettingsMenuOpen(false); setParticipantsOpen(true); }}
+                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        <FontAwesomeIcon icon={faUsers} className="text-rossoTesto" />
+                        Participants
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </>
           ) : undefined
         }
