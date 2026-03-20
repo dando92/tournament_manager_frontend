@@ -60,7 +60,7 @@ function App() {
           {/* Main layout */}
           <Route element={<MainLayout />}>
             {/* Root and /view redirect to last selected tournament or /select */}
-            <Route path="/" element={<ViewPage />} />
+            <Route path="/" element={<SelectTournamentPage />} />
             <Route path="/view" element={<ViewPage />} />
             <Route path="/view/:tournamentId" element={<KeyedViewPage />} />
 
