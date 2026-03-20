@@ -200,19 +200,21 @@ export default function Sidebar() {
       </div>
 
       {/* Recent tournaments */}
-      {recentTournaments.length > 0 && (
-        <div className="flex flex-col gap-0.5 p-3 border-b border-white/10 shrink-0">
-          <p className="text-red-200 text-xs uppercase tracking-wide mb-1 px-1">Tournaments</p>
-          {recentTournaments.map((t) => (
+      <div className="flex flex-col gap-0.5 p-3 border-b border-white/10 shrink-0">
+        <p className="text-red-200 text-xs uppercase tracking-wide mb-1 px-1">Recent tournaments</p>
+        {recentTournaments.length > 0 ? (
+          recentTournaments.map((t) => (
             <TournamentButton
               key={t.id}
               tournament={t}
               selected={t.id === selectedTournament?.id}
               onClick={() => handleTournamentClick(t)}
             />
-          ))}
-        </div>
-      )}
+          ))
+        ) : (
+          <p className="text-red-300 text-xs px-1 italic">No recent tournaments</p>
+        )}
+      </div>
 
       {/* Navigation — shown when at least one tournament is selected */}
       {recentTournaments.length > 0 && (
