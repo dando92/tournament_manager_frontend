@@ -4,6 +4,7 @@ export type LobbyPlayerDto = {
   name: string;
   playerId: string;
   scorePercent: number;
+  exScore?: number;
   health?: number;
   isFailed?: boolean;
   judgments?: {

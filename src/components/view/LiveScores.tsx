@@ -15,6 +15,7 @@ export default function LiveScores({ lobbyState, singleColumn }: Props) {
     return [...lobbyState.players].sort((a, b) => {
       if (a.isFailed && !b.isFailed) return 1;
       if (!a.isFailed && b.isFailed) return -1;
+      if (a.exScore != null && b.exScore != null) return b.exScore - a.exScore;
       return (b.scorePercent ?? 0) - (a.scorePercent ?? 0);
     });
   }, [lobbyState]);
@@ -37,9 +38,16 @@ export default function LiveScores({ lobbyState, singleColumn }: Props) {
                 <span className="italic">#{idx + 1}</span>{" "}
                 <span className="font-bold">{player.name}</span>
               </span>
-              <span className="font-bold text-xl">
-                {player.scorePercent.toFixed(2)}%
-              </span>
+              <div className="flex items-baseline gap-2">
+                {player.exScore != null && (
+                  <span className="font-bold text-xl text-azzurro">
+                    {player.exScore.toFixed(2)}%
+                  </span>
+                )}
+                <span className={`font-bold ${player.exScore != null ? "text-sm text-white/70" : "text-xl"}`}>
+                  {player.scorePercent.toFixed(2)}%
+                </span>
+              </div>
             </div>
             {showJudgements && player.judgments && (
               <div className="flex text-xs text-ellipsis flex-wrap gap-3 text-bianco">
