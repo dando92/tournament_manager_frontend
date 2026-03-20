@@ -1,4 +1,4 @@
-name: Build & Deploy Frontend
+name: Build Frontend
 
 on:
   push:
@@ -7,21 +7,13 @@ on:
     branches: ["main", "testing"]
 
 jobs:
-  build-and-push:
+  build:
     runs-on: self-hosted
     permissions:
       contents: read
-      packages: write
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker metadata
         id: meta
@@ -33,33 +25,14 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=testing,enable=${{ github.ref == 'refs/heads/testing' }}
 
-      - name: Build & Push
+      - name: Build image
         uses: docker/build-push-action@v6
         with:
           context: ./
           file: Dockerfile
-          push: ${{ github.event_name == 'push' }}
+          push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             VITE_PUBLIC_API_URL=${{ secrets.VITE_PUBLIC_API_URL }}
             VITE_PUBLIC_ENABLE_LIVE_SCORES=${{ vars.VITE_PUBLIC_ENABLE_LIVE_SCORES || 'true' }}
-
-  deploy:
-    needs: build-and-push
-    runs-on: self-hosted
-    if: github.event_name == 'push'
-
-    steps:
-      - name: Pull latest image
-        run: docker pull ghcr.io/${{ github.repository_owner }}/tournament_manager_frontend:latest
-
-      - name: Restart container
-        run: |
-          docker stop tournament-frontend || true
-          docker rm tournament-frontend || true
-          docker run -d \
-            --name tournament-frontend \
-            --restart unless-stopped \
-            -p 80:80 \
-            ghcr.io/${{ github.repository_owner }}/tournament_manager_frontend:latest
