@@ -1,6 +1,6 @@
 import { Match } from "@/models/Match";
 
-type onListMatchesByPhase = {
+type onListMatches = {
   type: "onListMatches";
   payload: Match[];
 };
@@ -41,7 +41,7 @@ type onDeleteStandingFromMatch = {
 };
 
 export type MatchesActions =
-  | onListMatchesByPhase
+  | onListMatches
   | onCreateMatch
   | onEditMatchNotes
   | onDeleteMatch

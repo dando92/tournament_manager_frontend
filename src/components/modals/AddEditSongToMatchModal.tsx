@@ -8,27 +8,23 @@ import { selectPortalStyles } from "@/styles/selectStyles";
 type AddSongToMatchModalProps = {
   divisionId: number;
   matchId: number;
-  phaseId: number;
   songId?: number | null;
   tournamentId?: number;
   open: boolean;
   onClose: () => void;
   onAddSongToMatchByRoll: (
     divisionId: number,
-    phaseId: number,
     matchId: number,
     group: string,
     level: string,
   ) => void;
   onAddSongToMatchBySongId: (
     divisionId: number,
-    phaseId: number,
     matchId: number,
     songId: number,
   ) => void;
   onEditSongToMatchByRoll: (
     divisionId: number,
-    phaseId: number,
     matchId: number,
     group: string,
     level: string,
@@ -36,7 +32,6 @@ type AddSongToMatchModalProps = {
   ) => void;
   onEditSongToMatchBySongId: (
     divisionId: number,
-    phaseId: number,
     matchId: number,
     songId: number,
     editSongId: number,
@@ -45,7 +40,6 @@ type AddSongToMatchModalProps = {
 
 export default function AddEditSongToMatchModal({
   divisionId,
-  phaseId,
   matchId,
   songId,
   tournamentId,
@@ -92,22 +86,8 @@ export default function AddEditSongToMatchModal({
   const createRoundByRoll = () => {
     if (selectedGroupName && difficultyInput) {
       songId
-        ? onEditSongToMatchByRoll(
-            divisionId,
-            phaseId,
-            matchId,
-            selectedGroupName,
-            difficultyInput,
-            songId,
-          )
-        : onAddSongToMatchByRoll(
-            divisionId,
-            phaseId,
-            matchId,
-            selectedGroupName,
-            difficultyInput,
-          );
-
+        ? onEditSongToMatchByRoll(divisionId, matchId, selectedGroupName, difficultyInput, songId)
+        : onAddSongToMatchByRoll(divisionId, matchId, selectedGroupName, difficultyInput);
       onClose();
     }
   };
@@ -115,20 +95,8 @@ export default function AddEditSongToMatchModal({
   const createRoundBySongId = () => {
     if (selectedSong) {
       songId
-        ? onEditSongToMatchBySongId(
-            divisionId,
-            phaseId,
-            matchId,
-            selectedSong.id,
-            songId,
-          )
-        : onAddSongToMatchBySongId(
-            divisionId,
-            phaseId,
-            matchId,
-            selectedSong.id,
-          );
-
+        ? onEditSongToMatchBySongId(divisionId, matchId, selectedSong.id, songId)
+        : onAddSongToMatchBySongId(divisionId, matchId, selectedSong.id);
       onClose();
     }
   };

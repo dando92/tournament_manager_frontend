@@ -1,18 +1,18 @@
 import axios from "axios";
 import { Match } from "@/models/Match";
-import { Phase } from "@/models/Phase";
+import { Division } from "@/models/Division";
 import {
   AddStandingToMatchRequest,
   CreateMatchRequest,
 } from "@/models/requests/match-requests";
 
-export async function listByPhase(phaseId: number): Promise<Match[]> {
+export async function listByDivision(divisionId: number): Promise<Match[]> {
   try {
-    const response = await axios.get<Phase>(`phases/${phaseId}`);
+    const response = await axios.get<Division>(`divisions/${divisionId}`);
     return response.data.matches ?? [];
   } catch (error) {
-    console.error("Error listing matches by phase:", error);
-    throw new Error("Unable to list matches by phase.");
+    console.error("Error listing matches by division:", error);
+    throw new Error("Unable to list matches by division.");
   }
 }
 
@@ -22,7 +22,7 @@ export async function create(request: CreateMatchRequest): Promise<Match> {
       matchName: request.matchName,
       subtitle: request.subtitle,
       notes: request.notes,
-      phaseId: request.phaseId,
+      divisionId: request.divisionId,
       playerIds: request.playerIds,
       scoringSystem: request.scoringSystem,
       divisionId: request.divisionId,
