@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRefresh } from "@fortawesome/free-solid-svg-icons";
+import { faRefresh, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { btnTrash } from "@/styles/buttonStyles";
 import { Match } from "@/models/Match";
 import { Player } from "@/models/Player";
 import MatchRow from "@/components/manage/tournament/match/MatchRow";
@@ -28,6 +29,7 @@ type MatchTableProps = {
   pendingSourcePaths: (number | null)[];
   onPendingSourcePathChange: (index: number, matchId: number | null) => void;
   onOpenEditSong: (songId: number) => void;
+  onDeleteSong: (songId: number) => void;
   onOpenAddStanding: (playerId: number, songId: number, playerName: string, songTitle: string) => void;
   onOpenEditStanding: (
     playerId: number,
@@ -52,6 +54,7 @@ export default function MatchTable({
   pendingSourcePaths,
   onPendingSourcePathChange,
   onOpenEditSong,
+  onDeleteSong,
   onOpenAddStanding,
   onOpenEditStanding,
   onDeleteStanding,
@@ -132,13 +135,22 @@ export default function MatchTable({
                           {round.song.title}
                         </span>
                         {controls && !roundHasStandings && (
-                          <button
-                            onClick={() => onOpenEditSong(round.song.id)}
-                            title="Change song"
-                            className="opacity-60 hover:opacity-100 shrink-0"
-                          >
-                            <FontAwesomeIcon icon={faRefresh} className="text-xs" />
-                          </button>
+                          <>
+                            <button
+                              onClick={() => onOpenEditSong(round.song.id)}
+                              title="Change song"
+                              className="opacity-60 hover:opacity-100 shrink-0"
+                            >
+                              <FontAwesomeIcon icon={faRefresh} className="text-xs" />
+                            </button>
+                            <button
+                              onClick={() => onDeleteSong(round.song.id)}
+                              title="Remove song"
+                              className={`shrink-0 ${btnTrash}`}
+                            >
+                              <FontAwesomeIcon icon={faTrash} className="text-xs" />
+                            </button>
+                          </>
                         )}
                       </div>
                     </th>

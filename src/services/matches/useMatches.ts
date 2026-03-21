@@ -66,6 +66,17 @@ export function useMatches(divisionId: number) {
     }
   }
 
+  async function deleteSongFromMatch(matchId: number, songId: number) {
+    try {
+      const item = await MatchesApi.deleteSongFromMatch(matchId, songId);
+      dispatch({ type: "onDeleteSongFromMatch", payload: item });
+    } catch (error) {
+      toast.error("Error deleting song from match.");
+      console.error("Error deleting song from match:", error);
+      throw new Error("Unable to delete song from match.");
+    }
+  }
+
   async function addSongToMatchByRoll(
     matchId: number,
     divisionId: number,
@@ -211,6 +222,7 @@ export function useMatches(divisionId: number) {
       editMatchNotes,
       renameMatch,
       deleteMatch,
+      deleteSongFromMatch,
       addSongToMatchByRoll,
       addSongToMatchBySongId,
       editSongToMatchByRoll,

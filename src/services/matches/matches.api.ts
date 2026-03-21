@@ -72,6 +72,21 @@ export async function deleteMatch(matchId: number): Promise<void> {
   }
 }
 
+export async function deleteSongFromMatch(
+  matchId: number,
+  songId: number,
+): Promise<Match> {
+  try {
+    const response = await axios.delete<Match>(
+      `match-operations/matches/${matchId}/songs/${songId}`,
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting song from match:", error);
+    throw new Error("Unable to delete song from match.");
+  }
+}
+
 export async function addSongToMatch(
   matchId: number,
   songId?: number,

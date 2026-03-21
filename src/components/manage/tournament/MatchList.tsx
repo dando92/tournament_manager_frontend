@@ -85,6 +85,9 @@ export default function MatchList({
               onEditSongToMatchBySongId={(songId, editSongId) =>
                 actions.editSongToMatchBySongId(match.id, editSongId, songId)
               }
+              onDeleteSongFromMatch={(songId) =>
+                actions.deleteSongFromMatch(match.id, songId)
+              }
               onAddStandingToMatch={(playerId, songId, pct, sc, fail) =>
                 actions.addStandingToMatch(match.id, playerId, songId, pct, sc, fail)
               }
