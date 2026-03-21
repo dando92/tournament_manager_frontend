@@ -30,6 +30,7 @@ type MatchCardProps = {
     isFailed: boolean,
   ) => void;
   onEditMatchNotes: (matchId: number, notes: string) => void;
+  onRenameMatch?: (matchId: number, name: string) => void;
   onEditStanding: (
     playerId: number,
     songId: number,
@@ -79,6 +80,7 @@ export default function MatchCard({
   onEditSongToMatchBySongId,
   onAddStandingToMatch,
   onEditMatchNotes,
+  onRenameMatch,
   onDeleteStanding,
   onEditStanding,
   onUpdateMatchPaths,
@@ -172,35 +174,13 @@ export default function MatchCard({
         onOpenEditNotes={() => setEditMatchNotesModalOpen(true)}
         onDeleteMatch={onDeleteMatch}
         onOpenAddSong={() => setAddSongToMatchModalOpen(true)}
+        onRenameMatch={onRenameMatch}
+        editMode={editMode}
+        canEditRoutes={(match.players?.length ?? 0) < maxPlayersPerMatch}
+        onEditRoutes={enterEditMode}
+        onSaveRoutes={saveEditMode}
+        onCancelRoutes={cancelEditMode}
       />
-
-      {controls && (
-        <div className="flex items-center gap-2 mb-2">
-          {editMode ? (
-            <>
-              <button
-                onClick={saveEditMode}
-                className="text-xs text-white bg-green-600 hover:bg-green-700 font-medium rounded px-2 py-1 transition-colors"
-              >
-                Save
-              </button>
-              <button
-                onClick={cancelEditMode}
-                className="text-xs text-gray-600 hover:text-gray-800 font-medium border border-gray-200 rounded px-2 py-1 hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-            </>
-          ) : (match.players?.length ?? 0) < maxPlayersPerMatch ? (
-            <button
-              onClick={enterEditMode}
-              className="text-xs text-blue-600 hover:text-blue-800 font-medium border border-blue-200 rounded px-2 py-1 hover:bg-blue-50 transition-colors"
-            >
-              Edit match routes
-            </button>
-          ) : null}
-        </div>
-      )}
 
       <MatchTable
         match={match}

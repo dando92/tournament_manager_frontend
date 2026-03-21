@@ -71,6 +71,7 @@ export default function MatchList({
               }
               onMatchUpdated={actions.list}
               onEditMatchNotes={actions.editMatchNotes}
+              onRenameMatch={actions.renameMatch}
               onDeleteMatch={actions.deleteMatch}
               onAddSongToMatchByRoll={(group, level) =>
                 actions.addSongToMatchByRoll(match.id, division.id, group, level)

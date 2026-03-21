@@ -41,6 +41,17 @@ export function useMatches(divisionId: number) {
     }
   }
 
+  async function renameMatch(matchId: number, name: string) {
+    try {
+      await MatchesApi.renameMatch(matchId, name);
+      dispatch({ type: "onRenameMatch", payload: [matchId, name] });
+    } catch (error) {
+      toast.error("Error renaming match.");
+      console.error("Error renaming match:", error);
+      throw new Error("Unable to rename match.");
+    }
+  }
+
   async function deleteMatch(matchId: number) {
     try {
       await MatchesApi.deleteMatch(matchId);
@@ -198,6 +209,7 @@ export function useMatches(divisionId: number) {
       list,
       create,
       editMatchNotes,
+      renameMatch,
       deleteMatch,
       addSongToMatchByRoll,
       addSongToMatchBySongId,
