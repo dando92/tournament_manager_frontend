@@ -50,6 +50,19 @@ export async function editMatchNotes(
   }
 }
 
+export async function renameMatch(
+  matchId: number,
+  name: string,
+): Promise<string> {
+  try {
+    const response = await axios.patch<Match>(`matches/${matchId}`, { name });
+    return response.data.name;
+  } catch (error) {
+    console.error("Error renaming match:", error);
+    throw new Error("Unable to rename match.");
+  }
+}
+
 export async function deleteMatch(matchId: number): Promise<void> {
   try {
     await axios.delete("matches/" + matchId);
