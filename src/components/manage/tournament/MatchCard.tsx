@@ -171,7 +171,6 @@ export default function MatchCard({
         onOpenEditStanding={(playerId, songId, playerName, songTitle, percentage, score, isFailed) =>
           setStandingModal({ open: true, mode: "edit", playerId, songId, playerName, songTitle, initialPercentage: percentage, initialScore: score, initialIsFailed: isFailed })
         }
-        onDisablePlayer={(playerId, songId) => onAddStandingToMatch(playerId, songId, -1, 0, true)}
         onDeleteStanding={onDeleteStanding}
       />
     </div>
