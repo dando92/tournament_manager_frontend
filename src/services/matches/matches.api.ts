@@ -134,6 +134,22 @@ export async function editStandingInMatch(
   }
 }
 
+export async function updateMatchPaths(
+  matchId: number,
+  sourcePaths: number[],
+): Promise<Match> {
+  try {
+    const response = await axios.put<Match>(
+      `match-operations/matches/${matchId}/paths`,
+      { sourcePaths },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating match paths:", error);
+    throw new Error("Unable to update match paths.");
+  }
+}
+
 export async function deleteStandingFromMatch(
   matchId: number,
   playerId: number,

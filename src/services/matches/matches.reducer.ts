@@ -63,6 +63,13 @@ export function matchesReducer(state: MatchesState, action: MatchesActions) {
           match.id === payload.id ? payload : match,
         ),
       };
+    case "onUpdateMatchPaths":
+      return {
+        ...state,
+        matches: state.matches.map((match) =>
+          match.id === payload.id ? payload : match,
+        ),
+      };
     default:
       return state;
   }

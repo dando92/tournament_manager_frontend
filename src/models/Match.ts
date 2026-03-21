@@ -9,4 +9,6 @@ export interface Match {
   scoringSystem: string;
   players: Player[];
   rounds: Round[];
+  targetPaths: number[];
+  sourcePaths: number[];
 }

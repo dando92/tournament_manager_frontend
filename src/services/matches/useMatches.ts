@@ -181,6 +181,17 @@ export function useMatches(divisionId: number) {
     }
   }
 
+  async function updateMatchPaths(matchId: number, sourcePaths: number[]) {
+    try {
+      const item = await MatchesApi.updateMatchPaths(matchId, sourcePaths);
+      dispatch({ type: "onUpdateMatchPaths", payload: item });
+    } catch (error) {
+      toast.error("Error updating match paths.");
+      console.error("Error updating match paths:", error);
+      throw new Error("Unable to update match paths.");
+    }
+  }
+
   return {
     state,
     actions: {
@@ -195,6 +206,7 @@ export function useMatches(divisionId: number) {
       addStandingToMatch,
       editStandingFromMatch,
       deleteStandingsForPlayerFromMatch,
+      updateMatchPaths,
     },
   };
 }

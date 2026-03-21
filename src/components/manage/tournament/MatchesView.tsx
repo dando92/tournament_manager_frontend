@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import CreateMatchModal from "@/components/modals/CreateMatchModal";
 import { Division } from "@/models/Division";
-import MatchTable from "@/components/manage/tournament/MatchTable";
+import MatchCard from "@/components/manage/tournament/MatchCard";
 import { useMatches } from "@/services/matches/useMatches";
 
 type MatchesViewProps = {
@@ -21,6 +21,7 @@ export default function MatchesView({
 }: MatchesViewProps) {
   const { state, actions } = useMatches(division.id);
   const [createMatchModalOpened, setCreateMatchModalOpened] = useState(false);
+  const [highlightedMatchId, setHighlightedMatchId] = useState<number | null>(null);
 
   useEffect(() => {
     actions.list();
@@ -55,13 +56,16 @@ export default function MatchesView({
         <p className="text-center text-gray-400 text-sm py-8">No matches yet.</p>
       ) : (
         <div className="flex flex-col gap-0">
-          {state.matches.map((match) => (
-            <MatchTable
+          {[...state.matches].sort((a, b) => a.id - b.id).map((match) => (
+            <MatchCard
               key={match.id}
               controls={controls}
               division={division}
+              allMatches={state.matches}
               tournamentId={tournamentId}
               matchUpdateSignal={matchUpdateSignal}
+              highlightedMatchId={highlightedMatchId}
+              onHighlightMatch={setHighlightedMatchId}
               onDeleteStanding={(playerId, songId) =>
                 actions.deleteStandingsForPlayerFromMatch(match.id, playerId, songId)
               }
@@ -86,6 +90,7 @@ export default function MatchesView({
               onEditStanding={(playerId, songId, pct, sc, fail) =>
                 actions.editStandingFromMatch(match.id, songId, playerId, pct, sc, fail)
               }
+              onUpdateMatchPaths={actions.updateMatchPaths}
               match={match}
             />
           ))}

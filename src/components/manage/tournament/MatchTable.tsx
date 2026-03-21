@@ -1,35 +1,33 @@
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { Match } from "@/models/Match";
-import { Division } from "@/models/Division";
-import AddEditSongToMatchModal from "@/components/modals/AddEditSongToMatchModal";
-import { useEffect, useRef, useState } from "react";
-import StandingModal from "@/components/modals/StandingModal";
-import EditMatchNotesModal from "@/components/modals/EditMatchNotesModal";
-import MatchHeader from "@/components/manage/tournament/MatchHeader";
-import StandingsTable from "@/components/manage/tournament/StandingsTable";
+import { Player } from "@/models/Player";
+import MatchRow from "@/components/manage/tournament/match/MatchRow";
+import PlayerRow from "@/components/manage/tournament/match/PlayerRow";
+import PathRow from "@/components/manage/tournament/match/PathRow";
+import EditPathRow from "@/components/manage/tournament/match/EditPathRow";
+
+type ScoreEntry = { score: number; percentage: number; isFailed: boolean };
 
 type MatchTableProps = {
-  division: Division;
   match: Match;
-  controls?: boolean;
-  tournamentId?: number;
-  matchUpdateSignal?: number;
-  onMatchUpdated: () => void;
-  onDeleteMatch: (matchId: number) => void;
-  onAddSongToMatchByRoll: (group: string, level: string) => void;
-  onAddSongToMatchBySongId: (songId: number) => void;
-  onEditSongToMatchByRoll: (group: string, level: string, editSongId: number) => void;
-  onEditSongToMatchBySongId: (songId: number, editSongId: number) => void;
-  onAddStandingToMatch: (
+  allMatches: Match[];
+  maxPlayersPerMatch: number;
+  controls: boolean;
+  editMode: boolean;
+  highlightedMatchId: number | null;
+  onHighlightMatch: (id: number | null) => void;
+  pendingSourcePaths: (number | null)[];
+  onPendingSourcePathChange: (index: number, matchId: number | null) => void;
+  onOpenEditSong: (songId: number) => void;
+  onOpenAddStanding: (playerId: number, songId: number, playerName: string, songTitle: string) => void;
+  onOpenEditStanding: (
     playerId: number,
     songId: number,
-    percentage: number,
-    score: number,
-    isFailed: boolean,
-  ) => void;
-  onEditMatchNotes: (matchId: number, notes: string) => void;
-  onEditStanding: (
-    playerId: number,
-    songId: number,
+    playerName: string,
+    songTitle: string,
     percentage: number,
     score: number,
     isFailed: boolean,
@@ -37,56 +35,35 @@ type MatchTableProps = {
   onDeleteStanding: (playerId: number, songId: number) => void;
 };
 
-type StandingModalState = {
-  open: boolean;
-  mode: "add" | "edit";
-  playerId: number;
-  songId: number;
-  playerName: string;
-  songTitle: string;
-  initialPercentage?: number;
-  initialScore?: number;
-  initialIsFailed?: boolean;
-};
-
-const closedModal: StandingModalState = {
-  open: false,
-  mode: "add",
-  playerId: 0,
-  songId: 0,
-  playerName: "",
-  songTitle: "",
-};
-
 export default function MatchTable({
-  division,
   match,
-  controls = false,
-  tournamentId,
-  matchUpdateSignal,
-  onMatchUpdated,
-  onDeleteMatch,
-  onAddSongToMatchByRoll,
-  onAddSongToMatchBySongId,
-  onEditSongToMatchByRoll,
-  onEditSongToMatchBySongId,
-  onAddStandingToMatch,
-  onEditMatchNotes,
+  allMatches,
+  maxPlayersPerMatch,
+  controls,
+  editMode,
+  highlightedMatchId,
+  onHighlightMatch,
+  pendingSourcePaths,
+  onPendingSourcePathChange,
+  onOpenEditSong,
+  onOpenAddStanding,
+  onOpenEditStanding,
   onDeleteStanding,
-  onEditStanding,
 }: MatchTableProps) {
-  const scoreTable: {
-    [key: string]: { score: number; percentage: number; isFailed: boolean };
-  } = {};
+  const [tooltip, setTooltip] = useState<{ roundId: number; title: string; x: number; y: number } | null>(null);
 
-  const [addSongToMatchModalOpen, setAddSongToMatchModalOpen] = useState(false);
-  const [editSongId, setEditSongId] = useState<number | null>(null);
-  const [standingModal, setStandingModal] = useState<StandingModalState>(closedModal);
-  const [editMatchNotesModalOpen, setEditMatchNotesModalOpen] = useState(false);
+  useEffect(() => {
+    if (!tooltip) return;
+    const close = () => setTooltip(null);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("click", close);
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("click", close);
+    };
+  }, [tooltip]);
 
-  const onMatchUpdatedRef = useRef(onMatchUpdated);
-  useEffect(() => { onMatchUpdatedRef.current = onMatchUpdated; });
-
+  const scoreTable: Record<string, ScoreEntry> = {};
   match.rounds.forEach((round) => {
     round.standings.forEach((standing) => {
       const key = `${standing.score.player.id}-${standing.score.song.id}`;
@@ -98,11 +75,6 @@ export default function MatchTable({
     });
   });
 
-  useEffect(() => {
-    if (!matchUpdateSignal) return;
-    onMatchUpdatedRef.current();
-  }, [matchUpdateSignal]);
-
   const getTotalPoints = (playerId: number) =>
     match.rounds
       .map((round) => round.standings.find((s) => s.score.player.id === playerId))
@@ -112,67 +84,132 @@ export default function MatchTable({
     (a, b) => getTotalPoints(b.id) - getTotalPoints(a.id),
   );
 
+  const sourcePaths = match.sourcePaths ?? [];
+  const hasContent = sortedPlayers.length > 0 || sourcePaths.length > 0;
+
+  // Number of empty slots needing EditPathRows
+  const emptySlots = Math.max(0, maxPlayersPerMatch - sortedPlayers.length);
+
+  // colSpan for single-cell rows (PathRow, PlayerRow, EditPathRow, empty message)
+  const totalCols = editMode ? 1 : Math.max(2, match.rounds.length + 2);
+
   return (
-    <div className="flex flex-col w-full p-4 my-3 border border-gray-100 rounded-xl bg-white shadow-sm">
-      <AddEditSongToMatchModal
-        songId={editSongId}
-        matchId={match.id}
-        divisionId={division.id}
-        tournamentId={tournamentId}
-        open={addSongToMatchModalOpen}
-        onAddSongToMatchByRoll={(_, __, group, level) => onAddSongToMatchByRoll(group, level)}
-        onAddSongToMatchBySongId={(_, __, songId) => onAddSongToMatchBySongId(songId)}
-        onEditSongToMatchByRoll={(_, __, group, level, editSongId) => onEditSongToMatchByRoll(group, level, editSongId)}
-        onEditSongToMatchBySongId={(_, __, songId, editSongId) => onEditSongToMatchBySongId(songId, editSongId)}
-        onClose={() => {
-          setAddSongToMatchModalOpen(false);
-          setEditSongId(null);
-        }}
-      />
-      <StandingModal
-        {...standingModal}
-        onClose={() => setStandingModal(closedModal)}
-        onSave={(playerId, songId, pct, score, isFailed) => {
-          if (standingModal.mode === "add") {
-            onAddStandingToMatch(playerId, songId, pct, score, isFailed);
-          } else {
-            onEditStanding(playerId, songId, pct, score, isFailed);
-          }
-        }}
-        onDelete={(playerId, songId) => onDeleteStanding(playerId, songId)}
-      />
-      <EditMatchNotesModal
-        match={match}
-        open={editMatchNotesModalOpen}
-        onClose={() => setEditMatchNotesModalOpen(false)}
-        onSave={onEditMatchNotes}
-      />
+    <>
+      <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+        <table className="w-full text-sm border-collapse">
+          {!editMode && match.rounds.length > 0 && (
+            <thead>
+              <tr className="bg-rossoTesto text-white">
+                <th className="px-3 py-2.5 text-left font-semibold w-[120px] sm:w-[160px]">Player</th>
+                {match.rounds.map((round, idx) => {
+                  const roundHasStandings = round.standings.length > 0;
+                  return (
+                    <th key={round.song.id} className="px-1 sm:px-3 py-2.5 text-center font-semibold min-w-[70px] sm:min-w-[130px]">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <div className="sm:hidden">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (tooltip?.roundId === round.song.id) {
+                                setTooltip(null);
+                              } else {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setTooltip({ roundId: round.song.id, title: round.song.title, x: rect.left + rect.width / 2, y: rect.top - 8 });
+                              }
+                            }}
+                            className="font-semibold px-1"
+                          >
+                            {idx + 1}
+                          </button>
+                        </div>
+                        <span className="hidden sm:inline truncate max-w-[110px]" title={round.song.title}>
+                          {round.song.title}
+                        </span>
+                        {controls && !roundHasStandings && (
+                          <button
+                            onClick={() => onOpenEditSong(round.song.id)}
+                            title="Change song"
+                            className="opacity-60 hover:opacity-100 shrink-0"
+                          >
+                            <FontAwesomeIcon icon={faRefresh} className="text-xs" />
+                          </button>
+                        )}
+                      </div>
+                    </th>
+                  );
+                })}
+                <th className="px-1 sm:px-3 py-2.5 text-center font-semibold w-[48px] sm:w-[72px]">Pts</th>
+              </tr>
+            </thead>
+          )}
 
-      <MatchHeader
-        match={match}
-        controls={controls}
-        onOpenEditNotes={() => setEditMatchNotesModalOpen(true)}
-        onDeleteMatch={onDeleteMatch}
-        onOpenAddSong={() => setAddSongToMatchModalOpen(true)}
-      />
+          <tbody>
+            {!hasContent && !editMode && (
+              <tr>
+                <td colSpan={totalCols} className="px-3 py-6 text-center text-gray-400 text-sm">
+                  No match data available
+                </td>
+              </tr>
+            )}
 
-      <StandingsTable
-        match={match}
-        controls={controls}
-        scoreTable={scoreTable}
-        sortedPlayers={sortedPlayers}
-        onOpenEditSong={(songId) => {
-          setEditSongId(songId);
-          setAddSongToMatchModalOpen(true);
-        }}
-        onOpenAddStanding={(playerId, songId, playerName, songTitle) =>
-          setStandingModal({ open: true, mode: "add", playerId, songId, playerName, songTitle })
-        }
-        onOpenEditStanding={(playerId, songId, playerName, songTitle, percentage, score, isFailed) =>
-          setStandingModal({ open: true, mode: "edit", playerId, songId, playerName, songTitle, initialPercentage: percentage, initialScore: score, initialIsFailed: isFailed })
-        }
-        onDeleteStanding={onDeleteStanding}
-      />
-    </div>
+            {!editMode && sourcePaths.map((sourceId) => {
+              const sourceMatch = allMatches.find((m) => m.id === Number(sourceId));
+              const name = sourceMatch?.name ?? String(sourceId);
+              const sourceIdNum = Number(sourceId);
+              const isSelected = highlightedMatchId === sourceIdNum;
+              return (
+                <PathRow
+                  key={sourceId}
+                  sourceMatchName={name}
+                  colSpan={totalCols}
+                  isSelected={isSelected}
+                  onToggle={() => onHighlightMatch(isSelected ? null : sourceIdNum)}
+                />
+              );
+            })}
+
+            {!editMode && sortedPlayers.map((player, i) => (
+              <MatchRow
+                key={player.id}
+                match={match}
+                player={player}
+                rank={i}
+                controls={controls}
+                scoreTable={scoreTable}
+                onOpenAddStanding={onOpenAddStanding}
+                onOpenEditStanding={onOpenEditStanding}
+                onDeleteStanding={onDeleteStanding}
+              />
+            ))}
+
+            {editMode && sortedPlayers.map((player) => (
+              <PlayerRow key={player.id} player={player} />
+            ))}
+
+            {editMode && Array.from({ length: emptySlots }).map((_, i) => (
+              <EditPathRow
+                key={i}
+                allMatches={allMatches}
+                currentMatchId={match.id}
+                value={pendingSourcePaths[i] ?? null}
+                onChange={(matchId) => onPendingSourcePathChange(i, matchId)}
+                onHighlightMatch={onHighlightMatch}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {tooltip && createPortal(
+        <div
+          style={{ position: "fixed", left: tooltip.x, top: tooltip.y, transform: "translate(-50%, -100%)", zIndex: 9999 }}
+          className="bg-gray-800 text-white text-xs rounded px-2 py-1.5 whitespace-nowrap shadow-lg pointer-events-none"
+        >
+          {tooltip.title}
+          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800" />
+        </div>,
+        document.body,
+      )}
+    </>
   );
 }
