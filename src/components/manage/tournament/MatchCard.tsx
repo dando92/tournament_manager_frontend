@@ -5,14 +5,17 @@ import { useEffect, useRef, useState } from "react";
 import StandingModal from "@/components/modals/StandingModal";
 import EditMatchNotesModal from "@/components/modals/EditMatchNotesModal";
 import MatchHeader from "@/components/manage/tournament/MatchHeader";
-import StandingsTable from "@/components/manage/tournament/StandingsTable";
+import MatchTable from "@/components/manage/tournament/MatchTable";
 
 type MatchCardProps = {
   division: Division;
   match: Match;
+  allMatches: Match[];
   controls?: boolean;
   tournamentId?: number;
   matchUpdateSignal?: number;
+  highlightedMatchId?: number | null;
+  onHighlightMatch?: (id: number | null) => void;
   onMatchUpdated: () => void;
   onDeleteMatch: (matchId: number) => void;
   onAddSongToMatchByRoll: (group: string, level: string) => void;
@@ -35,6 +38,7 @@ type MatchCardProps = {
     isFailed: boolean,
   ) => void;
   onDeleteStanding: (playerId: number, songId: number) => void;
+  onUpdateMatchPaths?: (matchId: number, sourcePaths: number[]) => Promise<void>;
 };
 
 type StandingModalState = {
@@ -61,9 +65,12 @@ const closedModal: StandingModalState = {
 export default function MatchCard({
   division,
   match,
+  allMatches,
   controls = false,
   tournamentId,
   matchUpdateSignal,
+  highlightedMatchId = null,
+  onHighlightMatch = () => {},
   onMatchUpdated,
   onDeleteMatch,
   onAddSongToMatchByRoll,
@@ -74,46 +81,57 @@ export default function MatchCard({
   onEditMatchNotes,
   onDeleteStanding,
   onEditStanding,
+  onUpdateMatchPaths,
 }: MatchCardProps) {
-  const scoreTable: {
-    [key: string]: { score: number; percentage: number; isFailed: boolean };
-  } = {};
-
   const [addSongToMatchModalOpen, setAddSongToMatchModalOpen] = useState(false);
   const [editSongId, setEditSongId] = useState<number | null>(null);
   const [standingModal, setStandingModal] = useState<StandingModalState>(closedModal);
   const [editMatchNotesModalOpen, setEditMatchNotesModalOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [pendingSourcePaths, setPendingSourcePaths] = useState<(number | null)[]>([]);
 
   const onMatchUpdatedRef = useRef(onMatchUpdated);
   useEffect(() => { onMatchUpdatedRef.current = onMatchUpdated; });
-
-  match.rounds.forEach((round) => {
-    round.standings.forEach((standing) => {
-      const key = `${standing.score.player.id}-${standing.score.song.id}`;
-      scoreTable[key] = {
-        score: standing.points,
-        percentage: Number(standing.score.percentage),
-        isFailed: standing.score.isFailed,
-      };
-    });
-  });
 
   useEffect(() => {
     if (!matchUpdateSignal) return;
     onMatchUpdatedRef.current();
   }, [matchUpdateSignal]);
 
-  const getTotalPoints = (playerId: number) =>
-    match.rounds
-      .map((round) => round.standings.find((s) => s.score.player.id === playerId))
-      .reduce((acc, standing) => acc + (standing?.points ?? 0), 0);
+  const maxPlayersPerMatch = division.playersPerMatch ?? 2;
+  const isHighlighted = match.id === highlightedMatchId;
 
-  const sortedPlayers = [...match.players].sort(
-    (a, b) => getTotalPoints(b.id) - getTotalPoints(a.id),
-  );
+  function enterEditMode() {
+    const existing = match.sourcePaths ?? [];
+    const slots = Math.max(0, maxPlayersPerMatch - (match.players?.length ?? 0));
+    const initial: (number | null)[] = Array.from({ length: slots }, (_, i) => existing[i] ?? null);
+    setPendingSourcePaths(initial);
+    setEditMode(true);
+  }
+
+  function cancelEditMode() {
+    setEditMode(false);
+    setPendingSourcePaths([]);
+  }
+
+  async function saveEditMode() {
+    const newSourcePaths = pendingSourcePaths.filter((id): id is number => id !== null);
+    if (onUpdateMatchPaths) {
+      await onUpdateMatchPaths(match.id, newSourcePaths);
+    }
+    onMatchUpdatedRef.current();
+    setEditMode(false);
+    setPendingSourcePaths([]);
+  }
 
   return (
-    <div className="flex flex-col w-full p-4 my-3 border border-gray-100 rounded-xl bg-white shadow-sm">
+    <div
+      className={`flex flex-col w-full p-4 my-3 border rounded-xl bg-white shadow-sm transition-shadow ${
+        isHighlighted
+          ? "border-green-400 ring-2 ring-green-300 shadow-green-100 shadow-lg"
+          : "border-gray-100"
+      }`}
+    >
       <AddEditSongToMatchModal
         songId={editSongId}
         matchId={match.id}
@@ -156,11 +174,50 @@ export default function MatchCard({
         onOpenAddSong={() => setAddSongToMatchModalOpen(true)}
       />
 
-      <StandingsTable
+      {controls && (
+        <div className="flex items-center gap-2 mb-2">
+          {editMode ? (
+            <>
+              <button
+                onClick={saveEditMode}
+                className="text-xs text-white bg-green-600 hover:bg-green-700 font-medium rounded px-2 py-1 transition-colors"
+              >
+                Save
+              </button>
+              <button
+                onClick={cancelEditMode}
+                className="text-xs text-gray-600 hover:text-gray-800 font-medium border border-gray-200 rounded px-2 py-1 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </>
+          ) : (match.players?.length ?? 0) < maxPlayersPerMatch ? (
+            <button
+              onClick={enterEditMode}
+              className="text-xs text-blue-600 hover:text-blue-800 font-medium border border-blue-200 rounded px-2 py-1 hover:bg-blue-50 transition-colors"
+            >
+              Edit match routes
+            </button>
+          ) : null}
+        </div>
+      )}
+
+      <MatchTable
         match={match}
+        allMatches={allMatches}
+        maxPlayersPerMatch={maxPlayersPerMatch}
         controls={controls}
-        scoreTable={scoreTable}
-        sortedPlayers={sortedPlayers}
+        editMode={editMode}
+        highlightedMatchId={highlightedMatchId}
+        onHighlightMatch={onHighlightMatch}
+        pendingSourcePaths={pendingSourcePaths}
+        onPendingSourcePathChange={(index, matchId) => {
+          setPendingSourcePaths((prev) => {
+            const next = [...prev];
+            next[index] = matchId;
+            return next;
+          });
+        }}
         onOpenEditSong={(songId) => {
           setEditSongId(songId);
           setAddSongToMatchModalOpen(true);

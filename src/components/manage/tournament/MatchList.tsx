@@ -21,6 +21,7 @@ export default function MatchList({
 }: MatchListProps) {
   const { state, actions } = useMatches(division.id);
   const [createMatchModalOpen, setCreateMatchModalOpen] = useState(false);
+  const [highlightedMatchId, setHighlightedMatchId] = useState<number | null>(null);
 
   useEffect(() => {
     actions.list();
@@ -55,13 +56,16 @@ export default function MatchList({
         <p className="text-center text-gray-400 text-sm py-8">No matches yet.</p>
       ) : (
         <div>
-          {state.matches.map((match) => (
+          {[...state.matches].sort((a, b) => a.id - b.id).map((match) => (
             <MatchCard
               key={match.id}
               controls={controls}
               division={division}
+              allMatches={state.matches}
               tournamentId={tournamentId}
               matchUpdateSignal={matchUpdateSignal}
+              highlightedMatchId={highlightedMatchId}
+              onHighlightMatch={setHighlightedMatchId}
               onDeleteStanding={(playerId, songId) =>
                 actions.deleteStandingsForPlayerFromMatch(match.id, playerId, songId)
               }
@@ -86,6 +90,7 @@ export default function MatchList({
               onEditStanding={(playerId, songId, pct, sc, fail) =>
                 actions.editStandingFromMatch(match.id, songId, playerId, pct, sc, fail)
               }
+              onUpdateMatchPaths={actions.updateMatchPaths}
               match={match}
             />
           ))}
