@@ -4,17 +4,17 @@ import * as MatchesApi from "@/services/matches/matches.api";
 import { CreateMatchRequest } from "@/models/requests/match-requests";
 import { toast } from "react-toastify";
 
-export function useMatches(phaseId: number) {
+export function useMatches(divisionId: number) {
   const [state, dispatch] = useReducer(matchesReducer, initialState);
 
   async function list() {
     try {
-      const items = await MatchesApi.listByPhase(phaseId);
+      const items = await MatchesApi.listByDivision(divisionId);
       dispatch({ type: "onListMatches", payload: items });
     } catch (error) {
-      console.error("Error listing matches by phase:", error);
-      toast.error("Error listing matches by phase.");
-      throw new Error("Unable to list matches by phase.");
+      console.error("Error listing matches by division:", error);
+      toast.error("Error listing matches by division.");
+      throw new Error("Unable to list matches by division.");
     }
   }
 

@@ -1,6 +1,5 @@
 import { Match } from "@/models/Match";
 import { Division } from "@/models/Division";
-import { Phase } from "@/models/Phase";
 import AddEditSongToMatchModal from "@/components/modals/AddEditSongToMatchModal";
 import { useEffect, useRef, useState } from "react";
 import StandingModal from "@/components/modals/StandingModal";
@@ -10,7 +9,6 @@ import StandingsTable from "@/components/manage/tournament/StandingsTable";
 
 type MatchCardProps = {
   division: Division;
-  phase: Phase;
   match: Match;
   controls?: boolean;
   tournamentId?: number;
@@ -62,7 +60,6 @@ const closedModal: StandingModalState = {
 
 export default function MatchCard({
   division,
-  phase,
   match,
   controls = false,
   tournamentId,
@@ -119,15 +116,14 @@ export default function MatchCard({
     <div className="flex flex-col w-full p-4 my-3 border border-gray-100 rounded-xl bg-white shadow-sm">
       <AddEditSongToMatchModal
         songId={editSongId}
-        phaseId={phase.id}
         matchId={match.id}
         divisionId={division.id}
         tournamentId={tournamentId}
         open={addSongToMatchModalOpen}
-        onAddSongToMatchByRoll={(_, __, ___, group, level) => onAddSongToMatchByRoll(group, level)}
-        onAddSongToMatchBySongId={(_, __, ___, songId) => onAddSongToMatchBySongId(songId)}
-        onEditSongToMatchByRoll={(_, __, ___, group, level, editSongId) => onEditSongToMatchByRoll(group, level, editSongId)}
-        onEditSongToMatchBySongId={(_, __, ___, songId, editSongId) => onEditSongToMatchBySongId(songId, editSongId)}
+        onAddSongToMatchByRoll={(_, __, group, level) => onAddSongToMatchByRoll(group, level)}
+        onAddSongToMatchBySongId={(_, __, songId) => onAddSongToMatchBySongId(songId)}
+        onEditSongToMatchByRoll={(_, __, group, level, editSongId) => onEditSongToMatchByRoll(group, level, editSongId)}
+        onEditSongToMatchBySongId={(_, __, songId, editSongId) => onEditSongToMatchBySongId(songId, editSongId)}
         onClose={() => {
           setAddSongToMatchModalOpen(false);
           setEditSongId(null);

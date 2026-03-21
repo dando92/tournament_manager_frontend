@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
 import { Division } from "@/models/Division";
-import { Phase } from "@/models/Phase";
 import axios from "axios";
 import MatchesView from "@/components/manage/tournament/MatchesView";
 import LobbyLiveBlock from "@/components/view/LobbyLiveBlock";
@@ -8,7 +7,6 @@ import { useMatchHub } from "@/services/useMatchHub";
 import { useScoreHub, TournamentLobbyStateDto, ActiveLobbyDto } from "@/services/useScoreHub";
 
 type TournamentLiveState = {
-  phase: Phase | null;
   division: Division | null;
   matchUpdateSignal: number;
 };
@@ -35,18 +33,14 @@ export default function LivePhase({ tournamentId, initialActiveLobbies }: Props)
     });
   }, [initialActiveLobbies]);
 
-  const fetchPhaseAndDivision = useCallback(
-    (tid: number, phaseId: number, divisionId: number) => {
-      Promise.all([
-        axios.get<Phase>(`/phases/${phaseId}`),
-        axios.get<Division>(`/divisions/${divisionId}`),
-      ])
-        .then(([phaseRes, divRes]) => {
+  const fetchDivision = useCallback(
+    (tid: number, divisionId: number) => {
+      axios.get<Division>(`/divisions/${divisionId}`)
+        .then((divRes) => {
           setTournamentStates((prev) => {
             const next = new Map(prev);
             const curr = next.get(tid);
             next.set(tid, {
-              phase: phaseRes.data,
               division: divRes.data,
               matchUpdateSignal: (curr?.matchUpdateSignal ?? 0) + 1,
             });
@@ -59,8 +53,8 @@ export default function LivePhase({ tournamentId, initialActiveLobbies }: Props)
   );
 
   useMatchHub((data) => {
-    if (data.phaseId && data.divisionId && data.tournamentId) {
-      fetchPhaseAndDivision(data.tournamentId, data.phaseId, data.divisionId);
+    if (data.divisionId && data.tournamentId) {
+      fetchDivision(data.tournamentId, data.divisionId);
     }
   });
 
@@ -112,13 +106,12 @@ export default function LivePhase({ tournamentId, initialActiveLobbies }: Props)
             </div>
           ))}
       </div>
-      {state?.division && state?.phase && (
+      {state?.division && (
         <div>
           <h3 className="text-center text-5xl text-rossoTesto font-bold">
             {state.division.name}
           </h3>
           <MatchesView
-            phaseId={state.phase.id}
             division={state.division}
             matchUpdateSignal={state.matchUpdateSignal}
           />

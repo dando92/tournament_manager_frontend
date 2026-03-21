@@ -6,7 +6,6 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMinusCircle, faPlusCircle} from "@fortawesome/free-solid-svg-icons";
 import {Song} from "@/models/Song";
 import {Division} from "@/models/Division";
-import {Phase} from "@/models/Phase";
 import {CreateMatchRequest} from "@/models/requests/match-requests";
 import { selectPortalStyles } from "@/styles/selectStyles";
 import Select from "react-select";
@@ -15,7 +14,6 @@ type CreateMatchModal = {
     open: boolean;
     onClose: () => void;
     onCreate: (request: CreateMatchRequest) => void;
-    phase: Phase;
     division: Division;
     tournamentId?: number;
 };
@@ -24,7 +22,6 @@ export default function CreateMatchModal({
                                              open,
                                              onClose,
                                              onCreate,
-                                             phase,
                                              division,
                                              tournamentId,
                                          }: CreateMatchModal) {
@@ -89,7 +86,6 @@ export default function CreateMatchModal({
     const createMatchByTitle = () => {
         const request = {
             divisionId: division.id,
-            phaseId: phase.id,
             matchName: matchName,
             subtitle: subtitle,
             group: selectedGroupName,
@@ -105,7 +101,6 @@ export default function CreateMatchModal({
     const createMatchByRoll = () => {
         const request = {
             divisionId: division.id,
-            phaseId: phase.id,
             matchName: matchName,
             subtitle: subtitle,
             group: selectedGroupName,

@@ -1,6 +1,5 @@
 export interface CreateMatchRequest {
   divisionId: number;
-  phaseId: number;
   matchName: string;
   subtitle: string;
   scoringSystem: string;
