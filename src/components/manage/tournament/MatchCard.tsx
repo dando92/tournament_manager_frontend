@@ -22,6 +22,7 @@ type MatchCardProps = {
   onAddSongToMatchBySongId: (songId: number) => void;
   onEditSongToMatchByRoll: (group: string, level: string, editSongId: number) => void;
   onEditSongToMatchBySongId: (songId: number, editSongId: number) => void;
+  onDeleteSongFromMatch: (songId: number) => void;
   onAddStandingToMatch: (
     playerId: number,
     songId: number,
@@ -78,6 +79,7 @@ export default function MatchCard({
   onAddSongToMatchBySongId,
   onEditSongToMatchByRoll,
   onEditSongToMatchBySongId,
+  onDeleteSongFromMatch,
   onAddStandingToMatch,
   onEditMatchNotes,
   onRenameMatch,
@@ -202,6 +204,7 @@ export default function MatchCard({
           setEditSongId(songId);
           setAddSongToMatchModalOpen(true);
         }}
+        onDeleteSong={onDeleteSongFromMatch}
         onOpenAddStanding={(playerId, songId, playerName, songTitle) =>
           setStandingModal({ open: true, mode: "add", playerId, songId, playerName, songTitle })
         }
