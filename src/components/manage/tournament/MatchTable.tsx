@@ -9,6 +9,12 @@ import PlayerRow from "@/components/manage/tournament/match/PlayerRow";
 import PathRow from "@/components/manage/tournament/match/PathRow";
 import EditPathRow from "@/components/manage/tournament/match/EditPathRow";
 
+function toOrdinal(n: number): string {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
 type ScoreEntry = { score: number; percentage: number; isFailed: boolean };
 
 type MatchTableProps = {
@@ -152,20 +158,29 @@ export default function MatchTable({
               </tr>
             )}
 
-            {!editMode && sourcePaths.map((sourceId) => {
-              const sourceMatch = allMatches.find((m) => m.id === Number(sourceId));
-              const name = sourceMatch?.name ?? String(sourceId);
+            {!editMode && sourcePaths.flatMap((sourceId) => {
               const sourceIdNum = Number(sourceId);
+              const sourceMatch = allMatches.find((m) => m.id === sourceIdNum);
+              const name = sourceMatch?.name ?? String(sourceId);
               const isSelected = highlightedMatchId === sourceIdNum;
-              return (
+
+              // Find positions in source match's targetPaths that point to this match
+              const positions: number[] = [];
+              (sourceMatch?.targetPaths ?? []).forEach((targetId, idx) => {
+                if (Number(targetId) === match.id) positions.push(idx + 1);
+              });
+              if (positions.length === 0) positions.push(1);
+
+              return positions.map((pos) => (
                 <PathRow
-                  key={sourceId}
+                  key={`${sourceId}-${pos}`}
+                  ordinalLabel={toOrdinal(pos)}
                   sourceMatchName={name}
                   colSpan={totalCols}
                   isSelected={isSelected}
                   onToggle={() => onHighlightMatch(isSelected ? null : sourceIdNum)}
                 />
-              );
+              ));
             })}
 
             {!editMode && sortedPlayers.map((player, i) => (

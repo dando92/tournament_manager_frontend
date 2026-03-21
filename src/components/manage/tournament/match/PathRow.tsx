@@ -1,11 +1,12 @@
 type PathRowProps = {
+  ordinalLabel: string;
   sourceMatchName: string;
   colSpan: number;
   isSelected: boolean;
   onToggle: () => void;
 };
 
-export default function PathRow({ sourceMatchName, colSpan, isSelected, onToggle }: PathRowProps) {
+export default function PathRow({ ordinalLabel, sourceMatchName, colSpan, isSelected, onToggle }: PathRowProps) {
   return (
     <tr
       className={`border-t border-gray-100 cursor-pointer transition-colors ${
@@ -19,7 +20,7 @@ export default function PathRow({ sourceMatchName, colSpan, isSelected, onToggle
           isSelected ? "text-green-700 font-medium" : "text-gray-400"
         }`}
       >
-        Winner of Match {sourceMatchName}
+        {ordinalLabel} of {sourceMatchName}
       </td>
     </tr>
   );
