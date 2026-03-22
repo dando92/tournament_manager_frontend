@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { Tournament } from "@/models/Tournament";
 import BaseModal from "@/components/modals/BaseModal";
-import { btnPrimary } from "@/styles/buttonStyles";
+import { btnPrimary, btnSecondary } from "@/styles/buttonStyles";
 
 type Props = {
   open: boolean;
@@ -54,7 +54,7 @@ export default function CreateTournamentModal({ open, onClose, onCreated }: Prop
           <button
             type="button"
             onClick={handleClose}
-            className="flex-1 border border-rossoTesto text-rossoTesto py-2 rounded font-semibold hover:bg-gray-50"
+            className={`flex-1 ${btnSecondary}`}
           >
             Cancel
           </button>

@@ -24,14 +24,14 @@ export default function LiveScores({ lobbyState, singleColumn }: Props) {
 
   return (
     <div className="w-auto">
-      <h2 className="text-rossoTesto">Now playing: {songTitle}</h2>
+      <h2 className="text-primary-dark">Now playing: {songTitle}</h2>
       <div className={`grid my-2 border-b pb-2 gap-1 ${singleColumn ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-3 lg:grid-cols-4"}`}>
         {sortedPlayers.map((player, idx) => (
           <div
             key={player.name}
             className={`flex flex-col items-start p-2 rounded-md shadow-md transition-transform transform ${
               player.isFailed === true ? "bg-red-300 opacity-50" : "bg-gray-700"
-            } text-sfondoPagina ${idx === 0 ? "animate-first-place" : ""}`}
+            } text-white ${idx === 0 ? "animate-first-place" : ""}`}
           >
             <div className="flex flex-row gap-5 justify-between items-end w-full">
               <span className="text-xl">
@@ -40,7 +40,7 @@ export default function LiveScores({ lobbyState, singleColumn }: Props) {
               </span>
               <div className="flex items-baseline gap-2">
                 {player.exScore != null && (
-                  <span className="font-bold text-xl text-azzurro">
+                  <span className="font-bold text-xl text-cyan-400">
                     {player.exScore.toFixed(2)}%
                   </span>
                 )}
@@ -50,7 +50,7 @@ export default function LiveScores({ lobbyState, singleColumn }: Props) {
               </div>
             </div>
             {showJudgements && player.judgments && (
-              <div className="flex text-xs text-ellipsis flex-wrap gap-3 text-bianco">
+              <div className="flex text-xs text-ellipsis flex-wrap gap-3 text-white">
                 {player.judgments.fantasticPlus > 0 && (
                   <span className="text-blue-200">{player.judgments.fantasticPlus}FA+</span>
                 )}
@@ -77,7 +77,7 @@ export default function LiveScores({ lobbyState, singleColumn }: Props) {
             {player.health != null && (
               <div className="w-full flex flex-row items-center gap-3">
                 <FontAwesomeIcon icon={faHeart} className="text-white" />
-                <div className="relative w-full h-2 my-2 rounded-md bg-grigio overflow-hidden">
+                <div className="relative w-full h-2 my-2 rounded-md bg-gray-200 overflow-hidden">
                   <div
                     className={`absolute top-0 left-0 h-full transition-all ${
                       player.health === 1

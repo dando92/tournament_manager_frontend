@@ -42,7 +42,7 @@ export default function ManageParticipantsModal({
       <div className="flex flex-row gap-6">
         {/* Players section */}
         <div className="flex-1">
-          <h4 className="font-semibold text-rossoTesto mb-2">Players</h4>
+          <h4 className="font-semibold text-primary-dark mb-2">Players</h4>
 
           {players.availableToAdd.length > 0 && (
             <select
@@ -92,7 +92,7 @@ export default function ManageParticipantsModal({
 
         {/* Helpers section */}
         <div className="flex-1">
-          <h4 className="font-semibold text-rossoTesto mb-2">Tournament Helpers</h4>
+          <h4 className="font-semibold text-primary-dark mb-2">Tournament Helpers</h4>
 
           {canEditHelpers && helpers.availableCandidates.length > 0 && (
             <select

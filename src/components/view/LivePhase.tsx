@@ -108,7 +108,7 @@ export default function LivePhase({ tournamentId, initialActiveLobbies }: Props)
       </div>
       {state?.division && (
         <div>
-          <h3 className="text-center text-5xl text-rossoTesto font-bold">
+          <h3 className="text-center text-5xl text-primary-dark font-bold">
             {state.division.name}
           </h3>
           <MatchesView

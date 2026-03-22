@@ -32,7 +32,7 @@ export default function DivisionCard({ division, tournamentName, onSelect, onGen
       {/* Players */}
       <div className="px-4 py-3 border-b border-gray-100">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-semibold text-blue-600 shrink-0">Players</span>
+          <span className="text-xs font-semibold text-primary-dark shrink-0">Players</span>
           {visiblePlayers.length === 0 ? (
             <span className="text-xs text-gray-400 italic">No players</span>
           ) : (
@@ -44,7 +44,7 @@ export default function DivisionCard({ division, tournamentName, onSelect, onGen
                 </span>
               ))}
               {extraPlayers > 0 && (
-                <span className="text-xs text-blue-500">+{extraPlayers} more</span>
+                <span className="text-xs text-primary-dark/70">+{extraPlayers} more</span>
               )}
             </>
           )}
@@ -54,7 +54,7 @@ export default function DivisionCard({ division, tournamentName, onSelect, onGen
       {/* Brackets / Phases */}
       <div className="px-4 py-3 flex-1">
         <div className="flex items-start gap-2">
-          <span className="text-xs font-semibold text-blue-600 shrink-0 mt-0.5">Brackets</span>
+          <span className="text-xs font-semibold text-primary-dark shrink-0 mt-0.5">Brackets</span>
           <div className="flex flex-col gap-1 min-w-0">
             {visiblePhases.length === 0 ? (
               <div className="flex items-center gap-1.5">
@@ -98,7 +98,7 @@ export default function DivisionCard({ division, tournamentName, onSelect, onGen
         ) : (
           <button
             onClick={onSelect}
-            className="w-full py-2 border border-blue-300 text-blue-600 text-sm font-medium rounded hover:bg-blue-50 transition-colors"
+            className="w-full py-2 border border-primary-dark text-primary-dark text-sm font-medium rounded hover:bg-primary-dark/5 transition-colors"
           >
             View Bracket
           </button>

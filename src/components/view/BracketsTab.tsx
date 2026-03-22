@@ -84,11 +84,11 @@ function PhaseButton({
       onClick={onClick}
       className={`flex flex-col items-start px-3 py-1.5 rounded border text-left transition-colors text-xs ${
         selected
-          ? "border-blue-500 bg-blue-50 text-blue-700"
+          ? "border-primary-dark bg-primary-dark/10 text-primary-dark"
           : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
       }`}
     >
-      <span className={`font-medium ${selected ? "text-blue-700" : "text-gray-700"}`}>{label}</span>
+      <span className={`font-medium ${selected ? "text-primary-dark" : "text-gray-700"}`}>{label}</span>
       {sublabel && <span className="text-gray-400">{sublabel}</span>}
     </button>
   );

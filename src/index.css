@@ -17,7 +17,6 @@ h1,
 h2,
 h3 {
   font-family: "NeufreitEx", sans-serif;
-  @apply text-middle;
 }
 
 /* Create an animation on class animate-first-place that scales 95% to 105% */

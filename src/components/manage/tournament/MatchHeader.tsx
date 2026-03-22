@@ -59,7 +59,7 @@ export default function MatchHeader({
           {controls && isRenaming ? (
             <input
               ref={inputRef}
-              className="text-base font-semibold text-gray-800 border-b border-rossoTesto outline-none bg-transparent w-40"
+              className="text-base font-semibold text-gray-800 border-b border-primary-dark outline-none bg-transparent w-40"
               value={renameValue}
               onChange={(e) => setRenameValue(e.target.value)}
               onBlur={commitRename}
@@ -70,7 +70,7 @@ export default function MatchHeader({
             />
           ) : (
             <h3
-              className={`text-base font-semibold text-gray-800 ${controls ? "cursor-pointer hover:text-rossoTesto transition-colors" : ""}`}
+              className={`text-base font-semibold text-gray-800 ${controls ? "cursor-pointer hover:text-primary-dark transition-colors" : ""}`}
               onClick={controls ? startRename : undefined}
               title={controls ? "Click to rename" : undefined}
             >
@@ -109,7 +109,7 @@ export default function MatchHeader({
             ) : canEditRoutes ? (
               <button
                 onClick={onEditRoutes}
-                className="text-xs text-blue-600 hover:text-blue-800 font-medium border border-blue-200 rounded px-2 py-0.5 hover:bg-blue-50 transition-colors"
+                className="text-xs text-primary-dark font-medium border border-primary-dark/30 rounded px-2 py-0.5 hover:bg-primary-dark/10 transition-colors"
               >
                 Edit routes
               </button>

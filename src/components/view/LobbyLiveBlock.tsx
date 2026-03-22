@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTv } from "@fortawesome/free-solid-svg-icons";
 import LiveScores from "@/components/view/LiveScores";
 import { TournamentLobbyStateDto } from "@/services/useScoreHub";
+import { btnPrimary } from "@/styles/buttonStyles";
 
 type Props = {
   lobbyState: TournamentLobbyStateDto;
@@ -14,7 +15,7 @@ export default function LobbyLiveBlock({ lobbyState }: Props) {
     <div className="mb-6">
       <div className="flex items-stretch justify-between mb-2">
         <div className="flex flex-col justify-center">
-          <span className="text-lg font-bold text-rossoTesto">{lobbyState.lobbyName}</span>
+          <span className="text-lg font-bold text-primary-dark">{lobbyState.lobbyName}</span>
           {lobbyState.lobbyCode && (
             <span className="text-xs text-gray-400">{lobbyState.lobbyCode}</span>
           )}
@@ -23,7 +24,7 @@ export default function LobbyLiveBlock({ lobbyState }: Props) {
           href={obsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 bg-rossoTesto text-white px-3 py-1.5 rounded text-sm hover:opacity-90"
+          className={`flex items-center gap-2 text-sm ${btnPrimary}`}
         >
           <FontAwesomeIcon icon={faTv} />
           <span>OBS source</span>

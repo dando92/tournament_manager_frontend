@@ -106,14 +106,14 @@ export default function ManageActionsMenu({ tournamentId, canEditHelpers }: Prop
                 onClick={() => { setMenuOpen(false); setLobbiesOpen(true); }}
                 className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
               >
-                <FontAwesomeIcon icon={faBroadcastTower} className="text-rossoTesto" />
+                <FontAwesomeIcon icon={faBroadcastTower} className="text-primary-dark" />
                 Lobbies
               </button>
               <button
                 onClick={() => { setMenuOpen(false); setParticipantsOpen(true); }}
                 className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
               >
-                <FontAwesomeIcon icon={faUsers} className="text-rossoTesto" />
+                <FontAwesomeIcon icon={faUsers} className="text-primary-dark" />
                 Participants
               </button>
             </div>

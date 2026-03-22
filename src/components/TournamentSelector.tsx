@@ -37,7 +37,7 @@ export default function TournamentSelector({
     <div className="flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-rossoTesto">Select Tournament</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">Select Tournament</h1>
         {headerAction}
       </div>
 
@@ -47,7 +47,7 @@ export default function TournamentSelector({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="search tournament..."
-        className="w-full border-2 border-gray-300 focus:border-rossoTesto outline-none rounded-lg px-4 py-3 text-gray-700 text-base"
+        className="w-full border-2 border-gray-300 focus:border-primary-dark outline-none rounded-lg px-4 py-3 text-gray-700 text-base"
       />
 
       {/* List */}
@@ -67,7 +67,7 @@ export default function TournamentSelector({
             >
               <FontAwesomeIcon
                 icon={faTrophy}
-                className="text-rossoTesto text-xl shrink-0"
+                className="text-primary-dark text-xl shrink-0"
               />
               <span className="text-lg font-semibold text-gray-800">
                 {t.name}

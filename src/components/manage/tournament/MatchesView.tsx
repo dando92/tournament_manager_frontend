@@ -78,6 +78,9 @@ export default function MatchesView({
               onAddSongToMatchBySongId={(songId) =>
                 actions.addSongToMatchBySongId(match.id, songId)
               }
+              onDeleteSongFromMatch={(songId) =>
+                actions.deleteSongFromMatch(match.id, songId)
+              }
               onEditSongToMatchByRoll={(group, level, editSongId) =>
                 actions.editSongToMatchByRoll(match.id, editSongId, division.id, group, level)
               }
