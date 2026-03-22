@@ -5,20 +5,24 @@ import { useEffect, useRef, useState } from "react";
 import StandingModal from "@/components/modals/StandingModal";
 import EditMatchNotesModal from "@/components/modals/EditMatchNotesModal";
 import MatchHeader from "@/components/manage/tournament/MatchHeader";
-import StandingsTable from "@/components/manage/tournament/StandingsTable";
+import MatchTable from "@/components/manage/tournament/MatchTable";
 
 type MatchCardProps = {
   division: Division;
   match: Match;
+  allMatches: Match[];
   controls?: boolean;
   tournamentId?: number;
   matchUpdateSignal?: number;
+  highlightedMatchId?: number | null;
+  onHighlightMatch?: (id: number | null) => void;
   onMatchUpdated: () => void;
   onDeleteMatch: (matchId: number) => void;
   onAddSongToMatchByRoll: (group: string, level: string) => void;
   onAddSongToMatchBySongId: (songId: number) => void;
   onEditSongToMatchByRoll: (group: string, level: string, editSongId: number) => void;
   onEditSongToMatchBySongId: (songId: number, editSongId: number) => void;
+  onDeleteSongFromMatch: (songId: number) => void;
   onAddStandingToMatch: (
     playerId: number,
     songId: number,
@@ -27,6 +31,7 @@ type MatchCardProps = {
     isFailed: boolean,
   ) => void;
   onEditMatchNotes: (matchId: number, notes: string) => void;
+  onRenameMatch?: (matchId: number, name: string) => void;
   onEditStanding: (
     playerId: number,
     songId: number,
@@ -35,6 +40,7 @@ type MatchCardProps = {
     isFailed: boolean,
   ) => void;
   onDeleteStanding: (playerId: number, songId: number) => void;
+  onUpdateMatchPaths?: (matchId: number, sourcePaths: number[]) => Promise<void>;
 };
 
 type StandingModalState = {
@@ -61,59 +67,75 @@ const closedModal: StandingModalState = {
 export default function MatchCard({
   division,
   match,
+  allMatches,
   controls = false,
   tournamentId,
   matchUpdateSignal,
+  highlightedMatchId = null,
+  onHighlightMatch = () => {},
   onMatchUpdated,
   onDeleteMatch,
   onAddSongToMatchByRoll,
   onAddSongToMatchBySongId,
   onEditSongToMatchByRoll,
   onEditSongToMatchBySongId,
+  onDeleteSongFromMatch,
   onAddStandingToMatch,
   onEditMatchNotes,
+  onRenameMatch,
   onDeleteStanding,
   onEditStanding,
+  onUpdateMatchPaths,
 }: MatchCardProps) {
-  const scoreTable: {
-    [key: string]: { score: number; percentage: number; isFailed: boolean };
-  } = {};
-
   const [addSongToMatchModalOpen, setAddSongToMatchModalOpen] = useState(false);
   const [editSongId, setEditSongId] = useState<number | null>(null);
   const [standingModal, setStandingModal] = useState<StandingModalState>(closedModal);
   const [editMatchNotesModalOpen, setEditMatchNotesModalOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [pendingSourcePaths, setPendingSourcePaths] = useState<(number | null)[]>([]);
 
   const onMatchUpdatedRef = useRef(onMatchUpdated);
   useEffect(() => { onMatchUpdatedRef.current = onMatchUpdated; });
-
-  match.rounds.forEach((round) => {
-    round.standings.forEach((standing) => {
-      const key = `${standing.score.player.id}-${standing.score.song.id}`;
-      scoreTable[key] = {
-        score: standing.points,
-        percentage: Number(standing.score.percentage),
-        isFailed: standing.score.isFailed,
-      };
-    });
-  });
 
   useEffect(() => {
     if (!matchUpdateSignal) return;
     onMatchUpdatedRef.current();
   }, [matchUpdateSignal]);
 
-  const getTotalPoints = (playerId: number) =>
-    match.rounds
-      .map((round) => round.standings.find((s) => s.score.player.id === playerId))
-      .reduce((acc, standing) => acc + (standing?.points ?? 0), 0);
+  const maxPlayersPerMatch = division.playersPerMatch ?? 2;
+  const isHighlighted = match.id === highlightedMatchId;
 
-  const sortedPlayers = [...match.players].sort(
-    (a, b) => getTotalPoints(b.id) - getTotalPoints(a.id),
-  );
+  function enterEditMode() {
+    const existing = match.sourcePaths ?? [];
+    const slots = Math.max(0, maxPlayersPerMatch - (match.players?.length ?? 0));
+    const initial: (number | null)[] = Array.from({ length: slots }, (_, i) => existing[i] ?? null);
+    setPendingSourcePaths(initial);
+    setEditMode(true);
+  }
+
+  function cancelEditMode() {
+    setEditMode(false);
+    setPendingSourcePaths([]);
+  }
+
+  async function saveEditMode() {
+    const newSourcePaths = pendingSourcePaths.filter((id): id is number => id !== null);
+    if (onUpdateMatchPaths) {
+      await onUpdateMatchPaths(match.id, newSourcePaths);
+    }
+    onMatchUpdatedRef.current();
+    setEditMode(false);
+    setPendingSourcePaths([]);
+  }
 
   return (
-    <div className="flex flex-col w-full p-4 my-3 border border-gray-100 rounded-xl bg-white shadow-sm">
+    <div
+      className={`flex flex-col w-full p-4 my-3 border rounded-xl bg-white shadow-sm transition-shadow ${
+        isHighlighted
+          ? "border-green-400 ring-2 ring-green-300 shadow-green-100 shadow-lg"
+          : "border-gray-100"
+      }`}
+    >
       <AddEditSongToMatchModal
         songId={editSongId}
         matchId={match.id}
@@ -154,24 +176,41 @@ export default function MatchCard({
         onOpenEditNotes={() => setEditMatchNotesModalOpen(true)}
         onDeleteMatch={onDeleteMatch}
         onOpenAddSong={() => setAddSongToMatchModalOpen(true)}
+        onRenameMatch={onRenameMatch}
+        editMode={editMode}
+        canEditRoutes={(match.players?.length ?? 0) < maxPlayersPerMatch}
+        onEditRoutes={enterEditMode}
+        onSaveRoutes={saveEditMode}
+        onCancelRoutes={cancelEditMode}
       />
 
-      <StandingsTable
+      <MatchTable
         match={match}
+        allMatches={allMatches}
+        maxPlayersPerMatch={maxPlayersPerMatch}
         controls={controls}
-        scoreTable={scoreTable}
-        sortedPlayers={sortedPlayers}
+        editMode={editMode}
+        highlightedMatchId={highlightedMatchId}
+        onHighlightMatch={onHighlightMatch}
+        pendingSourcePaths={pendingSourcePaths}
+        onPendingSourcePathChange={(index, matchId) => {
+          setPendingSourcePaths((prev) => {
+            const next = [...prev];
+            next[index] = matchId;
+            return next;
+          });
+        }}
         onOpenEditSong={(songId) => {
           setEditSongId(songId);
           setAddSongToMatchModalOpen(true);
         }}
+        onDeleteSong={onDeleteSongFromMatch}
         onOpenAddStanding={(playerId, songId, playerName, songTitle) =>
           setStandingModal({ open: true, mode: "add", playerId, songId, playerName, songTitle })
         }
         onOpenEditStanding={(playerId, songId, playerName, songTitle, percentage, score, isFailed) =>
           setStandingModal({ open: true, mode: "edit", playerId, songId, playerName, songTitle, initialPercentage: percentage, initialScore: score, initialIsFailed: isFailed })
         }
-        onDisablePlayer={(playerId, songId) => onAddStandingToMatch(playerId, songId, -1, 0, true)}
         onDeleteStanding={onDeleteStanding}
       />
     </div>

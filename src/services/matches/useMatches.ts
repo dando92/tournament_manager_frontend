@@ -41,6 +41,17 @@ export function useMatches(divisionId: number) {
     }
   }
 
+  async function renameMatch(matchId: number, name: string) {
+    try {
+      await MatchesApi.renameMatch(matchId, name);
+      dispatch({ type: "onRenameMatch", payload: [matchId, name] });
+    } catch (error) {
+      toast.error("Error renaming match.");
+      console.error("Error renaming match:", error);
+      throw new Error("Unable to rename match.");
+    }
+  }
+
   async function deleteMatch(matchId: number) {
     try {
       await MatchesApi.deleteMatch(matchId);
@@ -52,6 +63,17 @@ export function useMatches(divisionId: number) {
       toast.error("Error deleting match.");
       console.error("Error deleting match:", error);
       throw new Error("Unable to delete match.");
+    }
+  }
+
+  async function deleteSongFromMatch(matchId: number, songId: number) {
+    try {
+      const item = await MatchesApi.deleteSongFromMatch(matchId, songId);
+      dispatch({ type: "onDeleteSongFromMatch", payload: item });
+    } catch (error) {
+      toast.error("Error deleting song from match.");
+      console.error("Error deleting song from match:", error);
+      throw new Error("Unable to delete song from match.");
     }
   }
 
@@ -181,13 +203,26 @@ export function useMatches(divisionId: number) {
     }
   }
 
+  async function updateMatchPaths(matchId: number, sourcePaths: number[]) {
+    try {
+      const item = await MatchesApi.updateMatchPaths(matchId, sourcePaths);
+      dispatch({ type: "onUpdateMatchPaths", payload: item });
+    } catch (error) {
+      toast.error("Error updating match paths.");
+      console.error("Error updating match paths:", error);
+      throw new Error("Unable to update match paths.");
+    }
+  }
+
   return {
     state,
     actions: {
       list,
       create,
       editMatchNotes,
+      renameMatch,
       deleteMatch,
+      deleteSongFromMatch,
       addSongToMatchByRoll,
       addSongToMatchBySongId,
       editSongToMatchByRoll,
@@ -195,6 +230,7 @@ export function useMatches(divisionId: number) {
       addStandingToMatch,
       editStandingFromMatch,
       deleteStandingsForPlayerFromMatch,
+      updateMatchPaths,
     },
   };
 }

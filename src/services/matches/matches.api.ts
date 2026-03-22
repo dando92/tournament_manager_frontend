@@ -50,12 +50,40 @@ export async function editMatchNotes(
   }
 }
 
+export async function renameMatch(
+  matchId: number,
+  name: string,
+): Promise<string> {
+  try {
+    const response = await axios.patch<Match>(`matches/${matchId}`, { name });
+    return response.data.name;
+  } catch (error) {
+    console.error("Error renaming match:", error);
+    throw new Error("Unable to rename match.");
+  }
+}
+
 export async function deleteMatch(matchId: number): Promise<void> {
   try {
     await axios.delete("matches/" + matchId);
   } catch (error) {
     console.error("Error deleting match:", error);
     throw new Error("Unable to delete match.");
+  }
+}
+
+export async function deleteSongFromMatch(
+  matchId: number,
+  songId: number,
+): Promise<Match> {
+  try {
+    const response = await axios.delete<Match>(
+      `match-operations/matches/${matchId}/songs/${songId}`,
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting song from match:", error);
+    throw new Error("Unable to delete song from match.");
   }
 }
 
@@ -131,6 +159,22 @@ export async function editStandingInMatch(
   } catch (error) {
     console.error("Error editing standing in match:", error);
     throw new Error("Unable to edit standing in match.");
+  }
+}
+
+export async function updateMatchPaths(
+  matchId: number,
+  sourcePaths: number[],
+): Promise<Match> {
+  try {
+    const response = await axios.put<Match>(
+      `match-operations/matches/${matchId}/paths`,
+      { sourcePaths },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating match paths:", error);
+    throw new Error("Unable to update match paths.");
   }
 }
 

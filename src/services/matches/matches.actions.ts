@@ -15,6 +15,11 @@ type onEditMatchNotes = {
   payload: [number, string];
 };
 
+type onRenameMatch = {
+  type: "onRenameMatch";
+  payload: [number, string];
+};
+
 type onDeleteMatch = {
   type: "onDeleteMatch";
   payload: Match;
@@ -22,6 +27,11 @@ type onDeleteMatch = {
 
 type onAddSongToMatch = {
   type: "onAddSongToMatch";
+  payload: Match;
+};
+
+type onDeleteSongFromMatch = {
+  type: "onDeleteSongFromMatch";
   payload: Match;
 };
 
@@ -40,12 +50,20 @@ type onDeleteStandingFromMatch = {
   payload: Match;
 };
 
+type onUpdateMatchPaths = {
+  type: "onUpdateMatchPaths";
+  payload: Match;
+};
+
 export type MatchesActions =
   | onListMatches
   | onCreateMatch
   | onEditMatchNotes
+  | onRenameMatch
   | onDeleteMatch
   | onAddSongToMatch
+  | onDeleteSongFromMatch
   | onAddStandingToMatch
   | onEditStandingFromMatch
-  | onDeleteStandingFromMatch;
+  | onDeleteStandingFromMatch
+  | onUpdateMatchPaths;

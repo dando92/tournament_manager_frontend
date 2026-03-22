@@ -1,13 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import OkModal from "@/components/modals/OkModal";
-import axios from "axios";
-import Select from "react-select";
-import { selectPortalStyles } from "@/styles/selectStyles";
 
 type CreateDivisionModalProps = {
   open: boolean;
   onClose: () => void;
-  onCreate: (name: string, bracketType: string) => void;
+  onCreate: (name: string) => void;
 };
 
 export default function CreateDivisionModal({
@@ -16,21 +13,15 @@ export default function CreateDivisionModal({
   onCreate,
 }: CreateDivisionModalProps) {
   const [name, setName] = useState("");
-  const [bracketTypes, setBracketTypes] = useState<string[]>([]);
-  const [bracketType, setBracketType] = useState("");
 
   useEffect(() => {
     if (!open) return;
     setName("");
-    axios.get<string[]>("match-operations/bracket-types").then((response) => {
-      setBracketTypes(response.data);
-      setBracketType(response.data[0] ?? "");
-    });
   }, [open]);
 
   const onSubmit = () => {
-    if (!name.trim() || !bracketType) return;
-    onCreate(name.trim(), bracketType);
+    if (!name.trim()) return;
+    onCreate(name.trim());
     onClose();
   };
 
@@ -52,17 +43,7 @@ export default function CreateDivisionModal({
             onChange={(e) => setName(e.target.value)}
             placeholder="Division name"
             autoFocus
-          />
-        </div>
-        <div>
-          <h3 className="mb-1">Bracket type</h3>
-          <Select
-            options={bracketTypes.map((t) => ({ value: t, label: t }))}
-            value={bracketType ? { value: bracketType, label: bracketType } : null}
-            onChange={(selected) => setBracketType(selected?.value ?? "")}
-            placeholder="Select bracket type..."
-            menuPortalTarget={document.body}
-            styles={selectPortalStyles}
+            onKeyDown={(e) => { if (e.key === "Enter") onSubmit(); }}
           />
         </div>
       </div>

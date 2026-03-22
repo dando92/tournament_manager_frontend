@@ -67,8 +67,8 @@ export default function TournamentSettings({
     if (renamingDivisionId !== null) renameInputRef.current?.focus();
   }, [renamingDivisionId]);
 
-  const handleCreateDivision = (name: string, bracketType: string) => {
-    axios.post<Division>("divisions", { tournamentId, name, bracketType }).then((r) => {
+  const handleCreateDivision = (name: string) => {
+    axios.post<Division>("divisions", { tournamentId, name }).then((r) => {
       setDivisions((prev) => [...prev, r.data]);
       setActiveDivisionId(r.data.id);
     });
