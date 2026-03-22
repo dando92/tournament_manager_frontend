@@ -3,11 +3,12 @@ import { Division } from "@/models/Division";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import BracketsTab from "@/components/view/BracketsTab";
+import LivePhase from "@/components/view/LivePhase";
 import SongsList from "@/components/manage/songs/SongsList";
 import { usePermissions } from "@/services/permissions/PermissionContext";
 
-type Tab = "Overview" | "Brackets" | "Songs" | "Standings" | "Stats";
-const TABS: Tab[] = ["Overview", "Brackets", "Songs", "Standings", "Stats"];
+type Tab = "Overview" | "Brackets" | "Live" | "Songs" | "Standings" | "Stats";
+const TABS: Tab[] = ["Overview", "Brackets", "Live", "Songs", "Standings", "Stats"];
 
 type DivisionViewProps = {
   division: Division;
@@ -58,10 +59,13 @@ export default function DivisionView({ division, tournamentId, controls, onBack 
         {activeTab === "Brackets" && (
           <BracketsTab division={division} controls={controls} tournamentId={tournamentId} />
         )}
+        {activeTab === "Live" && (
+          <LivePhase tournamentId={tournamentId} />
+        )}
         {activeTab === "Songs" && (
           <SongsList canEdit={canEditSongs} tournamentId={tournamentId} />
         )}
-        {activeTab !== "Brackets" && activeTab !== "Songs" && (
+        {activeTab !== "Brackets" && activeTab !== "Live" && activeTab !== "Songs" && (
           <p className="text-sm text-gray-400 italic">Coming soon</p>
         )}
       </div>
