@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuthContext } from "@/services/auth/AuthContext";
+import { useAuthContext } from "@/features/auth/context/AuthContext";
 import { btnPrimary } from "@/styles/buttonStyles";
 
 export default function RegisterPage() {
@@ -51,7 +51,7 @@ export default function RegisterPage() {
 
   return (
     <div className="max-w-md mx-auto mt-16">
-      <h1 className="text-3xl font-bold text-rossoTesto mb-6">Register</h1>
+      <h1 className="text-3xl font-bold text-primary-dark mb-6">Register</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
           <label className="block text-sm font-medium mb-1">Username</label>
@@ -59,7 +59,7 @@ export default function RegisterPage() {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-transparent"
             autoComplete="username"
             minLength={3}
             required
@@ -72,7 +72,7 @@ export default function RegisterPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-transparent"
             required
           />
           {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
@@ -83,7 +83,7 @@ export default function RegisterPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-transparent"
             autoComplete="new-password"
             minLength={6}
             required
@@ -98,7 +98,7 @@ export default function RegisterPage() {
             type="text"
             value={playerName}
             onChange={(e) => setPlayerName(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-transparent"
           />
         </div>
         {apiError && <p className="text-red-500 text-sm">{apiError}</p>}
@@ -112,7 +112,7 @@ export default function RegisterPage() {
       </form>
       <p className="mt-4 text-sm text-gray-600">
         Already have an account?{" "}
-        <Link to="/login" className="text-rossoTesto hover:underline">
+        <Link to="/login" className="text-primary-dark hover:underline">
           Login
         </Link>
       </p>

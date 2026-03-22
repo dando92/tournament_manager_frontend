@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useAuthContext } from "@/services/auth/AuthContext";
+import { useAuthContext } from "@/features/auth/context/AuthContext";
 import axios from "axios";
 import { btnPrimary } from "@/styles/buttonStyles";
 import { toast } from "react-toastify";
@@ -127,7 +127,7 @@ export default function AccountInfoPage() {
     const iconSize = size === "lg" ? "text-2xl" : "text-xl";
     return (
       <div
-        className={`relative ${dim} rounded-full bg-rossoTesto/10 border-2 border-rossoTesto/30 shrink-0 cursor-pointer group overflow-hidden`}
+        className={`relative ${dim} rounded-full bg-primary-dark/10 border-2 border-primary-dark/30 shrink-0 cursor-pointer group overflow-hidden`}
         onClick={() => !savingPicture && fileInputRef.current?.click()}
         title="Change profile picture"
       >
@@ -135,7 +135,7 @@ export default function AccountInfoPage() {
           <img src={profilePicture} alt="Profile" className="h-full w-full object-cover" />
         ) : (
           <div className="h-full w-full flex items-center justify-center">
-            <FontAwesomeIcon icon={faUser} className={`text-rossoTesto ${iconSize}`} />
+            <FontAwesomeIcon icon={faUser} className={`text-primary-dark ${iconSize}`} />
           </div>
         )}
         {/* Camera overlay on hover */}
@@ -152,7 +152,7 @@ export default function AccountInfoPage() {
 
   return (
     <div className="max-w-lg mx-auto mt-8">
-      <h1 className="text-3xl font-bold text-rossoTesto mb-6">Account Info</h1>
+      <h1 className="text-3xl font-bold text-primary-dark mb-6">Account Info</h1>
 
       {/* Hidden file input */}
       <input
@@ -164,16 +164,16 @@ export default function AccountInfoPage() {
       />
 
       {/* Player Info — prominent card at top */}
-      <div className="border border-rossoTesto/30 rounded-lg bg-white overflow-hidden mb-4">
-        <div className="flex items-center justify-between px-4 py-2 bg-rossoTesto/10 border-b border-rossoTesto/20">
-          <div className="flex items-center gap-2 text-rossoTesto font-semibold text-sm">
+      <div className="border border-primary-dark/30 rounded-lg bg-white overflow-hidden mb-4">
+        <div className="flex items-center justify-between px-4 py-2 bg-primary-dark/10 border-b border-primary-dark/20">
+          <div className="flex items-center gap-2 text-primary-dark font-semibold text-sm">
             <FontAwesomeIcon icon={faUser} />
             <span>Player Info</span>
           </div>
           {!editingProfile && (
             <button
               onClick={() => setEditingProfile(true)}
-              className="flex items-center gap-1.5 text-xs text-rossoTesto border border-rossoTesto/40 rounded px-2 py-1 hover:bg-rossoTesto hover:text-white transition-colors"
+              className="flex items-center gap-1.5 text-xs text-primary-dark border border-primary-dark/40 rounded px-2 py-1 hover:bg-primary-dark hover:text-white transition-colors"
             >
               <FontAwesomeIcon icon={faPen} />
               Edit
@@ -195,7 +195,7 @@ export default function AccountInfoPage() {
                   value={playerName}
                   onChange={(e) => setPlayerName(e.target.value)}
                   placeholder="Player name..."
-                  className="border rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-rossoTesto/40"
+                  className="border rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary-dark/40"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -203,7 +203,7 @@ export default function AccountInfoPage() {
                 <select
                   value={nationality}
                   onChange={(e) => setNationality(e.target.value)}
-                  className="border rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-rossoTesto/40 bg-white"
+                  className="border rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary-dark/40 bg-white"
                 >
                   <option value="">— Select nationality —</option>
                   {NATIONALITIES.map((n) => (
@@ -218,7 +218,7 @@ export default function AccountInfoPage() {
                   value={grooveStatsApi}
                   onChange={(e) => setGrooveStatsApi(e.target.value)}
                   placeholder="Enter GrooveStats API key..."
-                  className="border rounded px-3 py-1.5 text-sm font-mono w-full focus:outline-none focus:ring-2 focus:ring-rossoTesto/40"
+                  className="border rounded px-3 py-1.5 text-sm font-mono w-full focus:outline-none focus:ring-2 focus:ring-primary-dark/40"
                 />
               </div>
               <div className="flex flex-row gap-2 mt-1">
@@ -250,7 +250,7 @@ export default function AccountInfoPage() {
                   {account.nationality || (
                     <button
                       onClick={() => setEditingProfile(true)}
-                      className="text-gray-400 italic hover:text-rossoTesto hover:underline"
+                      className="text-gray-400 italic hover:text-primary-dark hover:underline"
                     >
                       No nationality — click to add
                     </button>

@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useParams } from "react-router-dom";
-import LiveScores from "@/components/view/LiveScores";
-import { useScoreHub, TournamentLobbyStateDto } from "@/services/useScoreHub";
+import LiveScores from "@/features/live/components/LiveScores";
+import { useScoreHub, TournamentLobbyStateDto } from "@/features/live/services/useScoreHub";
 
 export default function OBSPage() {
   const { lobbyId } = useParams<{ lobbyId: string }>();

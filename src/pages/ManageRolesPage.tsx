@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Account } from "@/models/Account";
+import { Account } from "@/features/player/types/Account";
 import { toast } from "react-toastify";
-import RoleAccountItem from "@/components/manage/roles/RoleAccountItem";
+import RoleAccountItem from "@/features/admin/components/RoleAccountItem";
 
 export default function ManageRolesPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -32,7 +32,7 @@ export default function ManageRolesPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-rossoTesto mb-6">Manage Roles</h1>
+      <h1 className="text-3xl font-bold text-primary-dark mb-6">Manage Roles</h1>
       <div className="flex flex-col gap-3">
         {accounts.map((account) => (
           <RoleAccountItem

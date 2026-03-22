@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuthContext } from "@/services/auth/AuthContext";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useAuthContext } from "@/features/auth/context/AuthContext";
 import { btnPrimary } from "@/styles/buttonStyles";
 
 export default function LoginPage() {
   const { actions } = useAuthContext();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: string } | null)?.from ?? "/";
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,12 +34,8 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const account = await actions.login(username, password);
-      if (account.isAdmin || account.isTournamentCreator) {
-        navigate("/manage");
-      } else {
-        navigate("/");
-      }
+      await actions.login(username, password);
+      navigate(from, { replace: true });
     } catch {
       setApiError("Invalid username or password.");
     } finally {
@@ -47,7 +45,7 @@ export default function LoginPage() {
 
   return (
     <div className="max-w-md mx-auto mt-16">
-      <h1 className="text-3xl font-bold text-rossoTesto mb-6">Login</h1>
+      <h1 className="text-3xl font-bold text-primary-dark mb-6">Login</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
           <label className="block text-sm font-medium mb-1">Username</label>
@@ -55,7 +53,7 @@ export default function LoginPage() {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-transparent"
             autoComplete="username"
             minLength={3}
             required
@@ -68,7 +66,7 @@ export default function LoginPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-transparent"
             autoComplete="current-password"
             minLength={6}
             required
@@ -86,7 +84,7 @@ export default function LoginPage() {
       </form>
       <p className="mt-4 text-sm text-gray-600">
         Don't have an account?{" "}
-        <Link to="/register" className="text-rossoTesto hover:underline">
+        <Link to="/register" className="text-primary-dark hover:underline">
           Register
         </Link>
       </p>
