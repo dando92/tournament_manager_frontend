@@ -1,4 +1,4 @@
-import { Navigate, Outlet, Route, Routes, useParams } from "react-router-dom";
+import { Outlet, Route, Routes, useParams } from "react-router-dom";
 import { PageTitleProvider } from "@/services/PageTitleContext";
 import { SidebarProvider } from "@/context/SidebarContext";
 import "./App.css";
@@ -58,11 +58,6 @@ function App() {
             <Route path="/tournament" element={<TournamentPage />} />
             <Route path="/tournament/:tournamentId" element={<KeyedTournamentPage />} />
 
-            {/* Legacy redirects */}
-            <Route path="/view" element={<Navigate to="/tournament" replace />} />
-            <Route path="/view/:tournamentId" element={<RedirectToTournament />} />
-            <Route path="/manage/:tournamentId" element={<RedirectToTournament />} />
-
             {/* Tournament browser */}
             <Route path="/select" element={<SelectTournamentPage />} />
 
@@ -85,11 +80,6 @@ function App() {
       </SidebarProvider>
     </PageTitleProvider>
   );
-}
-
-function RedirectToTournament() {
-  const { tournamentId } = useParams<{ tournamentId: string }>();
-  return <Navigate to={`/tournament/${tournamentId}`} replace />;
 }
 
 export default App;

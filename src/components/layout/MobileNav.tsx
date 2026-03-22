@@ -64,7 +64,7 @@ export function MobileBottomNav() {
         </button>
       ) : (
         <button
-          onClick={() => navigate("/login")}
+          onClick={() => navigate("/login", { state: { from: location.pathname } })}
           className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-2 text-xs transition-colors ${
             isOnAccount ? "text-rossoTesto font-semibold" : "text-gray-500"
           }`}

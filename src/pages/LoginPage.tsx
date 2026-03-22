@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuthContext } from "@/services/auth/AuthContext";
 import { btnPrimary } from "@/styles/buttonStyles";
 
 export default function LoginPage() {
   const { actions } = useAuthContext();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: string } | null)?.from ?? "/";
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,7 +35,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await actions.login(username, password);
-      navigate("/");
+      navigate(from, { replace: true });
     } catch {
       setApiError("Invalid username or password.");
     } finally {

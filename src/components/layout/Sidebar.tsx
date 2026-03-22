@@ -82,12 +82,14 @@ function TournamentButton({
 // ── Nav link ──────────────────────────────────────────────────────────────────
 function SidebarLink({
   to,
+  state,
   icon,
   children,
   active,
   onClick,
 }: {
   to: string;
+  state?: unknown;
   icon?: React.ComponentProps<typeof FontAwesomeIcon>["icon"];
   children: React.ReactNode;
   active?: boolean;
@@ -96,6 +98,7 @@ function SidebarLink({
   return (
     <Link
       to={to}
+      state={state}
       onClick={onClick}
       className={`flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors ${
         active
@@ -139,7 +142,7 @@ export default function Sidebar() {
   const selectedTournament = recentTournaments[0] ?? null;
   const [searchModalOpen, setSearchModalOpen] = useState(false);
 
-  const accountPages = ["/account", "/login", "/register", "/admin/roles"];
+  const accountPages = ["/account", "/admin/roles"];
 
   function handleTournamentClick(t: RecentTournament) {
     selectRecentTournament(t.id);
@@ -234,6 +237,7 @@ export default function Sidebar() {
         ) : (
           <SidebarLink
             to="/login"
+            state={{ from: location.pathname }}
             icon={faRightToBracket}
             active={
               location.pathname === "/login" || location.pathname === "/register"
