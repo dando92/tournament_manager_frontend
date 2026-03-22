@@ -1,13 +1,11 @@
-import { Tab } from "@headlessui/react";
-import { classNames } from "@/styles/classNames";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircle, faTrophy } from "@fortawesome/free-solid-svg-icons";
 import LivePhase from "@/components/view/LivePhase";
-import TournamentSettings from "@/components/manage/tournament/TournamentSettings";
+import DivisionCard from "@/components/view/DivisionCard";
+import DivisionView from "@/components/view/DivisionView";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useParams, Navigate } from "react-router-dom";
+import { useParams, Navigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { Tournament } from "@/models/Tournament";
+import { Division } from "@/models/Division";
 import { useMatchHub } from "@/services/useMatchHub";
 import { addRecentTournament, getSelectedTournament } from "@/services/recentTournaments";
 import { ActiveLobbyDto } from "@/services/useScoreHub";
@@ -32,7 +30,13 @@ export default function ViewPage() {
 type LobbyStatus = { id: string; name: string; lobbyCode: string; isActive: boolean; isConnected: boolean };
 
 function ViewTournament({ tournamentId }: { tournamentId: number }) {
+  const [searchParams] = useSearchParams();
+  const showLive = searchParams.get("live") === "1";
+
   const [initialActiveLobbies, setInitialActiveLobbies] = useState<ActiveLobbyDto[]>([]);
+  const [divisions, setDivisions] = useState<Division[]>([]);
+  const [tournamentName, setTournamentName] = useState("");
+  const [selectedDivisionId, setSelectedDivisionId] = useState<number | null>(null);
   const fetchedLobbies = useRef(false);
 
   useEffect(() => {
@@ -40,7 +44,13 @@ function ViewTournament({ tournamentId }: { tournamentId: number }) {
       .get<Tournament>(`tournaments/${tournamentId}`)
       .then((r) => {
         addRecentTournament({ id: r.data.id, name: r.data.name });
+        setTournamentName(r.data.name);
       })
+      .catch(() => {});
+
+    axios
+      .get<Division[]>("divisions", { params: { tournamentId } })
+      .then((r) => setDivisions(r.data))
       .catch(() => {});
 
     if (!fetchedLobbies.current) {
@@ -57,56 +67,44 @@ function ViewTournament({ tournamentId }: { tournamentId: number }) {
     }
   }, [tournamentId]);
 
-  const [matchUpdateSignal, setMatchUpdateSignal] = useState(0);
   const onMatchUpdate = useCallback(() => {
-    setMatchUpdateSignal((s) => s + 1);
-  }, []);
+    axios
+      .get<Division[]>("divisions", { params: { tournamentId } })
+      .then((r) => setDivisions(r.data))
+      .catch(() => {});
+  }, [tournamentId]);
   useMatchHub(onMatchUpdate, tournamentId);
 
+  const selectedDivision = divisions.find((d) => d.id === selectedDivisionId) ?? null;
+
+  if (showLive) {
+    return <LivePhase tournamentId={tournamentId} initialActiveLobbies={initialActiveLobbies} />;
+  }
+
   return (
-    <div className="text-white">
-      <Tab.Group>
-        <Tab.List className="flex flex-row gap-10 border-b">
-          {(["Matches", "Live"] as const).map((label) => (
-            <Tab
-              key={label}
-              className={({ selected }) =>
-                classNames(
-                  "py-2 px-4 text-lg",
-                  selected
-                    ? "border-b-2 border-blue-500 font-bold text-rossoTesto"
-                    : "text-gray-500",
-                )
-              }
-            >
-              <div className="flex flex-row gap-3 items-center">
-                <FontAwesomeIcon
-                  icon={label === "Matches" ? faTrophy : faCircle}
-                  className={classNames(
-                    "text-rossoTesto text-sm",
-                    label === "Live" ? "animate-pulse" : "",
-                  )}
-                />
-                <span>{label}</span>
-              </div>
-            </Tab>
-          ))}
-        </Tab.List>
-
-        <Tab.Panels className="mt-3">
-          <Tab.Panel>
-            <TournamentSettings
-              controls={false}
-              tournamentId={tournamentId}
-              matchUpdateSignal={matchUpdateSignal}
+    <div>
+      {selectedDivision ? (
+        <DivisionView
+          division={selectedDivision}
+          tournamentId={tournamentId}
+          controls={false}
+          onBack={() => setSelectedDivisionId(null)}
+        />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {divisions.map((division) => (
+            <DivisionCard
+              key={division.id}
+              division={division}
+              tournamentName={tournamentName}
+              onSelect={() => setSelectedDivisionId(division.id)}
             />
-          </Tab.Panel>
-
-          <Tab.Panel>
-            <LivePhase tournamentId={tournamentId} initialActiveLobbies={initialActiveLobbies} />
-          </Tab.Panel>
-        </Tab.Panels>
-      </Tab.Group>
+          ))}
+          {divisions.length === 0 && (
+            <p className="text-gray-400 text-sm">No divisions yet.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

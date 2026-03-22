@@ -5,9 +5,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faHouse,
   faMagnifyingGlass,
-  faMusic,
   faGear,
   faShield,
   faUser,
@@ -159,20 +157,11 @@ export default function Sidebar() {
 
     if (location.pathname.startsWith("/manage/")) {
       navigate(`/manage/${t.id}`);
-    } else if (location.pathname.startsWith("/songs")) {
-      navigate(`/songs/${t.id}`);
     } else {
       navigate(`/view/${t.id}`);
     }
   }
 
-  const isOnView =
-    location.pathname === "/" ||
-    location.pathname === "/view" ||
-    location.pathname.startsWith("/view");
-
-  const viewTo = selectedTournament ? `/view/${selectedTournament.id}` : "/select";
-  const songsTo = selectedTournament ? `/songs/${selectedTournament.id}` : "/songs";
 
   const content = (
     <aside className="flex flex-col w-56 h-full bg-rossoTag border-r border-white/10">
@@ -219,17 +208,6 @@ export default function Sidebar() {
       {/* Navigation — shown when at least one tournament is selected */}
       {recentTournaments.length > 0 && (
         <nav className="flex flex-col gap-0.5 p-3 shrink-0">
-          <SidebarLink to={viewTo} icon={faHouse} active={isOnView} onClick={close}>
-            View
-          </SidebarLink>
-          <SidebarLink
-            to={songsTo}
-            icon={faMusic}
-            active={location.pathname.startsWith("/songs")}
-            onClick={close}
-          >
-            Songs
-          </SidebarLink>
           {canManage && (
             <SidebarLink
               to="/manage"

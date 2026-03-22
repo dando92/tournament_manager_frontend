@@ -22,7 +22,6 @@ export async function create(request: CreateMatchRequest): Promise<Match> {
       matchName: request.matchName,
       subtitle: request.subtitle,
       notes: request.notes,
-      divisionId: request.divisionId,
       playerIds: request.playerIds,
       scoringSystem: request.scoringSystem,
       divisionId: request.divisionId,
