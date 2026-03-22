@@ -51,7 +51,7 @@ export default function SearchTournamentModal({ open, onClose }: Props) {
 
   function handleSelect(t: Tournament) {
     addRecentTournament({ id: t.id, name: t.name });
-    navigate(`/view/${t.id}`);
+    navigate(`/tournament/${t.id}`);
     onClose();
   }
 

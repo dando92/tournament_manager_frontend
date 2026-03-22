@@ -4,6 +4,7 @@ import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import axios from "axios";
 import { AuthProvider } from "@/services/auth/AuthContext.tsx";
+import { PermissionProvider } from "@/services/permissions/PermissionContext.tsx";
 
 axios.defaults.baseURL = import.meta.env.VITE_PUBLIC_API_URL!;
 
@@ -18,7 +19,9 @@ axios.interceptors.request.use((config) => {
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <AuthProvider>
-      <App />
+      <PermissionProvider>
+        <App />
+      </PermissionProvider>
     </AuthProvider>
   </BrowserRouter>,
 );

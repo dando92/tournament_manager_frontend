@@ -38,7 +38,7 @@ export default function HomePage() {
 
   function handleSelect(t: Tournament) {
     addRecentTournament({ id: t.id, name: t.name });
-    navigate(`/view/${t.id}`);
+    navigate(`/tournament/${t.id}`);
   }
 
   return (
@@ -49,7 +49,7 @@ export default function HomePage() {
         onClose={() => setCreateModalOpen(false)}
         onCreated={(t) => {
           addRecentTournament({ id: t.id, name: t.name });
-          navigate(`/manage/${t.id}`);
+          navigate(`/tournament/${t.id}`);
         }}
       />
 

@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import BracketsTab from "@/components/view/BracketsTab";
 import SongsList from "@/components/manage/songs/SongsList";
-import { useAuthContext } from "@/services/auth/AuthContext";
+import { usePermissions } from "@/services/permissions/PermissionContext";
 
 type Tab = "Overview" | "Brackets" | "Songs" | "Standings" | "Stats";
 const TABS: Tab[] = ["Overview", "Brackets", "Songs", "Standings", "Stats"];
@@ -18,10 +18,8 @@ type DivisionViewProps = {
 
 export default function DivisionView({ division, tournamentId, controls, onBack }: DivisionViewProps) {
   const [activeTab, setActiveTab] = useState<Tab>("Brackets");
-  const { state: authState } = useAuthContext();
-  const canEditSongs =
-    !!authState.account &&
-    (authState.account.isAdmin || authState.account.isTournamentCreator);
+  const { canEditTournament } = usePermissions();
+  const canEditSongs = canEditTournament(tournamentId);
 
   return (
     <div className="flex flex-col gap-3">

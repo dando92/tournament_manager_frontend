@@ -1,14 +1,12 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Logo from "@/assets/icon.png";
 import { useAuthContext } from "@/services/auth/AuthContext";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import SearchTournamentModal from "@/components/modals/SearchTournamentModal";
-import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMagnifyingGlass,
   faPlus,
-  faGear,
   faShield,
   faUser,
   faRightFromBracket,
@@ -21,6 +19,7 @@ import {
   type RecentTournament,
 } from "@/services/recentTournaments";
 import { useSidebar } from "@/context/SidebarContext";
+import { usePermissions } from "@/services/permissions/PermissionContext";
 
 // ── Scrolling text — animates when text overflows the container ───────────────
 function ScrollingText({ text }: { text: string }) {
@@ -113,31 +112,23 @@ function SidebarLink({
 // ── Main Sidebar ──────────────────────────────────────────────────────────────
 export default function Sidebar() {
   const { state, actions } = useAuthContext();
+  const { isAdmin } = usePermissions();
   const navigate = useNavigate();
   const location = useLocation();
   const { isOpen, close } = useSidebar();
-  const isAdmin = state.account?.isAdmin;
-  const [isHelper, setIsHelper] = useState(false);
 
   const [recentTournaments, setRecentTournaments] = useState<RecentTournament[]>(
     getRecentTournaments,
   );
 
   // Re-read recent tournaments on location change (user may have selected one)
-  useEffect(() => {
-    setRecentTournaments(getRecentTournaments());
-  }, [location.pathname]);
-
-  useEffect(() => {
-    if (!state.account || state.account.isAdmin || state.account.isTournamentCreator) {
-      setIsHelper(false);
-      return;
+  const prevPathname = useRef(location.pathname);
+  useLayoutEffect(() => {
+    if (prevPathname.current !== location.pathname) {
+      prevPathname.current = location.pathname;
+      setRecentTournaments(getRecentTournaments());
     }
-    axios
-      .get<{ isHelper: boolean }>("tournaments/is-helper")
-      .then((r) => setIsHelper(r.data.isHelper))
-      .catch(() => setIsHelper(false));
-  }, [state.account]);
+  }, [location.pathname]);
 
   function handleLogout() {
     actions.logout();
@@ -145,7 +136,6 @@ export default function Sidebar() {
     close();
   }
 
-  const canManage = state.account && (isAdmin || state.account.isTournamentCreator || isHelper);
   const selectedTournament = recentTournaments[0] ?? null;
   const [searchModalOpen, setSearchModalOpen] = useState(false);
 
@@ -158,11 +148,7 @@ export default function Sidebar() {
 
     if (accountPages.some((p) => location.pathname === p)) return;
 
-    if (location.pathname.startsWith("/manage/")) {
-      navigate(`/manage/${t.id}`);
-    } else {
-      navigate(`/view/${t.id}`);
-    }
+    navigate(`/tournament/${t.id}`);
   }
 
 
@@ -211,21 +197,6 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* Navigation — shown when at least one tournament is selected */}
-      {recentTournaments.length > 0 && (
-        <nav className="flex flex-col gap-0.5 p-3 shrink-0">
-          {canManage && (
-            <SidebarLink
-              to={`/manage/${selectedTournament!.id}`}
-              icon={faGear}
-              active={location.pathname.startsWith("/manage")}
-              onClick={close}
-            >
-              Manage
-            </SidebarLink>
-          )}
-        </nav>
-      )}
 
       {/* Spacer */}
       <div className="flex-1" />
