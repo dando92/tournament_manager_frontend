@@ -156,7 +156,7 @@ export default function Sidebar() {
 
 
   const content = (
-    <aside className="flex flex-col w-56 h-full bg-rossoTag border-r border-white/10">
+    <aside className="flex flex-col w-56 h-full bg-primary border-r border-white/10">
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b border-white/10 shrink-0">
         <img src={Logo} alt="logo" className="h-10 w-10 rounded-lg shrink-0" />

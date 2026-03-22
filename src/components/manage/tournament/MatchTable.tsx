@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRefresh, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { btnTrash } from "@/styles/buttonStyles";
 import { Match } from "@/models/Match";
-import { Player } from "@/models/Player";
 import MatchRow from "@/components/manage/tournament/match/MatchRow";
 import PlayerRow from "@/components/manage/tournament/match/PlayerRow";
 import PathRow from "@/components/manage/tournament/match/PathRow";
@@ -108,7 +107,7 @@ export default function MatchTable({
         <table className="w-full text-sm border-collapse">
           {!editMode && match.rounds.length > 0 && (
             <thead>
-              <tr className="bg-rossoTesto text-white">
+              <tr className="bg-primary-dark text-white">
                 <th className="px-3 py-2.5 text-left font-semibold w-[120px] sm:w-[160px]">Player</th>
                 {match.rounds.map((round, idx) => {
                   const roundHasStandings = round.standings.length > 0;

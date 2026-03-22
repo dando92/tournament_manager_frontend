@@ -108,7 +108,7 @@ export default function StandingModal({
             type="text"
             value={score}
             onChange={(e) => setScore(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rossoTesto focus:border-rossoTesto sm:text-sm"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm"
           />
         </div>
         <div>
@@ -117,7 +117,7 @@ export default function StandingModal({
             type="text"
             value={percentage}
             onChange={(e) => setPercentage(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rossoTesto focus:border-rossoTesto sm:text-sm"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm"
           />
         </div>
         <div className="flex items-center gap-2">

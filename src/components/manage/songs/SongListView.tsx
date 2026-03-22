@@ -64,7 +64,7 @@ export default function SongListView({ songs, packFilter, songSearch, canEdit, o
         return (
           <div key={pack} className="rounded-lg border border-gray-200 shadow-sm overflow-hidden bg-white">
             {/* Pack header */}
-            <div className="px-3 py-2 bg-rossoTag text-white text-xs font-bold uppercase tracking-wide flex items-center gap-2">
+            <div className="px-3 py-2 bg-primary text-white text-xs font-bold uppercase tracking-wide flex items-center gap-2">
               {/* Collapse toggle */}
               <button
                 onClick={() => toggleCollapse(pack)}
