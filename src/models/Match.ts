@@ -11,4 +11,5 @@ export interface Match {
   rounds: Round[];
   targetPaths: number[];
   sourcePaths: number[];
+  phaseId?: number;
 }

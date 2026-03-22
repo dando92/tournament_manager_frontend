@@ -1,6 +1,8 @@
-import { Link, useNavigate, useMatch } from "react-router-dom";
+import { Link, useNavigate, useMatch, useSearchParams } from "react-router-dom";
 import Logo from "@/assets/icon.png";
 import { useAuthContext } from "@/services/auth/AuthContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircle } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -10,6 +12,9 @@ export default function Navbar() {
   const isAdmin = state.account?.isAdmin;
 
   const tournamentMatch = useMatch('/manage/:tournamentId');
+  const viewMatch = useMatch('/view/:tournamentId');
+  const [searchParams] = useSearchParams();
+  const isLive = searchParams.get("live") === "1";
   const [activeTournamentName, setActiveTournamentName] = useState<string | null>(null);
   const [isHelper, setIsHelper] = useState(false);
 
@@ -55,10 +60,16 @@ export default function Navbar() {
           <Link to="/view" className="text-white hover:underline text-sm">
             View
           </Link>
-          <Link to="/songs" className="text-white hover:underline text-sm">
-            Songs
-          </Link>
-          {state.account && (state.account.isAdmin || state.account.isTournamentCreator || isHelper) && (
+          {viewMatch?.params?.tournamentId && (
+            <Link
+              to={isLive ? `/view/${viewMatch.params.tournamentId}` : `/view/${viewMatch.params.tournamentId}?live=1`}
+              className={`flex items-center gap-1.5 text-sm ${isLive ? "text-white font-semibold" : "text-red-200 hover:text-white"}`}
+            >
+              <FontAwesomeIcon icon={faCircle} className="animate-pulse text-xs" />
+              Live
+            </Link>
+          )}
+{state.account && (state.account.isAdmin || state.account.isTournamentCreator || isHelper) && (
             <Link to="/manage" className="text-white hover:underline text-sm">
               Manage
             </Link>
