@@ -25,7 +25,7 @@ export default function TournamentPage() {
     if (last) {
       return <Navigate to={`/tournament/${last.id}`} replace />;
     }
-    return <Navigate to="/select" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <TournamentView tournamentId={selectedTournamentId} />;
