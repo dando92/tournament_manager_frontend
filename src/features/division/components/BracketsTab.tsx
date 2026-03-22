@@ -111,25 +111,13 @@ function AllPhasesView({
     return <MatchList division={division} controls={controls} tournamentId={tournamentId} />;
   }
 
-  return (
-    <div className="flex flex-col gap-6">
-      {phases.map((phase) => (
-        <PhaseSection
-          key={phase.id}
-          phase={phase}
-          division={division}
-          controls={controls}
-          tournamentId={tournamentId}
-        />
-      ))}
-      {unassignedMatches.length > 0 && (
-        <div>
-          <h4 className="text-sm font-semibold text-gray-500 mb-2">Unassigned</h4>
-          <MatchList division={division} controls={controls} tournamentId={tournamentId} />
-        </div>
-      )}
-    </div>
-  );
+  const allMatches = [
+    ...phases.flatMap((p) => p.matches ?? []),
+    ...unassignedMatches,
+  ];
+  const flatDivision: Division = { ...division, matches: allMatches };
+
+  return <MatchList division={flatDivision} controls={controls} tournamentId={tournamentId} />;
 }
 
 function PhaseSection({
