@@ -1,6 +1,7 @@
 import { Link, useNavigate, useMatch, useSearchParams } from "react-router-dom";
 import Logo from "@/assets/icon.png";
 import { useAuthContext } from "@/services/auth/AuthContext";
+import { getSelectedTournament } from "@/services/recentTournaments";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
@@ -69,8 +70,8 @@ export default function Navbar() {
               Live
             </Link>
           )}
-{state.account && (state.account.isAdmin || state.account.isTournamentCreator || isHelper) && (
-            <Link to="/manage" className="text-white hover:underline text-sm">
+{state.account && (state.account.isAdmin || state.account.isTournamentCreator || isHelper) && getSelectedTournament()?.id && (
+            <Link to={`/manage/${getSelectedTournament()!.id}`} className="text-white hover:underline text-sm">
               Manage
             </Link>
           )}
