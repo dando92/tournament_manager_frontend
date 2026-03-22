@@ -91,37 +91,39 @@ export default function MatchRow({
         return (
           <td
             key={round.song.id}
-            className={`px-1 sm:px-3 py-2 text-center ${scoreData.isFailed ? "bg-red-50" : ""}`}
+            className={`px-1 sm:px-3 py-2 ${scoreData.isFailed ? "bg-red-50" : ""}`}
           >
-            <div className="flex flex-col items-center gap-0.5">
+            <div className="inline-flex flex-col gap-0.5">
               <div className="flex items-center gap-1">
-                <span className={`font-bold text-sm ${scoreData.isFailed ? "text-red-600" : "text-gray-800"}`}>
+                <span className={`font-bold text-base ${scoreData.isFailed ? "text-red-600" : "text-gray-800"}`}>
                   {scoreData.percentage.toFixed(2)}%
                 </span>
                 {scoreData.isFailed && (
                   <span className="text-xs bg-red-100 text-red-600 px-1 rounded font-semibold">F</span>
                 )}
               </div>
-              <span className="text-xs text-gray-400">{scoreData.score} pts</span>
-              {controls && (
-                <button
-                  onClick={() =>
-                    onOpenEditStanding(
-                      player.id,
-                      round.song.id,
-                      player.playerName,
-                      round.song.title,
-                      scoreData.percentage,
-                      scoreData.score,
-                      scoreData.isFailed,
-                    )
-                  }
-                  title="Edit score"
-                  className="text-xs text-blue-400 hover:text-blue-600 mt-0.5"
-                >
-                  <FontAwesomeIcon icon={faPencil} />
-                </button>
-              )}
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-400">{scoreData.score} pts</span>
+                {controls && (
+                  <button
+                    onClick={() =>
+                      onOpenEditStanding(
+                        player.id,
+                        round.song.id,
+                        player.playerName,
+                        round.song.title,
+                        scoreData.percentage,
+                        scoreData.score,
+                        scoreData.isFailed,
+                      )
+                    }
+                    title="Edit score"
+                    className="text-xs text-blue-400 hover:text-blue-600 shrink-0"
+                  >
+                    <FontAwesomeIcon icon={faPencil} />
+                  </button>
+                )}
+              </div>
             </div>
           </td>
         );
