@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Account } from "@/models/Account";
+import { Account } from "@/features/player/types/Account";
 import { toast } from "react-toastify";
-import RoleAccountItem from "@/components/manage/roles/RoleAccountItem";
+import RoleAccountItem from "@/features/admin/components/RoleAccountItem";
 
 export default function ManageRolesPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);

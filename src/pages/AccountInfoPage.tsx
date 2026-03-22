@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useAuthContext } from "@/services/auth/AuthContext";
+import { useAuthContext } from "@/features/auth/context/AuthContext";
 import axios from "axios";
 import { btnPrimary } from "@/styles/buttonStyles";
 import { toast } from "react-toastify";

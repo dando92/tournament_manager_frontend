@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
-import { Tournament } from "@/models/Tournament";
-import { addRecentTournament } from "@/services/recentTournaments";
-import TournamentCard from "@/components/TournamentCard";
-import CreateTournamentModal from "@/components/modals/CreateTournamentModal";
-import SearchTournamentModal from "@/components/modals/SearchTournamentModal";
-import { useAuthContext } from "@/services/auth/AuthContext";
+import { Tournament } from "@/features/tournament/types/Tournament";
+import { addRecentTournament } from "@/features/tournament/services/recentTournaments";
+import TournamentCard from "@/features/tournament/components/TournamentCard";
+import CreateTournamentModal from "@/features/tournament/modals/CreateTournamentModal";
+import SearchTournamentModal from "@/features/tournament/modals/SearchTournamentModal";
+import { useAuthContext } from "@/features/auth/context/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { btnPrimary } from "@/styles/buttonStyles";
