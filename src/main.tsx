@@ -1,10 +1,10 @@
 import ReactDOM from "react-dom/client";
-import App from "@/App.tsx";
+import AppRouter from "@/app/router";
 import "./index.css";
-import { BrowserRouter } from "react-router-dom";
 import axios from "axios";
-import { AuthProvider } from "@/services/auth/AuthContext.tsx";
-import { PermissionProvider } from "@/services/permissions/PermissionContext.tsx";
+import { AuthProvider } from "@/features/auth/context/AuthContext";
+import { PermissionProvider } from "@/shared/services/permissions/PermissionContext";
+import { BrowserRouter } from "react-router-dom";
 
 axios.defaults.baseURL = import.meta.env.VITE_PUBLIC_API_URL!;
 
@@ -20,7 +20,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <AuthProvider>
       <PermissionProvider>
-        <App />
+        <AppRouter />
       </PermissionProvider>
     </AuthProvider>
   </BrowserRouter>,
