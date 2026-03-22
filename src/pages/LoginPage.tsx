@@ -32,12 +32,8 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const account = await actions.login(username, password);
-      if (account.isAdmin || account.isTournamentCreator) {
-        navigate("/manage");
-      } else {
-        navigate("/");
-      }
+      await actions.login(username, password);
+      navigate("/");
     } catch {
       setApiError("Invalid username or password.");
     } finally {

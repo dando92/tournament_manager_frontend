@@ -2,9 +2,9 @@ import { Outlet, Route, Routes, useParams } from "react-router-dom";
 import { PageTitleProvider } from "@/services/PageTitleContext";
 import { SidebarProvider } from "@/context/SidebarContext";
 import "./App.css";
+import HomePage from "@/pages/HomePage";
 import ViewPage from "@/pages/ViewPage";
 import ManagePage from "@/pages/ManagePage";
-import TournamentSelectPage from "@/pages/TournamentSelectPage";
 import SelectTournamentPage from "@/pages/SelectTournamentPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
@@ -13,7 +13,7 @@ import ManageRolesPage from "@/pages/ManageRolesPage";
 import SongsPage from "@/pages/SongsPage";
 import OBSPage from "@/pages/OBSPage";
 import Sidebar from "@/components/layout/Sidebar";
-import { MobileTopBar, MobileBottomNav } from "@/components/layout/MobileNav";
+import { MobileBottomNav } from "@/components/layout/MobileNav";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -38,7 +38,6 @@ function MainLayout() {
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
-        <MobileTopBar />
         <ToastContainer style={{ zIndex: 99999 }} />
         <main className="flex-1 overflow-y-auto p-4 pb-20 md:pb-4">
           <Outlet />
@@ -60,7 +59,7 @@ function App() {
           {/* Main layout */}
           <Route element={<MainLayout />}>
             {/* Root and /view redirect to last selected tournament or /select */}
-            <Route path="/" element={<SelectTournamentPage />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/view" element={<ViewPage />} />
             <Route path="/view/:tournamentId" element={<KeyedViewPage />} />
 
@@ -74,7 +73,6 @@ function App() {
 
             <Route element={<ProtectedRoute require="auth" />}>
               <Route path="/account" element={<AccountInfoPage />} />
-              <Route path="/manage" element={<TournamentSelectPage />} />
               <Route path="/manage/:tournamentId" element={<KeyedManagePage />} />
             </Route>
 

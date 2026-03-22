@@ -2,10 +2,12 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import Logo from "@/assets/icon.png";
 import { useAuthContext } from "@/services/auth/AuthContext";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import SearchTournamentModal from "@/components/modals/SearchTournamentModal";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMagnifyingGlass,
+  faPlus,
   faGear,
   faShield,
   faUser,
@@ -145,6 +147,7 @@ export default function Sidebar() {
 
   const canManage = state.account && (isAdmin || state.account.isTournamentCreator || isHelper);
   const selectedTournament = recentTournaments[0] ?? null;
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
 
   const accountPages = ["/account", "/login", "/register", "/admin/roles"];
 
@@ -173,18 +176,21 @@ export default function Sidebar() {
         </h2>
       </div>
 
-      {/* Search — hidden on mobile (bottom nav has it) */}
-      <div className="hidden md:block p-3 border-b border-white/10 shrink-0">
+      {/* Create button */}
+      <div className="p-3 border-b border-white/10 shrink-0 flex flex-col gap-2">
         <button
-          onClick={() => { navigate("/select"); close(); }}
-          className={`flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors w-full text-left ${
-            location.pathname === "/select"
-              ? "bg-white/20 text-white font-semibold"
-              : "text-red-100 hover:bg-white/10 hover:text-white"
-          }`}
+          onClick={() => { navigate(state.account ? "/?create=1" : "/login"); close(); }}
+          className="flex items-center justify-center gap-2 w-full bg-white/15 hover:bg-white/25 text-white text-sm font-semibold px-3 py-2 rounded transition-colors"
         >
-          <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 shrink-0" />
-          <span>Search tournament</span>
+          <FontAwesomeIcon icon={faPlus} className="text-xs" />
+          Create tournament
+        </button>
+        <button
+          onClick={() => setSearchModalOpen(true)}
+          className="flex items-center justify-center gap-2 w-full bg-white/15 hover:bg-white/25 text-white text-sm font-semibold px-3 py-2 rounded transition-colors"
+        >
+          <FontAwesomeIcon icon={faMagnifyingGlass} className="text-xs" />
+          Search tournament
         </button>
       </div>
 
@@ -210,7 +216,7 @@ export default function Sidebar() {
         <nav className="flex flex-col gap-0.5 p-3 shrink-0">
           {canManage && (
             <SidebarLink
-              to="/manage"
+              to={`/manage/${selectedTournament!.id}`}
               icon={faGear}
               active={location.pathname.startsWith("/manage")}
               onClick={close}
@@ -272,6 +278,8 @@ export default function Sidebar() {
 
   return (
     <>
+      <SearchTournamentModal open={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
+
       {/* Desktop: always visible */}
       <div className="hidden md:flex min-h-screen shrink-0">{content}</div>
 
