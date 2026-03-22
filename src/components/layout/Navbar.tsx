@@ -1,7 +1,6 @@
 import { Link, useNavigate, useMatch, useSearchParams } from "react-router-dom";
 import Logo from "@/assets/icon.png";
 import { useAuthContext } from "@/services/auth/AuthContext";
-import { getSelectedTournament } from "@/services/recentTournaments";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
@@ -12,12 +11,10 @@ export default function Navbar() {
   const navigate = useNavigate();
   const isAdmin = state.account?.isAdmin;
 
-  const tournamentMatch = useMatch('/manage/:tournamentId');
-  const viewMatch = useMatch('/view/:tournamentId');
+  const tournamentMatch = useMatch('/tournament/:tournamentId');
   const [searchParams] = useSearchParams();
   const isLive = searchParams.get("live") === "1";
   const [activeTournamentName, setActiveTournamentName] = useState<string | null>(null);
-  const [isHelper, setIsHelper] = useState(false);
 
   useEffect(() => {
     const tid = tournamentMatch?.params?.tournamentId;
@@ -29,16 +26,6 @@ export default function Navbar() {
       setActiveTournamentName(null);
     }
   }, [tournamentMatch?.params?.tournamentId]);
-
-  useEffect(() => {
-    if (!state.account || state.account.isAdmin || state.account.isTournamentCreator) {
-      setIsHelper(false);
-      return;
-    }
-    axios.get<{ isHelper: boolean }>('tournaments/is-helper')
-      .then(r => setIsHelper(r.data.isHelper))
-      .catch(() => setIsHelper(false));
-  }, [state.account]);
 
   function handleLogout() {
     actions.logout();
@@ -58,21 +45,15 @@ export default function Navbar() {
           )}
         </div>
         <div className="flex flex-row gap-4 ml-auto items-center">
-          <Link to="/view" className="text-white hover:underline text-sm">
-            View
-          </Link>
-          {viewMatch?.params?.tournamentId && (
+          {tournamentMatch?.params?.tournamentId && (
             <Link
-              to={isLive ? `/view/${viewMatch.params.tournamentId}` : `/view/${viewMatch.params.tournamentId}?live=1`}
+              to={isLive
+                ? `/tournament/${tournamentMatch.params.tournamentId}`
+                : `/tournament/${tournamentMatch.params.tournamentId}?live=1`}
               className={`flex items-center gap-1.5 text-sm ${isLive ? "text-white font-semibold" : "text-red-200 hover:text-white"}`}
             >
               <FontAwesomeIcon icon={faCircle} className="animate-pulse text-xs" />
               Live
-            </Link>
-          )}
-{state.account && (state.account.isAdmin || state.account.isTournamentCreator || isHelper) && getSelectedTournament()?.id && (
-            <Link to={`/manage/${getSelectedTournament()!.id}`} className="text-white hover:underline text-sm">
-              Manage
             </Link>
           )}
           {isAdmin && (

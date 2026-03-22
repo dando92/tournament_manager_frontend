@@ -1,10 +1,9 @@
-import { Outlet, Route, Routes, useParams } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes, useParams } from "react-router-dom";
 import { PageTitleProvider } from "@/services/PageTitleContext";
 import { SidebarProvider } from "@/context/SidebarContext";
 import "./App.css";
 import HomePage from "@/pages/HomePage";
-import ViewPage from "@/pages/ViewPage";
-import ManagePage from "@/pages/ManagePage";
+import TournamentPage from "@/pages/TournamentPage";
 import SelectTournamentPage from "@/pages/SelectTournamentPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
@@ -23,14 +22,9 @@ function KeyedSongsPage() {
   return <SongsPage key={tournamentId} />;
 }
 
-function KeyedManagePage() {
+function KeyedTournamentPage() {
   const { tournamentId } = useParams<{ tournamentId: string }>();
-  return <ManagePage key={tournamentId} />;
-}
-
-function KeyedViewPage() {
-  const { tournamentId } = useParams<{ tournamentId: string }>();
-  return <ViewPage key={tournamentId ?? "none"} />;
+  return <TournamentPage key={tournamentId ?? "none"} />;
 }
 
 function MainLayout() {
@@ -58,12 +52,18 @@ function App() {
 
           {/* Main layout */}
           <Route element={<MainLayout />}>
-            {/* Root and /view redirect to last selected tournament or /select */}
             <Route path="/" element={<HomePage />} />
-            <Route path="/view" element={<ViewPage />} />
-            <Route path="/view/:tournamentId" element={<KeyedViewPage />} />
 
-            {/* Tournament browser (used by search button) */}
+            {/* Tournament page — merged view + manage */}
+            <Route path="/tournament" element={<TournamentPage />} />
+            <Route path="/tournament/:tournamentId" element={<KeyedTournamentPage />} />
+
+            {/* Legacy redirects */}
+            <Route path="/view" element={<Navigate to="/tournament" replace />} />
+            <Route path="/view/:tournamentId" element={<RedirectToTournament />} />
+            <Route path="/manage/:tournamentId" element={<RedirectToTournament />} />
+
+            {/* Tournament browser */}
             <Route path="/select" element={<SelectTournamentPage />} />
 
             <Route path="/songs" element={<SongsPage />} />
@@ -73,7 +73,6 @@ function App() {
 
             <Route element={<ProtectedRoute require="auth" />}>
               <Route path="/account" element={<AccountInfoPage />} />
-              <Route path="/manage/:tournamentId" element={<KeyedManagePage />} />
             </Route>
 
             <Route element={<ProtectedRoute require="admin" />}>
@@ -86,6 +85,11 @@ function App() {
       </SidebarProvider>
     </PageTitleProvider>
   );
+}
+
+function RedirectToTournament() {
+  const { tournamentId } = useParams<{ tournamentId: string }>();
+  return <Navigate to={`/tournament/${tournamentId}`} replace />;
 }
 
 export default App;

@@ -1,15 +1,18 @@
 import { Division } from "@/models/Division";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDiagramProject } from "@fortawesome/free-solid-svg-icons";
 
 type DivisionCardProps = {
   division: Division;
   tournamentName: string;
   onSelect: () => void;
+  onGenerateBracket?: () => void;
 };
 
 const MAX_VISIBLE_PLAYERS = 3;
 const MAX_VISIBLE_PHASES = 4;
 
-export default function DivisionCard({ division, tournamentName, onSelect }: DivisionCardProps) {
+export default function DivisionCard({ division, tournamentName, onSelect, onGenerateBracket }: DivisionCardProps) {
   const visiblePlayers = division.players?.slice(0, MAX_VISIBLE_PLAYERS) ?? [];
   const extraPlayers = (division.players?.length ?? 0) - visiblePlayers.length;
 
@@ -84,12 +87,22 @@ export default function DivisionCard({ division, tournamentName, onSelect }: Div
 
       {/* CTA */}
       <div className="px-4 pb-4">
-        <button
-          onClick={onSelect}
-          className="w-full py-2 border border-blue-300 text-blue-600 text-sm font-medium rounded hover:bg-blue-50 transition-colors"
-        >
-          View Bracket
-        </button>
+        {onGenerateBracket && totalMatchCount === 0 ? (
+          <button
+            onClick={onGenerateBracket}
+            className="w-full py-2 border border-green-300 text-green-700 text-sm font-medium rounded hover:bg-green-50 transition-colors flex items-center justify-center gap-2"
+          >
+            <FontAwesomeIcon icon={faDiagramProject} />
+            Generate bracket
+          </button>
+        ) : (
+          <button
+            onClick={onSelect}
+            className="w-full py-2 border border-blue-300 text-blue-600 text-sm font-medium rounded hover:bg-blue-50 transition-colors"
+          >
+            View Bracket
+          </button>
+        )}
       </div>
     </div>
   );
