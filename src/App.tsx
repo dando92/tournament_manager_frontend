@@ -1,26 +1,19 @@
-import { Outlet, Route, Routes, useParams } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes, useParams } from "react-router-dom";
 import { PageTitleProvider } from "@/services/PageTitleContext";
 import { SidebarProvider } from "@/context/SidebarContext";
 import "./App.css";
 import HomePage from "@/pages/HomePage";
 import TournamentPage from "@/pages/TournamentPage";
-import SelectTournamentPage from "@/pages/SelectTournamentPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import AccountInfoPage from "@/pages/AccountInfoPage";
 import ManageRolesPage from "@/pages/ManageRolesPage";
-import SongsPage from "@/pages/SongsPage";
 import OBSPage from "@/pages/OBSPage";
 import Sidebar from "@/components/layout/Sidebar";
 import { MobileBottomNav } from "@/components/layout/MobileNav";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-function KeyedSongsPage() {
-  const { tournamentId } = useParams<{ tournamentId: string }>();
-  return <SongsPage key={tournamentId} />;
-}
 
 function KeyedTournamentPage() {
   const { tournamentId } = useParams<{ tournamentId: string }>();
@@ -58,11 +51,7 @@ function App() {
             <Route path="/tournament" element={<TournamentPage />} />
             <Route path="/tournament/:tournamentId" element={<KeyedTournamentPage />} />
 
-            {/* Tournament browser */}
-            <Route path="/select" element={<SelectTournamentPage />} />
 
-            <Route path="/songs" element={<SongsPage />} />
-            <Route path="/songs/:tournamentId" element={<KeyedSongsPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
@@ -74,7 +63,7 @@ function App() {
               <Route path="/admin/roles" element={<ManageRolesPage />} />
             </Route>
 
-            <Route path="*" element={<SelectTournamentPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
       </SidebarProvider>
