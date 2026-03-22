@@ -86,21 +86,20 @@ export default function DivisionCard({ division, tournamentName, onSelect, onGen
       </div>
 
       {/* CTA */}
-      <div className="px-4 pb-4">
-        {onGenerateBracket && totalMatchCount === 0 ? (
+      <div className="px-4 pb-4 flex flex-col gap-2">
+        <button
+          onClick={onSelect}
+          className="w-full py-2 border border-primary-dark text-primary-dark text-sm font-medium rounded hover:bg-primary-dark/5 transition-colors"
+        >
+          View Bracket
+        </button>
+        {onGenerateBracket && totalMatchCount === 0 && (
           <button
             onClick={onGenerateBracket}
             className="w-full py-2 border border-green-300 text-green-700 text-sm font-medium rounded hover:bg-green-50 transition-colors flex items-center justify-center gap-2"
           >
             <FontAwesomeIcon icon={faDiagramProject} />
             Generate bracket
-          </button>
-        ) : (
-          <button
-            onClick={onSelect}
-            className="w-full py-2 border border-primary-dark text-primary-dark text-sm font-medium rounded hover:bg-primary-dark/5 transition-colors"
-          >
-            View Bracket
           </button>
         )}
       </div>
