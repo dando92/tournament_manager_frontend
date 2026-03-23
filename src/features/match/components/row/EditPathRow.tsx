@@ -1,17 +1,20 @@
 import { Match } from "@/features/match/types/Match";
+import { toOrdinal } from "@/shared/utils";
 
 type EditPathRowProps = {
   allMatches: Match[];
   currentMatchId: number;
-  value: number | null;
-  onChange: (matchId: number | null) => void;
+  maxPlayersPerMatch: number;
+  value: string | null;
+  onChange: (value: string | null) => void;
   onHighlightMatch: (id: number | null) => void;
 };
 
-export default function EditPathRow({ allMatches, currentMatchId, value, onChange, onHighlightMatch }: EditPathRowProps) {
+export default function EditPathRow({ allMatches, currentMatchId, maxPlayersPerMatch, value, onChange, onHighlightMatch }: EditPathRowProps) {
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const matchId = e.target.value ? Number(e.target.value) : null;
-    onChange(matchId);
+    const val = e.target.value || null;
+    onChange(val);
+    const matchId = val ? Number(val.split("-")[0]) : null;
     onHighlightMatch(matchId);
   }
 
@@ -26,11 +29,18 @@ export default function EditPathRow({ allMatches, currentMatchId, value, onChang
           <option value="">— Select source match —</option>
           {allMatches
             .filter((m) => m.id !== currentMatchId)
-            .map((m) => (
-              <option key={m.id} value={m.id}>
-                Winner of Match {m.name}
-              </option>
-            ))}
+            .flatMap((m) => {
+              const taken = m.targetPaths?.length ?? 0;
+              const available = maxPlayersPerMatch - taken;
+              return Array.from({ length: Math.max(0, available) }, (_, i) => {
+                const pos = taken + i + 1;
+                return (
+                  <option key={`${m.id}-${pos}`} value={`${m.id}-${pos}`}>
+                    {toOrdinal(pos)} of {m.name}
+                  </option>
+                );
+              });
+            })}
         </select>
       </td>
     </tr>

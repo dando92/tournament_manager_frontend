@@ -92,7 +92,7 @@ export default function MatchCard({
   const [standingModal, setStandingModal] = useState<StandingModalState>(closedModal);
   const [editMatchNotesModalOpen, setEditMatchNotesModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [pendingSourcePaths, setPendingSourcePaths] = useState<(number | null)[]>([]);
+  const [pendingSourcePaths, setPendingSourcePaths] = useState<(string | null)[]>([]);
 
   const onMatchUpdatedRef = useRef(onMatchUpdated);
   useEffect(() => { onMatchUpdatedRef.current = onMatchUpdated; });
@@ -108,7 +108,14 @@ export default function MatchCard({
   function enterEditMode() {
     const existing = match.sourcePaths ?? [];
     const slots = Math.max(0, maxPlayersPerMatch - (match.players?.length ?? 0));
-    const initial: (number | null)[] = Array.from({ length: slots }, (_, i) => existing[i] ?? null);
+    const initial: (string | null)[] = Array.from({ length: slots }, (_, i) => {
+      const matchId = existing[i];
+      if (!matchId) return null;
+      const sourceMatch = allMatches.find((m) => m.id === matchId);
+      const posIdx = sourceMatch?.targetPaths.findIndex((tp) => tp === match.id) ?? -1;
+      const pos = posIdx >= 0 ? posIdx + 1 : (sourceMatch?.targetPaths?.length ?? 0) + 1;
+      return `${matchId}-${pos}`;
+    });
     setPendingSourcePaths(initial);
     setEditMode(true);
   }
@@ -119,7 +126,9 @@ export default function MatchCard({
   }
 
   async function saveEditMode() {
-    const newSourcePaths = pendingSourcePaths.filter((id): id is number => id !== null);
+    const newSourcePaths = pendingSourcePaths
+      .filter((v): v is string => v !== null)
+      .map((v) => Number(v.split("-")[0]));
     if (onUpdateMatchPaths) {
       await onUpdateMatchPaths(match.id, newSourcePaths);
     }
@@ -193,10 +202,10 @@ export default function MatchCard({
         highlightedMatchId={highlightedMatchId}
         onHighlightMatch={onHighlightMatch}
         pendingSourcePaths={pendingSourcePaths}
-        onPendingSourcePathChange={(index, matchId) => {
+        onPendingSourcePathChange={(index, value) => {
           setPendingSourcePaths((prev) => {
             const next = [...prev];
-            next[index] = matchId;
+            next[index] = value;
             return next;
           });
         }}

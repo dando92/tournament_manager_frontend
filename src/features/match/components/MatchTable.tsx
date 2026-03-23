@@ -8,12 +8,7 @@ import MatchRow from "@/features/match/components/row/MatchRow";
 import PlayerRow from "@/features/match/components/row/PlayerRow";
 import PathRow from "@/features/match/components/row/PathRow";
 import EditPathRow from "@/features/match/components/row/EditPathRow";
-
-function toOrdinal(n: number): string {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
-}
+import { toOrdinal } from "@/shared/utils";
 
 type ScoreEntry = { score: number; percentage: number; isFailed: boolean };
 
@@ -25,8 +20,8 @@ type MatchTableProps = {
   editMode: boolean;
   highlightedMatchId: number | null;
   onHighlightMatch: (id: number | null) => void;
-  pendingSourcePaths: (number | null)[];
-  onPendingSourcePathChange: (index: number, matchId: number | null) => void;
+  pendingSourcePaths: (string | null)[];
+  onPendingSourcePathChange: (index: number, value: string | null) => void;
   onOpenEditSong: (songId: number) => void;
   onDeleteSong: (songId: number) => void;
   onOpenAddStanding: (playerId: number, songId: number, playerName: string, songTitle: string) => void;
@@ -170,15 +165,14 @@ export default function MatchTable({
             )}
 
             {!editMode && sourcePaths.flatMap((sourceId) => {
-              const sourceIdNum = Number(sourceId);
-              const sourceMatch = allMatches.find((m) => m.id === sourceIdNum);
+              const sourceMatch = allMatches.find((m) => m.id === sourceId);
               const name = sourceMatch?.name ?? String(sourceId);
-              const isSelected = highlightedMatchId === sourceIdNum;
+              const isSelected = highlightedMatchId === sourceId;
 
               // Find positions in source match's targetPaths that point to this match
               const positions: number[] = [];
               (sourceMatch?.targetPaths ?? []).forEach((targetId, idx) => {
-                if (Number(targetId) === match.id) positions.push(idx + 1);
+                if (targetId === match.id) positions.push(idx + 1);
               });
               if (positions.length === 0) positions.push(1);
 
@@ -189,7 +183,7 @@ export default function MatchTable({
                   sourceMatchName={name}
                   colSpan={totalCols}
                   isSelected={isSelected}
-                  onToggle={() => onHighlightMatch(isSelected ? null : sourceIdNum)}
+                  onToggle={() => onHighlightMatch(isSelected ? null : sourceId)}
                 />
               ));
             })}
@@ -217,8 +211,9 @@ export default function MatchTable({
                 key={i}
                 allMatches={allMatches}
                 currentMatchId={match.id}
+                maxPlayersPerMatch={maxPlayersPerMatch}
                 value={pendingSourcePaths[i] ?? null}
-                onChange={(matchId) => onPendingSourcePathChange(i, matchId)}
+                onChange={(value) => onPendingSourcePathChange(i, value)}
                 onHighlightMatch={onHighlightMatch}
               />
             ))}
