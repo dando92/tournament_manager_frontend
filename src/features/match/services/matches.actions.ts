@@ -55,6 +55,11 @@ type onUpdateMatchPaths = {
   payload: Match;
 };
 
+type onRefreshMatch = {
+  type: "onRefreshMatch";
+  payload: Match;
+};
+
 export type MatchesActions =
   | onListMatches
   | onCreateMatch
@@ -66,4 +71,5 @@ export type MatchesActions =
   | onAddStandingToMatch
   | onEditStandingFromMatch
   | onDeleteStandingFromMatch
-  | onUpdateMatchPaths;
+  | onUpdateMatchPaths
+  | onRefreshMatch;

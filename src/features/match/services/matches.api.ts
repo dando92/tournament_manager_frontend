@@ -37,6 +37,16 @@ export async function create(request: CreateMatchRequest): Promise<Match> {
   }
 }
 
+export async function getMatch(matchId: number): Promise<Match> {
+  try {
+    const response = await axios.get<Match>(`matches/${matchId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching match:", error);
+    throw new Error("Unable to fetch match.");
+  }
+}
+
 export async function editMatchNotes(
   matchId: number,
   notes: string,

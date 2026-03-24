@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Division } from "@/features/division/types/Division";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
@@ -6,6 +6,8 @@ import BracketsTab from "@/features/division/components/BracketsTab";
 import LivePhase from "@/features/live/components/LivePhase";
 import SongsList from "@/features/song/components/SongsList";
 import { usePermissions } from "@/shared/services/permissions/PermissionContext";
+import { useMatchHub } from "@/features/live/services/useMatchHub";
+import { MatchUpdateContext } from "@/features/match/context/MatchUpdateContext";
 
 type Tab = "Overview" | "Brackets" | "Live" | "Songs" | "Standings" | "Stats";
 const TABS: Tab[] = ["Overview", "Brackets", "Live", "Songs", "Standings", "Stats"];
@@ -22,7 +24,26 @@ export default function DivisionView({ division, tournamentId, controls, onBack 
   const { canEditTournament } = usePermissions();
   const canEditSongs = canEditTournament(tournamentId);
 
+  const [updatedMatchIds, setUpdatedMatchIds] = useState<ReadonlySet<number>>(new Set());
+  const phaseIds = new Set(division.phases.map(p => p.id));
+  const pendingUpdates = useRef<Set<number>>(new Set());
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleMatchHubUpdate = useCallback((data: { matchId: number; phaseId: number }) => {
+    if (!phaseIds.has(data.phaseId)) return;
+    pendingUpdates.current.add(data.matchId);
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      const flush = new Set(pendingUpdates.current);
+      pendingUpdates.current = new Set();
+      setUpdatedMatchIds(flush);
+    }, 50);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [division.id]);
+  useMatchHub(handleMatchHubUpdate, tournamentId);
+
   return (
+    <MatchUpdateContext.Provider value={updatedMatchIds}>
     <div className="flex flex-col gap-3">
       {/* Back + title */}
       <div className="flex items-center gap-2">
@@ -70,5 +91,6 @@ export default function DivisionView({ division, tournamentId, controls, onBack 
         )}
       </div>
     </div>
+    </MatchUpdateContext.Provider>
   );
 }

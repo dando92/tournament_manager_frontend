@@ -1,7 +1,4 @@
 import { useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import CreateMatchModal from "@/features/match/modals/CreateMatchModal";
 import { Division } from "@/features/division/types/Division";
 import MatchCard from "@/features/match/components/MatchCard";
 import { useMatches } from "@/features/match/services/useMatches";
@@ -20,7 +17,6 @@ export default function MatchesView({
   matchUpdateSignal,
 }: MatchesViewProps) {
   const { state, actions } = useMatches(division.id);
-  const [createMatchModalOpened, setCreateMatchModalOpened] = useState(false);
   const [highlightedMatchId, setHighlightedMatchId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -30,27 +26,6 @@ export default function MatchesView({
 
   return (
     <div className="mt-4">
-      {controls && (
-        <CreateMatchModal
-          division={division}
-          tournamentId={tournamentId}
-          open={createMatchModalOpened}
-          onClose={() => setCreateMatchModalOpened(false)}
-          onCreate={actions.create}
-        />
-      )}
-
-      <div className="flex items-center justify-between mb-3">
-        {controls && (
-          <button
-            onClick={() => setCreateMatchModalOpened(true)}
-            className="flex items-center gap-1.5 text-sm text-green-700 hover:text-green-900 font-medium"
-          >
-            <FontAwesomeIcon icon={faPlus} />
-            New match
-          </button>
-        )}
-      </div>
 
       {state.matches.length === 0 ? (
         <p className="text-center text-gray-400 text-sm py-8">No matches yet.</p>
