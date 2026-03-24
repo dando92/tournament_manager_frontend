@@ -19,7 +19,7 @@ export default function DivisionCard({ division, tournamentName, onSelect, onGen
   const visiblePhases = division.phases?.slice(0, MAX_VISIBLE_PHASES) ?? [];
   const extraPhases = (division.phases?.length ?? 0) - visiblePhases.length;
 
-  const totalMatchCount = division.matches?.length ?? 0;
+  const totalMatchCount = (division.phases ?? []).flatMap(p => p.matches ?? []).length;
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow flex flex-col">

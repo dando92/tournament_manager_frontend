@@ -1,5 +1,6 @@
 export interface CreateMatchRequest {
-  divisionId: number;
+  phaseId: number;
+  divisionId?: number; // only needed for song rolling
   matchName: string;
   subtitle: string;
   scoringSystem: string;

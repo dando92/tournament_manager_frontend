@@ -9,7 +9,7 @@ import {
 export async function listByDivision(divisionId: number): Promise<Match[]> {
   try {
     const response = await axios.get<Division>(`divisions/${divisionId}`);
-    return response.data.matches ?? [];
+    return response.data.phases.flatMap(p => p.matches ?? []);
   } catch (error) {
     console.error("Error listing matches by division:", error);
     throw new Error("Unable to list matches by division.");
@@ -24,6 +24,7 @@ export async function create(request: CreateMatchRequest): Promise<Match> {
       notes: request.notes,
       playerIds: request.playerIds,
       scoringSystem: request.scoringSystem,
+      phaseId: request.phaseId,
       divisionId: request.divisionId,
       group: request.group,
       levels: request.levels,

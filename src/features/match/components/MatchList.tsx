@@ -11,6 +11,7 @@ type MatchListProps = {
   controls?: boolean;
   tournamentId?: number;
   matchUpdateSignal?: number;
+  phaseId?: number;
 };
 
 export default function MatchList({
@@ -18,6 +19,7 @@ export default function MatchList({
   controls = false,
   tournamentId,
   matchUpdateSignal,
+  phaseId,
 }: MatchListProps) {
   const { state, actions } = useMatches(division.id);
   const [createMatchModalOpen, setCreateMatchModalOpen] = useState(false);
@@ -30,9 +32,10 @@ export default function MatchList({
 
   return (
     <div className="mt-4">
-      {controls && (
+      {controls && phaseId !== undefined && (
         <CreateMatchModal
-          division={division}
+          phaseId={phaseId}
+          divisionId={division.id}
           tournamentId={tournamentId}
           open={createMatchModalOpen}
           onClose={() => setCreateMatchModalOpen(false)}
@@ -40,7 +43,7 @@ export default function MatchList({
         />
       )}
 
-      {controls && (
+      {controls && phaseId !== undefined && (
         <div className="flex justify-end mb-3">
           <button
             onClick={() => setCreateMatchModalOpen(true)}

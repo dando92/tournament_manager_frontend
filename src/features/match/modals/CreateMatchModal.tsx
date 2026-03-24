@@ -5,7 +5,6 @@ import axios from "axios";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMinusCircle, faPlusCircle} from "@fortawesome/free-solid-svg-icons";
 import {Song} from "@/features/song/types/Song";
-import {Division} from "@/features/division/types/Division";
 import {CreateMatchRequest} from "@/features/match/types/match-requests";
 import { selectPortalStyles } from "@/styles/selectStyles";
 import Select from "react-select";
@@ -14,7 +13,8 @@ type CreateMatchModal = {
     open: boolean;
     onClose: () => void;
     onCreate: (request: CreateMatchRequest) => void;
-    division: Division;
+    phaseId: number;
+    divisionId: number;
     tournamentId?: number;
 };
 
@@ -22,7 +22,8 @@ export default function CreateMatchModal({
                                              open,
                                              onClose,
                                              onCreate,
-                                             division,
+                                             phaseId,
+                                             divisionId,
                                              tournamentId,
                                          }: CreateMatchModal) {
     const [players, setPlayers] = useState<Player[]>([]);
@@ -85,7 +86,8 @@ export default function CreateMatchModal({
 
     const createMatchByTitle = () => {
         const request = {
-            divisionId: division.id,
+            phaseId: phaseId,
+            divisionId: divisionId,
             matchName: matchName,
             subtitle: subtitle,
             group: selectedGroupName,
@@ -100,7 +102,8 @@ export default function CreateMatchModal({
 
     const createMatchByRoll = () => {
         const request = {
-            divisionId: division.id,
+            phaseId: phaseId,
+            divisionId: divisionId,
             matchName: matchName,
             subtitle: subtitle,
             group: selectedGroupName,
