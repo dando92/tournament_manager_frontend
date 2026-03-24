@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Division } from "@/features/division/types/Division";
 import { Phase } from "@/features/division/types/Phase";
-import { Match } from "@/features/match/types/Match";
 import MatchList from "@/features/match/components/MatchList";
 
 type BracketsTabProps = {
@@ -14,10 +13,6 @@ export default function BracketsTab({ division, controls, tournamentId }: Bracke
   const [selectedPhaseId, setSelectedPhaseId] = useState<number | "all">("all");
 
   const phases = division.phases ?? [];
-
-  // Collect match IDs that belong to any phase
-  const phasedMatchIds = new Set(phases.flatMap((p) => p.matches?.map((m) => m.id) ?? []));
-  const unassignedMatches = (division.matches ?? []).filter((m) => !phasedMatchIds.has(m.id));
 
   const selectedPhase = selectedPhaseId !== "all"
     ? phases.find((p) => p.id === selectedPhaseId) ?? null
@@ -49,7 +44,6 @@ export default function BracketsTab({ division, controls, tournamentId }: Bracke
       {selectedPhaseId === "all" ? (
         <AllPhasesView
           phases={phases}
-          unassignedMatches={unassignedMatches}
           division={division}
           controls={controls}
           tournamentId={tournamentId}
@@ -96,28 +90,20 @@ function PhaseButton({
 
 function AllPhasesView({
   phases,
-  unassignedMatches,
   division,
   controls,
   tournamentId,
 }: {
   phases: Phase[];
-  unassignedMatches: Match[];
   division: Division;
   controls: boolean;
   tournamentId?: number;
 }) {
   if (phases.length === 0) {
-    return <MatchList division={division} controls={controls} tournamentId={tournamentId} />;
+    return <p className="text-center text-gray-400 text-sm py-8">No bracket yet.</p>;
   }
 
-  const allMatches = [
-    ...phases.flatMap((p) => p.matches ?? []),
-    ...unassignedMatches,
-  ];
-  const flatDivision: Division = { ...division, matches: allMatches };
-
-  return <MatchList division={flatDivision} controls={controls} tournamentId={tournamentId} />;
+  return <MatchList division={division} controls={controls} tournamentId={tournamentId} />;
 }
 
 function PhaseSection({
@@ -131,9 +117,6 @@ function PhaseSection({
   controls: boolean;
   tournamentId?: number;
 }) {
-  // Create a view of the division containing only this phase's matches
-  const phaseDivision: Division = { ...division, matches: phase.matches ?? [] };
-
   return (
     <div>
       <div className="flex items-center gap-2 mb-2">
@@ -144,7 +127,8 @@ function PhaseSection({
       </div>
       <MatchList
         key={`phase-${phase.id}`}
-        division={phaseDivision}
+        division={division}
+        phaseId={phase.id}
         controls={controls}
         tournamentId={tournamentId}
       />
