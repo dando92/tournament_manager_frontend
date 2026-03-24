@@ -1,11 +1,12 @@
 import { Match } from "@/features/match/types/Match";
 import { Division } from "@/features/division/types/Division";
 import AddEditSongToMatchModal from "@/features/match/modals/AddEditSongToMatchModal";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import StandingModal from "@/features/match/modals/StandingModal";
 import EditMatchNotesModal from "@/features/match/modals/EditMatchNotesModal";
 import MatchHeader from "@/features/match/components/MatchHeader";
 import MatchTable from "@/features/match/components/MatchTable";
+import { MatchUpdateContext } from "@/features/match/context/MatchUpdateContext";
 
 type MatchCardProps = {
   division: Division;
@@ -41,6 +42,7 @@ type MatchCardProps = {
   ) => void;
   onDeleteStanding: (playerId: number, songId: number) => void;
   onUpdateMatchPaths?: (matchId: number, sourcePaths: number[]) => Promise<void>;
+  onRefreshSelf?: () => void;
 };
 
 type StandingModalState = {
@@ -86,6 +88,7 @@ export default function MatchCard({
   onDeleteStanding,
   onEditStanding,
   onUpdateMatchPaths,
+  onRefreshSelf,
 }: MatchCardProps) {
   const [addSongToMatchModalOpen, setAddSongToMatchModalOpen] = useState(false);
   const [editSongId, setEditSongId] = useState<number | null>(null);
@@ -101,6 +104,15 @@ export default function MatchCard({
     if (!matchUpdateSignal) return;
     onMatchUpdatedRef.current();
   }, [matchUpdateSignal]);
+
+  const cardRef = useRef<HTMLDivElement>(null);
+  const updatedMatchIds = useContext(MatchUpdateContext);
+  const onRefreshSelfRef = useRef(onRefreshSelf);
+  useEffect(() => { onRefreshSelfRef.current = onRefreshSelf; });
+  useEffect(() => {
+    if (updatedMatchIds.has(match.id)) onRefreshSelfRef.current?.();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updatedMatchIds]);
 
   const maxPlayersPerMatch = division.playersPerMatch ?? 2;
   const isHighlighted = match.id === highlightedMatchId;
@@ -139,6 +151,7 @@ export default function MatchCard({
 
   return (
     <div
+      ref={cardRef}
       className={`flex flex-col w-full p-4 my-3 border rounded-xl bg-white shadow-sm transition-shadow ${
         isHighlighted
           ? "border-green-400 ring-2 ring-green-300 shadow-green-100 shadow-lg"

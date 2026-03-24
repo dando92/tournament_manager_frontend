@@ -203,6 +203,15 @@ export function useMatches(divisionId: number) {
     }
   }
 
+  async function refreshMatch(matchId: number) {
+    try {
+      const item = await MatchesApi.getMatch(matchId);
+      dispatch({ type: "onRefreshMatch", payload: item });
+    } catch (error) {
+      console.error("Error refreshing match:", error);
+    }
+  }
+
   async function updateMatchPaths(matchId: number, sourcePaths: number[]) {
     try {
       const item = await MatchesApi.updateMatchPaths(matchId, sourcePaths);
@@ -219,6 +228,7 @@ export function useMatches(divisionId: number) {
     actions: {
       list,
       create,
+      refreshMatch,
       editMatchNotes,
       renameMatch,
       deleteMatch,

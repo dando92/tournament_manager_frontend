@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 type MatchUpdateData = {
   matchId: number;
-  divisionId: number;
+  phaseId: number;
   tournamentId: number;
 };
 

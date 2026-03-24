@@ -91,9 +91,9 @@ export default function MatchRow({
         return (
           <td
             key={round.song.id}
-            className={`px-1 sm:px-3 py-2 ${scoreData.isFailed ? "bg-red-50" : ""}`}
+            className={`px-1 sm:px-3 py-2 text-center ${scoreData.isFailed ? "bg-red-50" : ""}`}
           >
-            <div className="inline-flex flex-col gap-0.5">
+            <div className="inline-flex flex-col items-center gap-0.5">
               <div className="flex items-center gap-1">
                 <span className={`font-bold text-base ${scoreData.isFailed ? "text-red-600" : "text-gray-800"}`}>
                   {scoreData.percentage.toFixed(2)}%
@@ -102,7 +102,7 @@ export default function MatchRow({
                   <span className="text-xs bg-red-100 text-red-600 px-1 rounded font-semibold">F</span>
                 )}
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-center gap-1">
                 <span className="text-xs text-gray-400">{scoreData.score} pts</span>
                 {controls && (
                   <button

@@ -3,7 +3,6 @@ import { Division } from "@/features/division/types/Division";
 import axios from "axios";
 import MatchesView from "@/features/match/components/MatchesView";
 import LobbyLiveBlock from "@/features/live/components/LobbyLiveBlock";
-import { useMatchHub } from "@/features/live/services/useMatchHub";
 import { useScoreHub, TournamentLobbyStateDto, ActiveLobbyDto } from "@/features/live/services/useScoreHub";
 
 type TournamentLiveState = {
@@ -52,11 +51,8 @@ export default function LivePhase({ tournamentId, initialActiveLobbies }: Props)
     [],
   );
 
-  useMatchHub((data) => {
-    if (data.divisionId && data.tournamentId) {
-      fetchDivision(data.tournamentId, data.divisionId);
-    }
-  });
+  // fetchDivision is kept for potential future use when divisionId is available
+  void fetchDivision;
 
   const handleLobbyDisconnected = useCallback((_tid: number, lobbyId: string) => {
     setActiveLobbies((prev) => { const next = new Map(prev); next.delete(lobbyId); return next; });
