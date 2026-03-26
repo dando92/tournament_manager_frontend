@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { Account } from "@/features/player/types/Account";
 import { toast } from "react-toastify";
 import RoleAccountItem from "@/features/admin/components/RoleAccountItem";
+import { isLocalMode } from "@/features/auth/services/auth-mode";
 
 export default function ManageRolesPage() {
+  if (isLocalMode()) return <Navigate to="/" replace />;
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
 

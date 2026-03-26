@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBroadcastTower, faGear, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { btnPrimary } from "@/styles/buttonStyles";
-import { Player } from "@/features/player/types/Player";
 import { useHelpers } from "@/shared/services/helpers/useHelpers";
 import LobbiesModal from "@/features/admin/modals/LobbiesModal";
 import ManageParticipantsModal from "@/features/admin/modals/ManageParticipantsModal";
@@ -20,55 +17,15 @@ export default function ManageActionsMenu({ tournamentId, canEditHelpers }: Prop
   const [menuOpen, setMenuOpen] = useState(false);
 
   const { state: helpersState, actions: helpersActions } = useHelpers(Number(tournamentId));
-  const [tournamentPlayers, setTournamentPlayers] = useState<Player[]>([]);
-  const [allPlayers, setAllPlayers] = useState<Player[]>([]);
 
   useEffect(() => {
     helpersActions.load();
-    axios
-      .get<Player[]>(`tournaments/${tournamentId}/players`)
-      .then((r) => setTournamentPlayers(r.data.sort((a, b) => a.playerName.localeCompare(b.playerName))))
-      .catch(() => {});
-    axios
-      .get<Player[]>("players")
-      .then((r) => setAllPlayers(r.data.sort((a, b) => a.playerName.localeCompare(b.playerName))))
-      .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tournamentId]);
 
   const availableCandidates = helpersState.candidates.filter(
     (c) => !helpersState.helpers.some((h) => h.id === c.id),
   );
-
-  const availablePlayersToAdd = allPlayers.filter(
-    (p) => !tournamentPlayers.some((tp) => tp.id === p.id),
-  );
-
-  const handleAddPlayer = (playerId: number) => {
-    axios
-      .post(`tournaments/${tournamentId}/players`, { playerId })
-      .then(() => {
-        const player = allPlayers.find((p) => p.id === playerId);
-        if (player) {
-          setTournamentPlayers((prev) =>
-            [...prev, player].sort((a, b) => a.playerName.localeCompare(b.playerName)),
-          );
-        }
-        toast.success("Player added to tournament.");
-      })
-      .catch(() => toast.error("Failed to add player."));
-  };
-
-  const handleRemovePlayer = (playerId: number) => {
-    if (!window.confirm("Remove this player from the tournament?")) return;
-    axios
-      .delete(`tournaments/${tournamentId}/players/${playerId}`)
-      .then(() => {
-        setTournamentPlayers((prev) => prev.filter((p) => p.id !== playerId));
-        toast.success("Player removed from tournament.");
-      })
-      .catch(() => toast.error("Failed to remove player."));
-  };
 
   return (
     <>
@@ -131,12 +88,6 @@ export default function ManageActionsMenu({ tournamentId, canEditHelpers }: Prop
         open={participantsOpen}
         onClose={() => setParticipantsOpen(false)}
         canEditHelpers={canEditHelpers}
-        players={{
-          tournamentPlayers,
-          availableToAdd: availablePlayersToAdd,
-          onAdd: handleAddPlayer,
-          onRemove: handleRemovePlayer,
-        }}
         helpers={{
           helpers: helpersState.helpers,
           availableCandidates,

@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { useAuthContext } from "@/features/auth/context/AuthContext";
+import { isLocalMode } from "@/features/auth/services/auth-mode";
 import { btnPrimary } from "@/styles/buttonStyles";
 
 export default function RegisterPage() {
+  if (isLocalMode()) return <Navigate to="/" replace />;
   const { actions } = useAuthContext();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");

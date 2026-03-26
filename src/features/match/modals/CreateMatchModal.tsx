@@ -30,7 +30,7 @@ export default function CreateMatchModal({
     const [scoringSystems, setScoringSystems] = useState<string[]>([])
     const [scoringSystem, setScoringSystem] = useState("");
 
-    const [matchName, setMatchName] = useState<string>("");
+    const [name, setName] = useState<string>("");
     const [subtitle, setSubtitle] = useState<string>("");
 
     const [selectedPlayers, setSelectedPlayers] = useState<Player[]>([]);
@@ -88,7 +88,7 @@ export default function CreateMatchModal({
         const request = {
             phaseId: phaseId,
             divisionId: divisionId,
-            matchName: matchName,
+            name: name,
             subtitle: subtitle,
             group: selectedGroupName,
             scoringSystem: scoringSystem,
@@ -104,7 +104,7 @@ export default function CreateMatchModal({
         const request = {
             phaseId: phaseId,
             divisionId: divisionId,
-            matchName: matchName,
+            name: name,
             subtitle: subtitle,
             group: selectedGroupName,
             scoringSystem: scoringSystem,
@@ -130,8 +130,8 @@ export default function CreateMatchModal({
                     <input
                         className="w-full border border-gray-300 px-2 py-2 rounded-lg"
                         type="text"
-                        value={matchName}
-                        onChange={(e) => setMatchName(e.target.value)}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         placeholder="Type match name"
                     />
                 </div>

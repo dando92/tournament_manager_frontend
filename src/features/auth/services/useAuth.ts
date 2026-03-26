@@ -20,6 +20,20 @@ export function useAuth() {
     }
   }
 
+  async function loginWithApiKey(apiKey: string) {
+    try {
+      const { access_token } = await AuthApi.loginWithApiKey(apiKey);
+      localStorage.setItem("access_token", access_token);
+
+      const account = await AuthApi.fetchMe();
+      dispatch({ type: "onLogin", payload: { token: access_token, account } });
+      return account;
+    } catch (error) {
+      toast.error("Invalid API key.");
+      throw error;
+    }
+  }
+
   async function register(username: string, email: string, password: string, playerName?: string) {
     try {
       await AuthApi.register(username, email, password, playerName);
@@ -52,6 +66,6 @@ export function useAuth() {
 
   return {
     state,
-    actions: { login, logout, register, loadCurrentUser },
+    actions: { login, loginWithApiKey, logout, register, loadCurrentUser },
   };
 }

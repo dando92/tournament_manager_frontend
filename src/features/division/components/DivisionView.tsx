@@ -3,23 +3,25 @@ import { Division } from "@/features/division/types/Division";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import BracketsTab from "@/features/division/components/BracketsTab";
+import PlayersTab from "@/features/division/components/PlayersTab";
 import LivePhase from "@/features/live/components/LivePhase";
 import SongsList from "@/features/song/components/SongsList";
 import { usePermissions } from "@/shared/services/permissions/PermissionContext";
 import { useMatchHub } from "@/features/live/services/useMatchHub";
 import { MatchUpdateContext } from "@/features/match/context/MatchUpdateContext";
 
-type Tab = "Overview" | "Brackets" | "Live" | "Songs" | "Standings" | "Stats";
-const TABS: Tab[] = ["Overview", "Brackets", "Live", "Songs", "Standings", "Stats"];
+type Tab = "Overview" | "Brackets" | "Live" | "Songs" | "Standings" | "Stats" | "Players";
+const TABS: Tab[] = ["Overview", "Brackets", "Live", "Songs", "Standings", "Stats", "Players"];
 
 type DivisionViewProps = {
   division: Division;
   tournamentId: number;
   controls: boolean;
   onBack: () => void;
+  onPlayersChanged: () => void;
 };
 
-export default function DivisionView({ division, tournamentId, controls, onBack }: DivisionViewProps) {
+export default function DivisionView({ division, tournamentId, controls, onBack, onPlayersChanged }: DivisionViewProps) {
   const [activeTab, setActiveTab] = useState<Tab>("Brackets");
   const { canEditTournament } = usePermissions();
   const canEditSongs = canEditTournament(tournamentId);
@@ -86,7 +88,10 @@ export default function DivisionView({ division, tournamentId, controls, onBack 
         {activeTab === "Songs" && (
           <SongsList canEdit={canEditSongs} tournamentId={tournamentId} />
         )}
-        {activeTab !== "Brackets" && activeTab !== "Live" && activeTab !== "Songs" && (
+        {activeTab === "Players" && (
+          <PlayersTab division={division} canEdit={controls} onPlayersChanged={onPlayersChanged} />
+        )}
+        {activeTab !== "Brackets" && activeTab !== "Live" && activeTab !== "Songs" && activeTab !== "Players" && (
           <p className="text-sm text-gray-400 italic">Coming soon</p>
         )}
       </div>

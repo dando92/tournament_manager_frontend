@@ -18,8 +18,8 @@ export async function listByDivision(divisionId: number): Promise<Match[]> {
 
 export async function create(request: CreateMatchRequest): Promise<Match> {
   try {
-    const response = await axios.post<Match>("match-operations/matches", {
-      matchName: request.matchName,
+    const response = await axios.post<Match>("matches", {
+      name: request.name,
       subtitle: request.subtitle,
       notes: request.notes,
       playerIds: request.playerIds,
@@ -88,7 +88,7 @@ export async function deleteSongFromMatch(
 ): Promise<Match> {
   try {
     const response = await axios.delete<Match>(
-      `match-operations/matches/${matchId}/songs/${songId}`,
+      `matches/${matchId}/songs/${songId}`,
     );
     return response.data;
   } catch (error) {
@@ -106,7 +106,7 @@ export async function addSongToMatch(
 ): Promise<Match> {
   try {
     const response = await axios.post<Match>(
-      `match-operations/matches/${matchId}/songs`,
+      `matches/${matchId}/songs`,
       { songId, divisionId, group, level },
     );
     return response.data;
@@ -126,7 +126,7 @@ export async function editSongInMatch(
 ): Promise<Match> {
   try {
     const response = await axios.put<Match>(
-      `match-operations/matches/${matchId}/songs/${editSongId}`,
+      `matches/${matchId}/songs/${editSongId}`,
       { songId, divisionId, group, level },
     );
     return response.data;
@@ -142,7 +142,7 @@ export async function addStandingToMatch(
 ): Promise<Match> {
   try {
     const response = await axios.post<Match>(
-      `match-operations/matches/${matchId}/standings`,
+      `standings/matches/${matchId}`,
       request,
     );
     return response.data;
@@ -162,7 +162,7 @@ export async function editStandingInMatch(
 ): Promise<Match> {
   try {
     const response = await axios.put<Match>(
-      `match-operations/matches/${matchId}/standings`,
+      `standings/matches/${matchId}`,
       { songId, playerId, percentage, score, isFailed },
     );
     return response.data;
@@ -178,7 +178,7 @@ export async function updateMatchPaths(
 ): Promise<Match> {
   try {
     const response = await axios.put<Match>(
-      `match-operations/matches/${matchId}/paths`,
+      `matches/${matchId}/paths`,
       { sourcePaths },
     );
     return response.data;
@@ -195,7 +195,7 @@ export async function deleteStandingFromMatch(
 ): Promise<Match> {
   try {
     const response = await axios.delete<Match>(
-      `match-operations/matches/${matchId}/standings/${playerId}/${songId}`,
+      `standings/matches/${matchId}/${playerId}/${songId}`,
     );
     return response.data;
   } catch (error) {
