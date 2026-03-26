@@ -20,6 +20,7 @@ import {
 } from "@/features/tournament/services/recentTournaments";
 import { useSidebar } from "@/shared/context/SidebarContext";
 import { usePermissions } from "@/shared/services/permissions/PermissionContext";
+import { isLocalMode } from "@/features/auth/services/auth-mode";
 
 // ── Scrolling text — animates when text overflows the container ───────────────
 function ScrollingText({ text }: { text: string }) {
@@ -216,7 +217,7 @@ export default function Sidebar() {
             Manage Roles
           </SidebarLink>
         )}
-        {state.account && (
+        {state.account && !isLocalMode() && (
           <SidebarLink
             to="/account"
             icon={faUser}
@@ -244,7 +245,7 @@ export default function Sidebar() {
             }
             onClick={close}
           >
-            Login / Register
+            {isLocalMode() ? "Login" : "Login / Register"}
           </SidebarLink>
         )}
       </div>

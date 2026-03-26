@@ -144,6 +144,7 @@ function TournamentView({ tournamentId }: { tournamentId: number }) {
           tournamentId={tournamentId}
           controls={canControl}
           onBack={() => setSelectedDivisionId(null)}
+          onPlayersChanged={onMatchUpdate}
         />
       ) : (
         <div className="flex flex-col gap-4">

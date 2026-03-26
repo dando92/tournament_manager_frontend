@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import { Navigate } from "react-router-dom";
 import { useAuthContext } from "@/features/auth/context/AuthContext";
+import { isLocalMode } from "@/features/auth/services/auth-mode";
 import axios from "axios";
 import { btnPrimary } from "@/styles/buttonStyles";
 import { toast } from "react-toastify";
@@ -58,6 +60,7 @@ function compressImage(file: File, maxSize: number): Promise<string> {
 }
 
 export default function AccountInfoPage() {
+  if (isLocalMode()) return <Navigate to="/" replace />;
   const { state, actions } = useAuthContext();
   const { account } = state;
   const fileInputRef = useRef<HTMLInputElement>(null);
