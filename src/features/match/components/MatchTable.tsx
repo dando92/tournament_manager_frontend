@@ -164,29 +164,38 @@ export default function MatchTable({
               </tr>
             )}
 
-            {!editMode && sourcePaths.flatMap((sourceId) => {
-              const sourceMatch = allMatches.find((m) => m.id === sourceId);
-              const name = sourceMatch?.name ?? String(sourceId);
-              const isSelected = highlightedMatchId === sourceId;
+            {!editMode && (() => {
+              const occurrenceSeen: Record<number, number> = {};
+              return sourcePaths.map((sourceId, i) => {
+                const occurrence = occurrenceSeen[sourceId] ?? 0;
+                occurrenceSeen[sourceId] = occurrence + 1;
 
-              // Find positions in source match's targetPaths that point to this match
-              const positions: number[] = [];
-              (sourceMatch?.targetPaths ?? []).forEach((targetId, idx) => {
-                if (targetId === match.id) positions.push(idx + 1);
+                const sourceMatch = allMatches.find((m) => m.id === sourceId);
+                const name = sourceMatch?.name ?? String(sourceId);
+                const isSelected = highlightedMatchId === sourceId;
+
+                // Find the (occurrence)-th position in targetPaths that points to this match
+                let seen = 0;
+                let pos = 1;
+                (sourceMatch?.targetPaths ?? []).forEach((targetId, idx) => {
+                  if (targetId === match.id) {
+                    if (seen === occurrence) pos = idx + 1;
+                    seen++;
+                  }
+                });
+
+                return (
+                  <PathRow
+                    key={i}
+                    ordinalLabel={toOrdinal(pos)}
+                    sourceMatchName={name}
+                    colSpan={totalCols}
+                    isSelected={isSelected}
+                    onToggle={() => onHighlightMatch(isSelected ? null : sourceId)}
+                  />
+                );
               });
-              if (positions.length === 0) positions.push(1);
-
-              return positions.map((pos) => (
-                <PathRow
-                  key={`${sourceId}-${pos}`}
-                  ordinalLabel={toOrdinal(pos)}
-                  sourceMatchName={name}
-                  colSpan={totalCols}
-                  isSelected={isSelected}
-                  onToggle={() => onHighlightMatch(isSelected ? null : sourceId)}
-                />
-              ));
-            })}
+            })()}
 
             {!editMode && sortedPlayers.map((player, i) => (
               <MatchRow

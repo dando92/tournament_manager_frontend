@@ -85,7 +85,7 @@ function TournamentView({ tournamentId }: { tournamentId: number }) {
 
   useEffect(() => {
     if (!canControl) return;
-    axios.get<string[]>("match-operations/bracket-types")
+    axios.get<string[]>("bracket/bracket-types")
       .then((r) => setBracketTypes(r.data))
       .catch(() => {});
   }, [canControl]);
@@ -100,7 +100,7 @@ function TournamentView({ tournamentId }: { tournamentId: number }) {
 
   const handleGenerateBracket = async (bracketType: string, playerPerMatch: number) => {
     if (!generateBracketDivisionId) return;
-    await axios.post(`match-operations/divisions/${generateBracketDivisionId}/generate-bracket`, {
+    await axios.post(`bracket/divisions/${generateBracketDivisionId}/generate-bracket`, {
       bracketType,
       tournamentId,
       playerPerMatch,
