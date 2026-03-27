@@ -66,7 +66,7 @@ export default function CreateMatchModal({
         });
 
         open &&
-        axios.get("match-operations/scoring-systems").then((response) => {
+        axios.get("matches/scoring-systems").then((response) => {
             setScoringSystems(response.data);
             setScoringSystem(response.data[0]);
         });

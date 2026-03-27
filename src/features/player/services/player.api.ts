@@ -1,17 +1,26 @@
 import axios from "axios";
 import { Player } from "@/features/player/types/Player";
 
+export async function getAllPlayers(): Promise<Player[]> {
+  const response = await axios.get<Player[]>("players");
+  return response.data;
+}
+
 export async function bulkAddToDivision(
   divisionId: number,
   playerNames: string[],
 ): Promise<{ players: Player[]; warnings: string[] }> {
   const response = await axios.post<{ players: Player[]; warnings: string[] }>(
-    `divisions/${divisionId}/players/bulk`,
+    `players/divisions/${divisionId}/bulk`,
     { playerNames },
   );
   return response.data;
 }
 
-export async function removeFromDivision(divisionId: number, playerId: number): Promise<void> {
-  await axios.delete(`divisions/${divisionId}/players/${playerId}`);
+export async function assignPlayerToDivision(playerId: number, divisionId: number): Promise<void> {
+  await axios.post(`players/${playerId}/divisions/${divisionId}`);
+}
+
+export async function removeFromDivision(playerId: number, divisionId: number): Promise<void> {
+  await axios.delete(`players/${playerId}/divisions/${divisionId}`);
 }
