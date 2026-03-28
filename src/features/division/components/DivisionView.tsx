@@ -11,7 +11,7 @@ import { useMatchHub } from "@/features/live/services/useMatchHub";
 import { MatchUpdateContext } from "@/features/match/context/MatchUpdateContext";
 
 type Tab = "Overview" | "Brackets" | "Live" | "Songs" | "Standings" | "Stats" | "Players";
-const TABS: Tab[] = ["Overview", "Brackets", "Live", "Songs", "Standings", "Stats", "Players"];
+const TABS: Tab[] = ["Overview", "Brackets", "Songs", "Players", "Live", "Standings", "Stats"];
 
 type DivisionViewProps = {
   division: Division;
