@@ -24,7 +24,8 @@ export default function BracketsTab({ division, controls, tournamentId }: Bracke
       <div className="overflow-x-auto">
         <div className="flex items-center gap-2 min-w-max pb-1">
           <PhaseButton
-            label="Summary · All phases"
+            label="Summary"
+            sublabel="All phases"
             selected={selectedPhaseId === "all"}
             onClick={() => setSelectedPhaseId("all")}
           />
@@ -32,7 +33,7 @@ export default function BracketsTab({ division, controls, tournamentId }: Bracke
             <PhaseButton
               key={phase.id}
               label={phase.name}
-              sublabel={`${phase.matches?.length ?? 0} bracket${(phase.matches?.length ?? 0) !== 1 ? "s" : ""}`}
+              sublabel={`${phase.matches?.length ?? 0} match${(phase.matches?.length ?? 0) !== 1 ? "es" : ""}`}
               selected={selectedPhaseId === phase.id}
               onClick={() => setSelectedPhaseId(phase.id)}
             />
@@ -76,7 +77,7 @@ function PhaseButton({
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-start px-3 py-1.5 rounded border text-left transition-colors text-xs ${
+      className={`flex flex-col items-start w-32 px-3 py-1.5 rounded border text-left transition-colors text-xs ${
         selected
           ? "border-primary-dark bg-primary-dark/10 text-primary-dark"
           : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"

@@ -1,6 +1,10 @@
 import axios from "axios";
 import { Player } from "@/features/player/types/Player";
 
+export async function updateDivisionSeeding(divisionId: number, seeding: number[]): Promise<void> {
+  await axios.patch(`divisions/${divisionId}`, { seeding });
+}
+
 export async function getAllPlayers(): Promise<Player[]> {
   const response = await axios.get<Player[]>("players");
   return response.data;
