@@ -7,4 +7,5 @@ export interface Division {
   phases: Phase[];
   players: Player[];
   playersPerMatch: number | null;
+  seeding: number[] | null;
 }

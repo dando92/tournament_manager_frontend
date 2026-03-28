@@ -15,12 +15,15 @@ export default function GenerateBracketModal({
   bracketTypes,
   onGenerate,
 }: Props) {
-  const [selectedBracketType, setSelectedBracketType] = useState(bracketTypes[0] ?? "");
+  const [selectedBracketType, setSelectedBracketType] = useState("");
   const [playerPerMatch, setPlayerPerMatch] = useState(2);
   const [generating, setGenerating] = useState(false);
 
   async function handleGenerate() {
-    if (!selectedBracketType) return;
+    if (!selectedBracketType) {
+      onClose();
+      return;
+    }
     setGenerating(true);
     try {
       await onGenerate(selectedBracketType, playerPerMatch);
@@ -43,7 +46,7 @@ export default function GenerateBracketModal({
           </button>
           <button
             onClick={handleGenerate}
-            disabled={generating || !selectedBracketType}
+            disabled={generating}
             className={`text-sm ${btnPrimary}`}
           >
             {generating ? "Generating..." : "Generate"}
@@ -59,9 +62,10 @@ export default function GenerateBracketModal({
             value={selectedBracketType}
             onChange={(e) => setSelectedBracketType(e.target.value)}
           >
+            <option value="">None</option>
             {bracketTypes.map((bt) => (
               <option key={bt} value={bt}>
-                {bt}
+                {bt === "Manual" ? "First phase only" : bt}
               </option>
             ))}
           </select>
