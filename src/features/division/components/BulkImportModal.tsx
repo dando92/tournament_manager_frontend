@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { btnPrimary, btnSecondary } from "@/styles/buttonStyles";
+import BaseModal from "@/shared/components/ui/BaseModal";
 
 type Props = {
+  open: boolean;
   onImport: (names: string[]) => Promise<void>;
   onClose: () => void;
 };
 
-export default function BulkImportModal({ onImport, onClose }: Props) {
+export default function BulkImportModal({ open, onImport, onClose }: Props) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [warnings, setWarnings] = useState<string[]>([]);
@@ -30,14 +32,24 @@ export default function BulkImportModal({ onImport, onClose }: Props) {
     }
   }
 
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-gray-800">Bulk import players</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-lg leading-none">&times;</button>
-        </div>
+  const footer = (
+    <div className="flex justify-end gap-2">
+      <button onClick={onClose} className={`${btnSecondary} text-sm`}>
+        Cancel
+      </button>
+      <button
+        onClick={handleImport}
+        disabled={loading || !text.trim()}
+        className={`${btnPrimary} text-sm`}
+      >
+        {loading ? "Importing..." : "Import"}
+      </button>
+    </div>
+  );
 
+  return (
+    <BaseModal open={open} onClose={onClose} title="Bulk import players" maxWidth="max-w-md" footer={footer}>
+      <div className="flex flex-col gap-4">
         <p className="text-sm text-gray-500">
           Enter one player name per line. Existing players will be linked; new ones will be created.
         </p>
@@ -56,20 +68,7 @@ export default function BulkImportModal({ onImport, onClose }: Props) {
             Already existed and linked: <span className="font-semibold">{warnings.join(", ")}</span>
           </div>
         )}
-
-        <div className="flex justify-end gap-2">
-          <button onClick={onClose} className={`${btnSecondary} text-sm`}>
-            Cancel
-          </button>
-          <button
-            onClick={handleImport}
-            disabled={loading || !text.trim()}
-            className={`${btnPrimary} text-sm`}
-          >
-            {loading ? "Importing..." : "Import"}
-          </button>
-        </div>
       </div>
-    </div>
+    </BaseModal>
   );
 }
