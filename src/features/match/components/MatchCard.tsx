@@ -41,7 +41,7 @@ type MatchCardProps = {
     isFailed: boolean,
   ) => void;
   onDeleteStanding: (playerId: number, songId: number) => void;
-  onUpdateMatchPaths?: (matchId: number, sourcePaths: number[]) => Promise<void>;
+  onUpdateMatchPaths?: (matchId: number, targetPaths: number[]) => Promise<void>;
   onRefreshSelf?: () => void;
 };
 
@@ -95,7 +95,7 @@ export default function MatchCard({
   const [standingModal, setStandingModal] = useState<StandingModalState>(closedModal);
   const [editMatchNotesModalOpen, setEditMatchNotesModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [pendingSourcePaths, setPendingSourcePaths] = useState<(string | null)[]>([]);
+  const [pendingTargetPaths, setPendingTargetPaths] = useState<(number | null)[]>([]);
 
   const onMatchUpdatedRef = useRef(onMatchUpdated);
   useEffect(() => { onMatchUpdatedRef.current = onMatchUpdated; });
@@ -118,35 +118,28 @@ export default function MatchCard({
   const isHighlighted = match.id === highlightedMatchId;
 
   function enterEditMode() {
-    const existing = match.sourcePaths ?? [];
-    const slots = Math.max(0, maxPlayersPerMatch - (match.players?.length ?? 0));
-    const initial: (string | null)[] = Array.from({ length: slots }, (_, i) => {
-      const matchId = existing[i];
-      if (!matchId) return null;
-      const sourceMatch = allMatches.find((m) => m.id === matchId);
-      const posIdx = sourceMatch?.targetPaths.findIndex((tp) => tp === match.id) ?? -1;
-      const pos = posIdx >= 0 ? posIdx + 1 : (sourceMatch?.targetPaths?.length ?? 0) + 1;
-      return `${matchId}-${pos}`;
+    const existing = match.targetPaths ?? [];
+    const initial: (number | null)[] = Array.from({ length: maxPlayersPerMatch }, (_, i) => {
+      const id = existing[i];
+      return id && id > 0 ? id : null;
     });
-    setPendingSourcePaths(initial);
+    setPendingTargetPaths(initial);
     setEditMode(true);
   }
 
   function cancelEditMode() {
     setEditMode(false);
-    setPendingSourcePaths([]);
+    setPendingTargetPaths([]);
   }
 
   async function saveEditMode() {
-    const newSourcePaths = pendingSourcePaths
-      .filter((v): v is string => v !== null)
-      .map((v) => Number(v.split("-")[0]));
+    const newTargetPaths = pendingTargetPaths.map(v => v ?? 0);
     if (onUpdateMatchPaths) {
-      await onUpdateMatchPaths(match.id, newSourcePaths);
+      await onUpdateMatchPaths(match.id, newTargetPaths);
     }
     onMatchUpdatedRef.current();
     setEditMode(false);
-    setPendingSourcePaths([]);
+    setPendingTargetPaths([]);
   }
 
   return (
@@ -200,7 +193,7 @@ export default function MatchCard({
         onOpenAddSong={() => setAddSongToMatchModalOpen(true)}
         onRenameMatch={onRenameMatch}
         editMode={editMode}
-        canEditRoutes={(match.players?.length ?? 0) < maxPlayersPerMatch}
+        canEditRoutes={controls}
         onEditRoutes={enterEditMode}
         onSaveRoutes={saveEditMode}
         onCancelRoutes={cancelEditMode}
@@ -214,9 +207,9 @@ export default function MatchCard({
         editMode={editMode}
         highlightedMatchId={highlightedMatchId}
         onHighlightMatch={onHighlightMatch}
-        pendingSourcePaths={pendingSourcePaths}
-        onPendingSourcePathChange={(index, value) => {
-          setPendingSourcePaths((prev) => {
+        pendingTargetPaths={pendingTargetPaths}
+        onPendingTargetPathChange={(index, value) => {
+          setPendingTargetPaths((prev) => {
             const next = [...prev];
             next[index] = value;
             return next;
