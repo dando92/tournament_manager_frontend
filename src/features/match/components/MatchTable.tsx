@@ -173,35 +173,21 @@ export default function MatchTable({
               // Fallback: if no positions found, still show one row
               const rows = positions.length > 0 ? positions : [1];
 
-              // Compute sorted players of source match only if it has standings
-              const sourceHasResults = sourceMatch?.rounds.some((r) => r.standings.length > 0) ?? false;
-              const sourceSortedPlayers = sourceHasResults
-                ? [...(sourceMatch!.players)].sort((a, b) => {
-                    const pts = (playerId: number) =>
-                      sourceMatch!.rounds.reduce((acc, round) => {
-                        const s = round.standings.find((s) => s.score.player.id === playerId);
-                        return acc + (s?.points ?? 0);
-                      }, 0);
-                    return pts(b.id) - pts(a.id);
-                  })
-                : [];
+              // Source match is complete when every standing across all rounds has points > 0
+              const allStandings = sourceMatch?.rounds.flatMap((r) => r.standings) ?? [];
+              const isSourceComplete = allStandings.length > 0 && allStandings.every((s) => s.points > 0);
+              if (isSourceComplete) return [];
 
-              return rows
-                .filter((pos) => {
-                  if (!sourceHasResults) return true;
-                  const advancedPlayer = sourceSortedPlayers[pos - 1];
-                  return !advancedPlayer || !match.players.some((p) => p.id === advancedPlayer.id);
-                })
-                .map((pos) => (
-                  <PathRow
-                    key={`${sourceId}-${pos}`}
-                    ordinalLabel={toOrdinal(pos)}
-                    sourceMatchName={name}
-                    colSpan={totalCols}
-                    isSelected={isSelected}
-                    onToggle={() => onHighlightMatch(isSelected ? null : sourceId)}
-                  />
-                ));
+              return rows.map((pos) => (
+                <PathRow
+                  key={`${sourceId}-${pos}`}
+                  ordinalLabel={toOrdinal(pos)}
+                  sourceMatchName={name}
+                  colSpan={totalCols}
+                  isSelected={isSelected}
+                  onToggle={() => onHighlightMatch(isSelected ? null : sourceId)}
+                />
+              ));
             })}
 
             {!editMode && sortedPlayers.map((player, i) => (
