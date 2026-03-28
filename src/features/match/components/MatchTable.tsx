@@ -5,7 +5,6 @@ import { faRefresh, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { btnTrash } from "@/styles/buttonStyles";
 import { Match } from "@/features/match/types/Match";
 import MatchRow from "@/features/match/components/row/MatchRow";
-import PlayerRow from "@/features/match/components/row/PlayerRow";
 import PathRow from "@/features/match/components/row/PathRow";
 import EditPathRow from "@/features/match/components/row/EditPathRow";
 import { toOrdinal } from "@/shared/utils";
@@ -20,8 +19,8 @@ type MatchTableProps = {
   editMode: boolean;
   highlightedMatchId: number | null;
   onHighlightMatch: (id: number | null) => void;
-  pendingSourcePaths: (string | null)[];
-  onPendingSourcePathChange: (index: number, value: string | null) => void;
+  pendingTargetPaths: (number | null)[];
+  onPendingTargetPathChange: (index: number, value: number | null) => void;
   onOpenEditSong: (songId: number) => void;
   onDeleteSong: (songId: number) => void;
   onOpenAddStanding: (playerId: number, songId: number, playerName: string, songTitle: string) => void;
@@ -45,8 +44,8 @@ export default function MatchTable({
   editMode,
   highlightedMatchId,
   onHighlightMatch,
-  pendingSourcePaths,
-  onPendingSourcePathChange,
+  pendingTargetPaths,
+  onPendingTargetPathChange,
   onOpenEditSong,
   onDeleteSong,
   onOpenAddStanding,
@@ -90,10 +89,7 @@ export default function MatchTable({
   const sourcePaths = match.sourcePaths ?? [];
   const hasContent = sortedPlayers.length > 0 || sourcePaths.length > 0;
 
-  // Number of empty slots needing EditPathRows
-  const emptySlots = Math.max(0, maxPlayersPerMatch - sortedPlayers.length);
-
-  // colSpan for single-cell rows (PathRow, PlayerRow, EditPathRow, empty message)
+  // colSpan for single-cell rows (PathRow, EditPathRow, empty message)
   const totalCols = editMode ? 1 : Math.max(2, match.rounds.length + 2);
 
   return (
@@ -164,38 +160,49 @@ export default function MatchTable({
               </tr>
             )}
 
-            {!editMode && (() => {
-              const occurrenceSeen: Record<number, number> = {};
-              return sourcePaths.map((sourceId, i) => {
-                const occurrence = occurrenceSeen[sourceId] ?? 0;
-                occurrenceSeen[sourceId] = occurrence + 1;
+            {!editMode && sourcePaths.flatMap((sourceId) => {
+              const sourceMatch = allMatches.find((m) => m.id === sourceId);
+              const name = sourceMatch?.name ?? String(sourceId);
+              const isSelected = highlightedMatchId === sourceId;
+              // Find ALL rank positions in sourceMatch.targetPaths that point to this match
+              const positions = (sourceMatch?.targetPaths ?? [])
+                .map((id, idx) => ({ id, idx }))
+                .filter(({ id }) => id === match.id)
+                .map(({ idx }) => idx + 1);
 
-                const sourceMatch = allMatches.find((m) => m.id === sourceId);
-                const name = sourceMatch?.name ?? String(sourceId);
-                const isSelected = highlightedMatchId === sourceId;
+              // Fallback: if no positions found, still show one row
+              const rows = positions.length > 0 ? positions : [1];
 
-                // Find the (occurrence)-th position in targetPaths that points to this match
-                let seen = 0;
-                let pos = 1;
-                (sourceMatch?.targetPaths ?? []).forEach((targetId, idx) => {
-                  if (targetId === match.id) {
-                    if (seen === occurrence) pos = idx + 1;
-                    seen++;
-                  }
-                });
+              // Compute sorted players of source match only if it has standings
+              const sourceHasResults = sourceMatch?.rounds.some((r) => r.standings.length > 0) ?? false;
+              const sourceSortedPlayers = sourceHasResults
+                ? [...(sourceMatch!.players)].sort((a, b) => {
+                    const pts = (playerId: number) =>
+                      sourceMatch!.rounds.reduce((acc, round) => {
+                        const s = round.standings.find((s) => s.score.player.id === playerId);
+                        return acc + (s?.points ?? 0);
+                      }, 0);
+                    return pts(b.id) - pts(a.id);
+                  })
+                : [];
 
-                return (
+              return rows
+                .filter((pos) => {
+                  if (!sourceHasResults) return true;
+                  const advancedPlayer = sourceSortedPlayers[pos - 1];
+                  return !advancedPlayer || !match.players.some((p) => p.id === advancedPlayer.id);
+                })
+                .map((pos) => (
                   <PathRow
-                    key={i}
+                    key={`${sourceId}-${pos}`}
                     ordinalLabel={toOrdinal(pos)}
                     sourceMatchName={name}
                     colSpan={totalCols}
                     isSelected={isSelected}
                     onToggle={() => onHighlightMatch(isSelected ? null : sourceId)}
                   />
-                );
-              });
-            })()}
+                ));
+            })}
 
             {!editMode && sortedPlayers.map((player, i) => (
               <MatchRow
@@ -211,18 +218,14 @@ export default function MatchTable({
               />
             ))}
 
-            {editMode && sortedPlayers.map((player) => (
-              <PlayerRow key={player.id} player={player} />
-            ))}
-
-            {editMode && Array.from({ length: emptySlots }).map((_, i) => (
+            {editMode && Array.from({ length: maxPlayersPerMatch }).map((_, i) => (
               <EditPathRow
                 key={i}
+                index={i}
                 allMatches={allMatches}
                 currentMatchId={match.id}
-                maxPlayersPerMatch={maxPlayersPerMatch}
-                value={pendingSourcePaths[i] ?? null}
-                onChange={(value) => onPendingSourcePathChange(i, value)}
+                value={pendingTargetPaths[i] ?? null}
+                onChange={(value) => onPendingTargetPathChange(i, value)}
                 onHighlightMatch={onHighlightMatch}
               />
             ))}

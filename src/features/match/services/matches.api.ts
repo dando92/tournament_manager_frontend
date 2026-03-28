@@ -174,12 +174,12 @@ export async function editStandingInMatch(
 
 export async function updateMatchPaths(
   matchId: number,
-  sourcePaths: number[],
+  targetPaths: number[],
 ): Promise<Match> {
   try {
     const response = await axios.put<Match>(
       `matches/${matchId}/paths`,
-      { sourcePaths },
+      { targetPaths },
     );
     return response.data;
   } catch (error) {

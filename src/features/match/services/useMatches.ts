@@ -212,9 +212,9 @@ export function useMatches(divisionId: number) {
     }
   }
 
-  async function updateMatchPaths(matchId: number, sourcePaths: number[]) {
+  async function updateMatchPaths(matchId: number, targetPaths: number[]) {
     try {
-      const item = await MatchesApi.updateMatchPaths(matchId, sourcePaths);
+      const item = await MatchesApi.updateMatchPaths(matchId, targetPaths);
       dispatch({ type: "onUpdateMatchPaths", payload: item });
     } catch (error) {
       toast.error("Error updating match paths.");
