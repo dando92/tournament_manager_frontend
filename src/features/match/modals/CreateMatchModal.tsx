@@ -8,12 +8,14 @@ import {Song} from "@/features/song/types/Song";
 import {CreateMatchRequest} from "@/features/match/types/match-requests";
 import { selectPortalStyles } from "@/styles/selectStyles";
 import Select from "react-select";
+import { Phase } from "@/features/division/types/Phase";
 
 type CreateMatchModal = {
     open: boolean;
     onClose: () => void;
     onCreate: (request: CreateMatchRequest) => void;
-    phaseId: number;
+    phaseId?: number;
+    phases?: Phase[];
     divisionId: number;
     tournamentId?: number;
 };
@@ -22,10 +24,19 @@ export default function CreateMatchModal({
                                              open,
                                              onClose,
                                              onCreate,
-                                             phaseId,
+                                             phaseId: phaseIdProp,
+                                             phases,
                                              divisionId,
                                              tournamentId,
                                          }: CreateMatchModal) {
+    const [selectedPhaseId, setSelectedPhaseId] = useState<number | null>(phaseIdProp ?? phases?.[0]?.id ?? null);
+
+    useEffect(() => {
+        if (open) setSelectedPhaseId(phaseIdProp ?? phases?.[0]?.id ?? null);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [open]);
+
+    const resolvedPhaseId = phaseIdProp ?? selectedPhaseId;
     const [players, setPlayers] = useState<Player[]>([]);
     const [scoringSystems, setScoringSystems] = useState<string[]>([])
     const [scoringSystem, setScoringSystem] = useState("");
@@ -50,10 +61,7 @@ export default function CreateMatchModal({
 
     useEffect(() => {
         open &&
-        (tournamentId
-            ? axios.get<Player[]>(`tournaments/${tournamentId}/players`)
-            : axios.get<Player[]>(`players`)
-        ).then((response) => {
+        axios.get<Player[]>(`divisions/${divisionId}/players`).then((response) => {
             setPlayers(response.data);
         });
 
@@ -86,7 +94,7 @@ export default function CreateMatchModal({
 
     const createMatchByTitle = () => {
         const request = {
-            phaseId: phaseId,
+            phaseId: resolvedPhaseId!,
             divisionId: divisionId,
             name: name,
             subtitle: subtitle,
@@ -102,7 +110,7 @@ export default function CreateMatchModal({
 
     const createMatchByRoll = () => {
         const request = {
-            phaseId: phaseId,
+            phaseId: resolvedPhaseId!,
             divisionId: divisionId,
             name: name,
             subtitle: subtitle,
@@ -125,6 +133,18 @@ export default function CreateMatchModal({
             onOk={onSubmit}
         >
             <div className="flex flex-col w-full gap-3">
+                {!phaseIdProp && phases && phases.length > 0 && (
+                    <div className="w-full">
+                        <h3>Phase</h3>
+                        <Select
+                            options={phases.map((p) => ({ value: p.id, label: p.name }))}
+                            value={selectedPhaseId ? { value: selectedPhaseId, label: phases.find(p => p.id === selectedPhaseId)?.name ?? "" } : null}
+                            onChange={(selected) => setSelectedPhaseId(selected?.value ?? null)}
+                            menuPortalTarget={document.body}
+                            styles={selectPortalStyles}
+                        />
+                    </div>
+                )}
                 <div className="w-full">
                     <h3>Name</h3>
                     <input

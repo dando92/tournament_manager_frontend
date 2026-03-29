@@ -28,7 +28,7 @@ export default function MatchList({
   useEffect(() => {
     actions.list();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [division.id]);
+  }, [division.id, matchUpdateSignal]);
 
   return (
     <div className="mt-4">

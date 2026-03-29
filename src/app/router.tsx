@@ -4,6 +4,7 @@ import { SidebarProvider } from "@/shared/context/SidebarContext";
 import "./App.css";
 import HomePage from "@/pages/HomePage";
 import TournamentPage from "@/pages/TournamentPage";
+import DivisionPage from "@/pages/DivisionPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import AccountInfoPage from "@/pages/AccountInfoPage";
@@ -50,6 +51,7 @@ export default function AppRouter() {
             {/* Tournament page — merged view + manage */}
             <Route path="/tournament" element={<TournamentPage />} />
             <Route path="/tournament/:tournamentId" element={<KeyedTournamentPage />} />
+            <Route path="/tournament/:tournamentId/division/:divisionId" element={<DivisionPage />} />
 
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
