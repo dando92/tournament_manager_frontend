@@ -7,9 +7,10 @@ type BracketsTabProps = {
   division: Division;
   controls: boolean;
   tournamentId?: number;
+  matchRefreshKey?: number;
 };
 
-export default function BracketsTab({ division, controls, tournamentId }: BracketsTabProps) {
+export default function BracketsTab({ division, controls, tournamentId, matchRefreshKey }: BracketsTabProps) {
   const [selectedPhaseId, setSelectedPhaseId] = useState<number | "all">("all");
 
   const phases = division.phases ?? [];
@@ -48,6 +49,7 @@ export default function BracketsTab({ division, controls, tournamentId }: Bracke
           division={division}
           controls={controls}
           tournamentId={tournamentId}
+          matchRefreshKey={matchRefreshKey}
         />
       ) : selectedPhase ? (
         <PhaseSection
@@ -55,9 +57,10 @@ export default function BracketsTab({ division, controls, tournamentId }: Bracke
           division={division}
           controls={controls}
           tournamentId={tournamentId}
+          matchRefreshKey={matchRefreshKey}
         />
       ) : (
-        <MatchList division={division} controls={controls} tournamentId={tournamentId} />
+        <MatchList division={division} controls={controls} tournamentId={tournamentId} matchUpdateSignal={matchRefreshKey} />
       )}
     </div>
   );
@@ -94,17 +97,19 @@ function AllPhasesView({
   division,
   controls,
   tournamentId,
+  matchRefreshKey,
 }: {
   phases: Phase[];
   division: Division;
   controls: boolean;
   tournamentId?: number;
+  matchRefreshKey?: number;
 }) {
   if (phases.length === 0) {
     return <p className="text-center text-gray-400 text-sm py-8">No bracket yet.</p>;
   }
 
-  return <MatchList division={division} controls={controls} tournamentId={tournamentId} />;
+  return <MatchList division={division} controls={controls} tournamentId={tournamentId} matchUpdateSignal={matchRefreshKey} />;
 }
 
 function PhaseSection({
@@ -112,11 +117,13 @@ function PhaseSection({
   division,
   controls,
   tournamentId,
+  matchRefreshKey,
 }: {
   phase: Phase;
   division: Division;
   controls: boolean;
   tournamentId?: number;
+  matchRefreshKey?: number;
 }) {
   return (
     <div>
@@ -132,6 +139,7 @@ function PhaseSection({
         phaseId={phase.id}
         controls={controls}
         tournamentId={tournamentId}
+        matchUpdateSignal={matchRefreshKey}
       />
     </div>
   );

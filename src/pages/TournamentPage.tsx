@@ -1,11 +1,10 @@
 import LivePhase from "@/features/live/components/LivePhase";
 import DivisionCard from "@/features/division/components/DivisionCard";
-import DivisionView from "@/features/division/components/DivisionView";
 import ManageActionsMenu from "@/features/match/components/ManageActionsMenu";
 import CreateDivisionModal from "@/features/division/modals/CreateDivisionModal";
 import GenerateBracketModal from "@/features/division/modals/GenerateBracketModal";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useParams, Navigate, useSearchParams } from "react-router-dom";
+import { useParams, Navigate, useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Tournament } from "@/features/tournament/types/Tournament";
 import { Division } from "@/features/division/types/Division";
@@ -40,11 +39,11 @@ function TournamentView({ tournamentId }: { tournamentId: number }) {
   const { canEditTournament, canEditHelpers } = usePermissions();
   const canControl = canEditTournament(tournamentId);
   const canHelpers = canEditHelpers(tournamentId);
+  const navigate = useNavigate();
 
   const [initialActiveLobbies, setInitialActiveLobbies] = useState<ActiveLobbyDto[]>([]);
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [tournamentName, setTournamentName] = useState("");
-  const [selectedDivisionId, setSelectedDivisionId] = useState<number | null>(null);
   const [createDivisionOpen, setCreateDivisionOpen] = useState(false);
   const [generateBracketDivisionId, setGenerateBracketDivisionId] = useState<number | null>(null);
   const [bracketTypes, setBracketTypes] = useState<string[]>([]);
@@ -107,7 +106,7 @@ function TournamentView({ tournamentId }: { tournamentId: number }) {
     });
     const r = await axios.get<Division[]>("divisions", { params: { tournamentId } });
     setDivisions(r.data);
-    setSelectedDivisionId(generateBracketDivisionId);
+    navigate(`/tournament/${tournamentId}/division/${generateBracketDivisionId}`);
     setGenerateBracketDivisionId(null);
   };
 
@@ -118,8 +117,6 @@ function TournamentView({ tournamentId }: { tournamentId: number }) {
       })
       .catch(() => {});
   };
-
-  const selectedDivision = divisions.find((d) => d.id === selectedDivisionId) ?? null;
 
   if (showLive) {
     return <LivePhase tournamentId={tournamentId} initialActiveLobbies={initialActiveLobbies} />;
@@ -138,47 +135,37 @@ function TournamentView({ tournamentId }: { tournamentId: number }) {
         bracketTypes={bracketTypes}
         onGenerate={handleGenerateBracket}
       />
-      {selectedDivision ? (
-        <DivisionView
-          division={selectedDivision}
-          tournamentId={tournamentId}
-          controls={canControl}
-          onBack={() => setSelectedDivisionId(null)}
-          onPlayersChanged={onMatchUpdate}
-        />
-      ) : (
-        <div className="flex flex-col gap-4">
-          {canControl && (
-            <div className="flex items-center justify-between">
-              <button
-                onClick={() => setCreateDivisionOpen(true)}
-                className="flex items-center gap-2 text-sm text-green-700 hover:text-green-900 font-medium"
-              >
-                <FontAwesomeIcon icon={faPlus} />
-                New division
-              </button>
-              <ManageActionsMenu
-                tournamentId={String(tournamentId)}
-                canEditHelpers={canHelpers}
-              />
-            </div>
-          )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {divisions.map((division) => (
-              <DivisionCard
-                key={division.id}
-                division={division}
-                tournamentName={tournamentName}
-                onSelect={() => setSelectedDivisionId(division.id)}
-                onGenerateBracket={canControl ? () => setGenerateBracketDivisionId(division.id) : undefined}
-              />
-            ))}
-            {divisions.length === 0 && (
-              <p className="text-gray-400 text-sm">No divisions yet.</p>
-            )}
+      <div className="flex flex-col gap-4">
+        {canControl && (
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setCreateDivisionOpen(true)}
+              className="flex items-center gap-2 text-sm text-green-700 hover:text-green-900 font-medium"
+            >
+              <FontAwesomeIcon icon={faPlus} />
+              New division
+            </button>
+            <ManageActionsMenu
+              tournamentId={String(tournamentId)}
+              canEditHelpers={canHelpers}
+            />
           </div>
+        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {divisions.map((division) => (
+            <DivisionCard
+              key={division.id}
+              division={division}
+              tournamentName={tournamentName}
+              onSelect={() => navigate(`/tournament/${tournamentId}/division/${division.id}`)}
+              onGenerateBracket={canControl ? () => setGenerateBracketDivisionId(division.id) : undefined}
+            />
+          ))}
+          {divisions.length === 0 && (
+            <p className="text-gray-400 text-sm">No divisions yet.</p>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
