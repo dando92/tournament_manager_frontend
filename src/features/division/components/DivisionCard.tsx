@@ -2,14 +2,13 @@ import { Division } from "@/features/division/types/Division";
 
 type DivisionCardProps = {
   division: Division;
-  tournamentName: string;
   onSelect: () => void;
 };
 
 const MAX_VISIBLE_PLAYERS = 3;
 const MAX_VISIBLE_PHASES = 4;
 
-export default function DivisionCard({ division, tournamentName, onSelect }: DivisionCardProps) {
+export default function DivisionCard({ division, onSelect }: DivisionCardProps) {
   const visiblePlayers = division.players?.slice(0, MAX_VISIBLE_PLAYERS) ?? [];
   const extraPlayers = (division.players?.length ?? 0) - visiblePlayers.length;
 
@@ -25,9 +24,8 @@ export default function DivisionCard({ division, tournamentName, onSelect }: Div
       className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow flex flex-col text-left overflow-hidden"
     >
       {/* Header */}
-      <div className="px-4 pt-4 pb-3 border-b border-gray-100">
-        <p className="text-xs text-gray-400 mb-0.5">{tournamentName}</p>
-        <h3 className="font-bold text-gray-900 text-base leading-tight">{division.name}</h3>
+      <div className="px-4 py-3 bg-primary border-b border-white/10">
+        <h3 className="font-bold text-white text-base leading-tight">{division.name}</h3>
       </div>
 
       {/* Players */}
