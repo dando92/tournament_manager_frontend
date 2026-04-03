@@ -1,40 +1,35 @@
-import { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { Division } from "@/features/division/types/Division";
-import DivisionView from "@/features/division/components/DivisionView";
+import { Navigate, useParams } from "react-router-dom";
 import { usePermissions } from "@/shared/services/permissions/PermissionContext";
+import DivisionLayout from "@/features/division/layout/DivisionLayout";
+import { DivisionPageContextValue } from "@/features/division/context/DivisionPageContext";
+import { useDivisionPage } from "@/features/division/hooks/useDivisionPage";
 
 export default function DivisionPage() {
   const { tournamentId: tidParam, divisionId: didParam } = useParams<{ tournamentId: string; divisionId: string }>();
   const tournamentId = Number(tidParam);
   const divisionId = Number(didParam);
-  const navigate = useNavigate();
 
+  if (!Number.isFinite(tournamentId) || !Number.isFinite(divisionId)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <DivisionPageContainer tournamentId={tournamentId} divisionId={divisionId} />;
+}
+
+function DivisionPageContainer({ tournamentId, divisionId }: { tournamentId: number; divisionId: number }) {
   const { canEditTournament } = usePermissions();
   const canControl = canEditTournament(tournamentId);
-
-  const [division, setDivision] = useState<Division | null>(null);
-
-  const fetchDivision = useCallback(() => {
-    axios.get<Division>(`divisions/${divisionId}`)
-      .then((r) => setDivision(r.data))
-      .catch(() => {});
-  }, [divisionId]);
-
-  useEffect(() => {
-    fetchDivision();
-  }, [fetchDivision]);
+  const { division, updatedMatchIds, refreshDivision } = useDivisionPage(tournamentId, divisionId);
 
   if (!division) return null;
 
-  return (
-    <DivisionView
-      division={division}
-      tournamentId={tournamentId}
-      controls={canControl}
-      onBack={() => navigate(`/tournament/${tournamentId}`)}
-      onPlayersChanged={fetchDivision}
-    />
-  );
+  const context: DivisionPageContextValue = {
+    division,
+    tournamentId,
+    divisionId,
+    controls: canControl,
+    refreshDivision,
+  };
+
+  return <DivisionLayout context={context} updatedMatchIds={updatedMatchIds} />;
 }
