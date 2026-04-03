@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { Division } from "@/features/division/types/Division";
 import { useMatchHub } from "@/features/live/services/useMatchHub";
@@ -10,6 +11,7 @@ type UseDivisionPageResult = {
 };
 
 export function useDivisionPage(tournamentId: number, divisionId: number): UseDivisionPageResult {
+  const location = useLocation();
   const [division, setDivision] = useState<Division | null>(null);
   const [updatedMatchIds, setUpdatedMatchIds] = useState<ReadonlySet<number>>(new Set());
   const pendingUpdates = useRef<Set<number>>(new Set());
@@ -22,7 +24,7 @@ export function useDivisionPage(tournamentId: number, divisionId: number): UseDi
 
   useEffect(() => {
     refreshDivision().catch(() => {});
-  }, [refreshDivision]);
+  }, [location.search, refreshDivision]);
 
   const handleMatchHubUpdate = useCallback((data: { matchId: number; phaseId: number }) => {
     const phaseIds = new Set((division?.phases ?? []).map((phase) => phase.id));

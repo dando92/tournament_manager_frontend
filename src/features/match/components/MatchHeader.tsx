@@ -126,9 +126,10 @@ export default function MatchHeader({
             <button
               onClick={onOpenAddSong}
               title="Add song/round"
-              className="text-green-700 hover:text-green-900 text-sm"
+              className="inline-flex items-center gap-1 text-green-700 hover:text-green-900 text-sm font-medium"
             >
               <FontAwesomeIcon icon={faPlus} />
+              <span>Add song</span>
             </button>
           )}
           <button

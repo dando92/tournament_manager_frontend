@@ -15,11 +15,7 @@ export default function TournamentOverviewPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <div className="text-sm text-gray-500">Tournament</div>
-          <div className="mt-2 text-xl font-bold text-gray-900">{tournamentName}</div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
           <div className="text-sm text-gray-500">Divisions</div>
           <div className="mt-2 text-3xl font-black text-primary-dark">{divisionCount}</div>
@@ -31,21 +27,12 @@ export default function TournamentOverviewPage() {
       </div>
 
       <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-bold text-gray-900">Divisions</h2>
-            <p className="text-sm text-gray-500">Quick access to each division page.</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => navigate(`/tournament/${tournamentId}/divisions`)}
-            className="text-sm font-medium text-primary-dark hover:text-primary-dark/80"
-          >
-            Open all
-          </button>
+        <div className="text-center">
+          <h2 className="text-lg font-bold text-gray-900">Divisions</h2>
+          <p className="text-sm text-gray-500">Quick access to each division page.</p>
         </div>
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {divisions.slice(0, 4).map((division) => (
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {divisions.map((division) => (
             <DivisionCard
               key={division.id}
               division={division}

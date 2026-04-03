@@ -24,11 +24,11 @@ export default function DivisionLayout({ context, updatedMatchIds }: DivisionLay
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => navigate(`/tournament/${tournamentId}/divisions`)}
+            onClick={() => navigate(`/tournament/${tournamentId}/overview`)}
             className="text-gray-400 hover:text-gray-600 flex items-center gap-1.5 text-sm"
           >
             <FontAwesomeIcon icon={faChevronLeft} className="text-xs" />
-            All divisions
+            Back to overview
           </button>
           <span className="text-gray-300">/</span>
           <span className="text-sm font-semibold text-gray-700">{division.name}</span>

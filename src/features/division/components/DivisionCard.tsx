@@ -87,8 +87,8 @@ export default function DivisionCard({ division, tournamentName, onSelect }: Div
       </div>
 
       {/* CTA */}
-      <div className="px-4 pb-4 pt-1">
-        <span className="inline-flex items-center text-sm font-medium text-primary-dark">
+      <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-center">
+        <span className="inline-flex items-center justify-center text-sm font-medium text-primary-dark">
           Open division
         </span>
       </div>
