@@ -15,6 +15,7 @@ const MAX_VISIBLE_PHASES = 4;
 export default function DivisionCard({ division, tournamentName, onSelect, onGenerateBracket }: DivisionCardProps) {
   const visiblePlayers = division.players?.slice(0, MAX_VISIBLE_PLAYERS) ?? [];
   const extraPlayers = (division.players?.length ?? 0) - visiblePlayers.length;
+  const hasPlayers = (division.players?.length ?? 0) > 0;
 
   const visiblePhases = division.phases?.slice(0, MAX_VISIBLE_PHASES) ?? [];
   const extraPhases = (division.phases?.length ?? 0) - visiblePhases.length;
@@ -94,12 +95,17 @@ export default function DivisionCard({ division, tournamentName, onSelect, onGen
           View Bracket
         </button>
         <button
-            onClick={onGenerateBracket}
-            className="w-full py-2 border border-green-300 text-green-700 text-sm font-medium rounded hover:bg-green-50 transition-colors flex items-center justify-center gap-2"
-          >
-            <FontAwesomeIcon icon={faDiagramProject} />
-            Generate bracket
-          </button>
+          onClick={onGenerateBracket}
+          disabled={!hasPlayers}
+          className={`w-full py-2 border text-sm font-medium rounded transition-colors flex items-center justify-center gap-2 ${
+            hasPlayers
+              ? "border-green-300 text-green-700 hover:bg-green-50"
+              : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+          }`}
+        >
+          <FontAwesomeIcon icon={faDiagramProject} />
+          Generate bracket
+        </button>
       </div>
     </div>
   );
