@@ -158,7 +158,7 @@ function TournamentView({ tournamentId }: { tournamentId: number }) {
               division={division}
               tournamentName={tournamentName}
               onSelect={() => navigate(`/tournament/${tournamentId}/division/${division.id}`)}
-              onGenerateBracket={canControl ? () => setGenerateBracketDivisionId(division.id) : undefined}
+              onGenerateBracket={() => setGenerateBracketDivisionId(division.id)}
             />
           ))}
           {divisions.length === 0 && (

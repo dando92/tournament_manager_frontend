@@ -207,7 +207,7 @@ export default function Sidebar() {
 
       {/* Bottom: account / login / manage roles */}
       <div className="flex flex-col gap-0.5 p-3 border-t border-white/10 shrink-0">
-        {isAdmin && (
+        {isAdmin && !isLocalMode() && (
           <SidebarLink
             to="/admin/roles"
             icon={faShield}

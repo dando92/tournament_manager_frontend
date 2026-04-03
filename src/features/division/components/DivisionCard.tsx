@@ -6,7 +6,7 @@ type DivisionCardProps = {
   division: Division;
   tournamentName: string;
   onSelect: () => void;
-  onGenerateBracket?: () => void;
+  onGenerateBracket: () => void;
 };
 
 const MAX_VISIBLE_PLAYERS = 3;
@@ -93,15 +93,13 @@ export default function DivisionCard({ division, tournamentName, onSelect, onGen
         >
           View Bracket
         </button>
-        {onGenerateBracket && totalMatchCount === 0 && (
-          <button
+        <button
             onClick={onGenerateBracket}
             className="w-full py-2 border border-green-300 text-green-700 text-sm font-medium rounded hover:bg-green-50 transition-colors flex items-center justify-center gap-2"
           >
             <FontAwesomeIcon icon={faDiagramProject} />
             Generate bracket
           </button>
-        )}
       </div>
     </div>
   );
