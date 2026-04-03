@@ -4,7 +4,7 @@ import { faBroadcastTower, faGear, faUsers } from "@fortawesome/free-solid-svg-i
 import { btnPrimary } from "@/styles/buttonStyles";
 import { useHelpers } from "@/shared/services/helpers/useHelpers";
 import LobbiesModal from "@/features/admin/modals/LobbiesModal";
-import ManageParticipantsModal from "@/features/admin/modals/ManageParticipantsModal";
+import ManageHelpersModal from "@/features/admin/modals/ManageHelpersModal";
 
 type Props = {
   tournamentId: string;
@@ -43,7 +43,7 @@ export default function ManageActionsMenu({ tournamentId, canEditHelpers }: Prop
           className={`flex items-center gap-2 ${btnPrimary}`}
         >
           <FontAwesomeIcon icon={faUsers} className="text-sm" />
-          <span className="text-sm">Participants</span>
+          <span className="text-sm">Helpers</span>
         </button>
       </div>
 
@@ -71,7 +71,7 @@ export default function ManageActionsMenu({ tournamentId, canEditHelpers }: Prop
                 className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
               >
                 <FontAwesomeIcon icon={faUsers} className="text-primary-dark" />
-                Participants
+                Helpers
               </button>
             </div>
           </>
@@ -84,7 +84,7 @@ export default function ManageActionsMenu({ tournamentId, canEditHelpers }: Prop
         tournamentId={tournamentId}
         onClose={() => setLobbiesOpen(false)}
       />
-      <ManageParticipantsModal
+      <ManageHelpersModal
         open={participantsOpen}
         onClose={() => setParticipantsOpen(false)}
         canEditHelpers={canEditHelpers}

@@ -16,7 +16,7 @@ type Props = {
   canEditHelpers: boolean;
 };
 
-export default function ManageParticipantsModal({
+export default function ManageHelpersModal({
   open,
   onClose,
   helpers,
@@ -25,7 +25,7 @@ export default function ManageParticipantsModal({
   const [selectedHelperId, setSelectedHelperId] = useState("");
 
   return (
-    <BaseModal open={open} onClose={onClose} title="Participants" maxWidth="max-w-xl">
+    <BaseModal open={open} onClose={onClose} title="Helpers" maxWidth="max-w-xl">
       <div className="flex flex-row gap-6">
         {/* Helpers section */}
         <div className="flex-1">
