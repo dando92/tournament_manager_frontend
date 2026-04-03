@@ -4,6 +4,8 @@ import { Tournament } from "@/features/tournament/types/Tournament";
 import { Division } from "@/features/division/types/Division";
 import { ActiveLobbyDto } from "@/features/live/services/useScoreHub";
 import { addRecentTournament } from "@/features/tournament/services/recentTournaments";
+import * as MatchesApi from "@/features/match/services/matches.api";
+import { CreateMatchRequest } from "@/features/match/types/match-requests";
 
 type UseTournamentPageOptions = {
   tournamentId: number;
@@ -16,15 +18,21 @@ export type TournamentPageState = {
   tournamentName: string;
   createDivisionOpen: boolean;
   selectDivisionOpen: boolean;
+  createPhaseOpen: boolean;
+  createMatchOpen: boolean;
   generateBracketDivisionId: number | null;
   bracketTypes: string[];
   createMenuOpen: boolean;
   setCreateDivisionOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSelectDivisionOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setCreatePhaseOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setCreateMatchOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setGenerateBracketDivisionId: React.Dispatch<React.SetStateAction<number | null>>;
   setCreateMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
   refreshDivisions: () => Promise<void>;
   handleCreateDivision: (name: string) => void;
+  handleCreatePhase: (name: string, divisionId: number) => Promise<void>;
+  handleCreateMatch: (request: CreateMatchRequest) => Promise<void>;
   handleGenerateBracket: (bracketType: string, playerPerMatch: number) => Promise<void>;
 };
 
@@ -37,6 +45,8 @@ export function useTournamentPage({
   const [tournamentName, setTournamentName] = useState("");
   const [createDivisionOpen, setCreateDivisionOpen] = useState(false);
   const [selectDivisionOpen, setSelectDivisionOpen] = useState(false);
+  const [createPhaseOpen, setCreatePhaseOpen] = useState(false);
+  const [createMatchOpen, setCreateMatchOpen] = useState(false);
   const [generateBracketDivisionId, setGenerateBracketDivisionId] = useState<number | null>(null);
   const [bracketTypes, setBracketTypes] = useState<string[]>([]);
   const [createMenuOpen, setCreateMenuOpen] = useState(false);
@@ -103,21 +113,37 @@ export function useTournamentPage({
       .catch(() => {});
   }, [tournamentId]);
 
+  const handleCreatePhase = useCallback(async (name: string, divisionId: number) => {
+    await axios.post("phases", { name, divisionId });
+    await refreshDivisions();
+  }, [refreshDivisions]);
+
+  const handleCreateMatch = useCallback(async (request: CreateMatchRequest) => {
+    await MatchesApi.create(request);
+    await refreshDivisions();
+  }, [refreshDivisions]);
+
   return {
     initialActiveLobbies,
     divisions,
     tournamentName,
     createDivisionOpen,
     selectDivisionOpen,
+    createPhaseOpen,
+    createMatchOpen,
     generateBracketDivisionId,
     bracketTypes,
     createMenuOpen,
     setCreateDivisionOpen,
     setSelectDivisionOpen,
+    setCreatePhaseOpen,
+    setCreateMatchOpen,
     setGenerateBracketDivisionId,
     setCreateMenuOpen,
     refreshDivisions,
     handleCreateDivision,
+    handleCreatePhase,
+    handleCreateMatch,
     handleGenerateBracket,
   };
 }

@@ -1,13 +1,15 @@
 import CreateDivisionModal from "@/features/division/modals/CreateDivisionModal";
+import CreatePhaseModal from "@/features/division/modals/CreatePhaseModal";
 import GenerateBracketModal from "@/features/division/modals/GenerateBracketModal";
 import ManageActionsMenu from "@/features/match/components/ManageActionsMenu";
+import CreateMatchModal from "@/features/match/modals/CreateMatchModal";
 import { TOURNAMENT_TABS, TournamentTabKey } from "@/features/tournament/config/tournamentTabs";
 import { TournamentPageContextValue } from "@/features/tournament/context/TournamentPageContext";
 import SelectDivisionForBracketModal from "@/features/tournament/components/SelectDivisionForBracketModal";
 import { TournamentPageState } from "@/features/tournament/hooks/useTournamentPage";
 import { btnPrimary } from "@/styles/buttonStyles";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faDiagramProject, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faDiagramProject, faDice, faLayerGroup, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 type TournamentLayoutProps = {
@@ -28,14 +30,20 @@ export default function TournamentLayout({ context, state }: TournamentLayoutPro
     divisions,
     createDivisionOpen,
     selectDivisionOpen,
+    createPhaseOpen,
+    createMatchOpen,
     generateBracketDivisionId,
     bracketTypes,
     createMenuOpen,
     setCreateDivisionOpen,
     setSelectDivisionOpen,
+    setCreatePhaseOpen,
+    setCreateMatchOpen,
     setGenerateBracketDivisionId,
     setCreateMenuOpen,
     handleCreateDivision,
+    handleCreatePhase,
+    handleCreateMatch,
     handleGenerateBracket,
   } = state;
 
@@ -48,6 +56,27 @@ export default function TournamentLayout({ context, state }: TournamentLayoutPro
         open={createDivisionOpen}
         onClose={() => setCreateDivisionOpen(false)}
         onCreate={handleCreateDivision}
+      />
+      <CreatePhaseModal
+        open={createPhaseOpen}
+        onClose={() => setCreatePhaseOpen(false)}
+        divisions={divisions.map((division) => ({ id: division.id, name: division.name }))}
+        onCreate={async (name, divisionId) => {
+          await handleCreatePhase(name, divisionId);
+          navigate(`/tournament/${tournamentId}/division/${divisionId}/phases?refresh=${Date.now()}`);
+        }}
+      />
+      <CreateMatchModal
+        open={createMatchOpen}
+        onClose={() => setCreateMatchOpen(false)}
+        onCreate={async (request) => {
+          await handleCreateMatch(request);
+          if (request.divisionId) {
+            navigate(`/tournament/${tournamentId}/division/${request.divisionId}/phases?refresh=${Date.now()}`);
+          }
+        }}
+        divisions={divisions}
+        tournamentId={tournamentId}
       />
       <SelectDivisionForBracketModal
         open={selectDivisionOpen}
@@ -113,6 +142,30 @@ export default function TournamentLayout({ context, state }: TournamentLayoutPro
                     >
                       <FontAwesomeIcon icon={faDiagramProject} className="text-primary-dark" />
                       Generate bracket
+                    </button>
+                    <button
+                      type="button"
+                      disabled={divisions.length === 0}
+                      onClick={() => {
+                        setCreateMenuOpen(false);
+                        setCreatePhaseOpen(true);
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <FontAwesomeIcon icon={faLayerGroup} className="text-primary-dark" />
+                      Phase
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!divisions.some((division) => (division.phases?.length ?? 0) > 0)}
+                      onClick={() => {
+                        setCreateMenuOpen(false);
+                        setCreateMatchOpen(true);
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <FontAwesomeIcon icon={faDice} className="text-primary-dark" />
+                      Match
                     </button>
                   </div>
                 </>

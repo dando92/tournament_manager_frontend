@@ -9,6 +9,7 @@ import {CreateMatchRequest} from "@/features/match/types/match-requests";
 import { selectPortalStyles } from "@/styles/selectStyles";
 import Select from "react-select";
 import { Phase } from "@/features/division/types/Phase";
+import { Division } from "@/features/division/types/Division";
 
 type CreateMatchModal = {
     open: boolean;
@@ -16,7 +17,8 @@ type CreateMatchModal = {
     onCreate: (request: CreateMatchRequest) => void;
     phaseId?: number;
     phases?: Phase[];
-    divisionId: number;
+    divisionId?: number;
+    divisions?: Division[];
     tournamentId?: number;
 };
 
@@ -27,16 +29,29 @@ export default function CreateMatchModal({
                                              phaseId: phaseIdProp,
                                              phases,
                                              divisionId,
+                                             divisions,
                                              tournamentId,
                                          }: CreateMatchModal) {
-    const [selectedPhaseId, setSelectedPhaseId] = useState<number | null>(phaseIdProp ?? phases?.[0]?.id ?? null);
+    const [selectedDivisionId, setSelectedDivisionId] = useState<number | null>(divisionId ?? divisions?.[0]?.id ?? null);
+    const availablePhases = divisionId
+      ? (phases ?? [])
+      : (divisions?.find((division) => division.id === selectedDivisionId)?.phases ?? []);
+    const [selectedPhaseId, setSelectedPhaseId] = useState<number | null>(phaseIdProp ?? availablePhases[0]?.id ?? null);
 
     useEffect(() => {
-        if (open) setSelectedPhaseId(phaseIdProp ?? phases?.[0]?.id ?? null);
+        if (open) {
+            const initialDivisionId = divisionId ?? divisions?.[0]?.id ?? null;
+            const initialPhases = divisionId
+              ? (phases ?? [])
+              : (divisions?.find((division) => division.id === initialDivisionId)?.phases ?? []);
+            setSelectedDivisionId(initialDivisionId);
+            setSelectedPhaseId(phaseIdProp ?? initialPhases[0]?.id ?? null);
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open]);
 
     const resolvedPhaseId = phaseIdProp ?? selectedPhaseId;
+    const resolvedDivisionId = divisionId ?? selectedDivisionId;
     const [players, setPlayers] = useState<Player[]>([]);
     const [scoringSystems, setScoringSystems] = useState<string[]>([])
     const [scoringSystem, setScoringSystem] = useState("");
@@ -60,8 +75,8 @@ export default function CreateMatchModal({
     const [selectedSongs, setSelectedSongs] = useState<Song[]>([]);
 
     useEffect(() => {
-        open &&
-        axios.get<Player[]>(`divisions/${divisionId}/players`).then((response) => {
+        open && resolvedDivisionId &&
+        axios.get<Player[]>(`divisions/${resolvedDivisionId}/players`).then((response) => {
             setPlayers(response.data);
         });
 
@@ -79,7 +94,13 @@ export default function CreateMatchModal({
             setScoringSystem(response.data[0]);
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open]);
+    }, [open, resolvedDivisionId]);
+
+    useEffect(() => {
+        if (!open || divisionId || phaseIdProp) return;
+        const nextPhases = divisions?.find((division) => division.id === selectedDivisionId)?.phases ?? [];
+        setSelectedPhaseId(nextPhases[0]?.id ?? null);
+    }, [divisionId, divisions, open, phaseIdProp, selectedDivisionId]);
 
     const onSubmit = () => {
         switch (songAddType) {
@@ -93,9 +114,10 @@ export default function CreateMatchModal({
     };
 
     const createMatchByTitle = () => {
+        if (!resolvedPhaseId || !resolvedDivisionId) return;
         const request = {
             phaseId: resolvedPhaseId!,
-            divisionId: divisionId,
+            divisionId: resolvedDivisionId,
             name: name,
             subtitle: subtitle,
             group: selectedGroupName,
@@ -109,9 +131,10 @@ export default function CreateMatchModal({
     };
 
     const createMatchByRoll = () => {
+        if (!resolvedPhaseId || !resolvedDivisionId) return;
         const request = {
             phaseId: resolvedPhaseId!,
-            divisionId: divisionId,
+            divisionId: resolvedDivisionId,
             name: name,
             subtitle: subtitle,
             group: selectedGroupName,
@@ -133,12 +156,44 @@ export default function CreateMatchModal({
             onOk={onSubmit}
         >
             <div className="flex flex-col w-full gap-3">
+                {!divisionId && divisions && divisions.length > 0 && (
+                    <div className="w-full">
+                        <h3>Division</h3>
+                        <Select
+                            options={divisions.map((division) => ({ value: division.id, label: division.name }))}
+                            value={
+                                selectedDivisionId
+                                    ? { value: selectedDivisionId, label: divisions.find((division) => division.id === selectedDivisionId)?.name ?? "" }
+                                    : null
+                            }
+                            onChange={(selected) => setSelectedDivisionId(selected?.value ?? null)}
+                            menuPortalTarget={document.body}
+                            styles={selectPortalStyles}
+                        />
+                    </div>
+                )}
                 {!phaseIdProp && phases && phases.length > 0 && (
                     <div className="w-full">
                         <h3>Phase</h3>
                         <Select
                             options={phases.map((p) => ({ value: p.id, label: p.name }))}
                             value={selectedPhaseId ? { value: selectedPhaseId, label: phases.find(p => p.id === selectedPhaseId)?.name ?? "" } : null}
+                            onChange={(selected) => setSelectedPhaseId(selected?.value ?? null)}
+                            menuPortalTarget={document.body}
+                            styles={selectPortalStyles}
+                        />
+                    </div>
+                )}
+                {!phaseIdProp && !divisionId && availablePhases.length > 0 && (
+                    <div className="w-full">
+                        <h3>Phase</h3>
+                        <Select
+                            options={availablePhases.map((p) => ({ value: p.id, label: p.name }))}
+                            value={
+                                selectedPhaseId
+                                    ? { value: selectedPhaseId, label: availablePhases.find((phase) => phase.id === selectedPhaseId)?.name ?? "" }
+                                    : null
+                            }
                             onChange={(selected) => setSelectedPhaseId(selected?.value ?? null)}
                             menuPortalTarget={document.body}
                             styles={selectPortalStyles}

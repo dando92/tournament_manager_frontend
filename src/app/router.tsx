@@ -9,7 +9,6 @@ import DivisionPhasesPage from "@/features/division/pages/DivisionPhasesPage";
 import DivisionPlayersPage from "@/features/division/pages/DivisionPlayersPage";
 import DivisionStandingsPage from "@/features/division/pages/DivisionStandingsPage";
 import TournamentOverviewPage from "@/features/tournament/pages/TournamentOverviewPage";
-import TournamentDivisionsPage from "@/features/tournament/pages/TournamentDivisionsPage";
 import TournamentSongsPage from "@/features/tournament/pages/TournamentSongsPage";
 import TournamentLivePage from "@/features/tournament/pages/TournamentLivePage";
 import TournamentStatsPage from "@/features/tournament/pages/TournamentStatsPage";
@@ -58,7 +57,6 @@ export default function AppRouter() {
             <Route path="/tournament/:tournamentId" element={<KeyedTournamentPage />}>
               <Route index element={<Navigate to="overview" replace />} />
               <Route path="overview" element={<TournamentOverviewPage />} />
-              <Route path="divisions" element={<TournamentDivisionsPage />} />
               <Route path="songs" element={<TournamentSongsPage />} />
               <Route path="live" element={<TournamentLivePage />} />
               <Route path="stats" element={<TournamentStatsPage />} />

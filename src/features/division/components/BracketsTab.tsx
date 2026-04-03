@@ -2,12 +2,6 @@ import { useState } from "react";
 import { Division } from "@/features/division/types/Division";
 import { Phase } from "@/features/division/types/Phase";
 import MatchList from "@/features/match/components/MatchList";
-import CreateMatchModal from "@/features/match/modals/CreateMatchModal";
-import CreatePhaseModal from "@/features/division/modals/CreatePhaseModal";
-import * as MatchesApi from "@/features/match/services/matches.api";
-import axios from "axios";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faDice, faLayerGroup } from "@fortawesome/free-solid-svg-icons";
 
 type BracketsTabProps = {
   division: Division;
@@ -22,13 +16,8 @@ export default function BracketsTab({
   controls,
   tournamentId,
   matchRefreshKey,
-  onDivisionChanged,
 }: BracketsTabProps) {
   const [selectedPhaseId, setSelectedPhaseId] = useState<number | "all">("all");
-  const [createMenuOpen, setCreateMenuOpen] = useState(false);
-  const [createMatchOpen, setCreateMatchOpen] = useState(false);
-  const [createPhaseOpen, setCreatePhaseOpen] = useState(false);
-  const [localRefreshKey, setLocalRefreshKey] = useState(0);
 
   const phases = division.phases ?? [];
 
@@ -38,70 +27,6 @@ export default function BracketsTab({
 
   return (
     <div className="flex flex-col gap-4">
-      {controls && (
-        <>
-          <CreateMatchModal
-            open={createMatchOpen}
-            onClose={() => setCreateMatchOpen(false)}
-            onCreate={async (request) => {
-              await MatchesApi.create(request);
-              setLocalRefreshKey((value) => value + 1);
-              await onDivisionChanged?.();
-            }}
-            phases={division.phases}
-            divisionId={division.id}
-            tournamentId={tournamentId}
-          />
-          <CreatePhaseModal
-            open={createPhaseOpen}
-            onClose={() => setCreatePhaseOpen(false)}
-            onCreate={async (name) => {
-              await axios.post("phases", { name, divisionId: division.id });
-              await onDivisionChanged?.();
-            }}
-          />
-        </>
-      )}
-
-      {controls && (
-        <div className="flex justify-end">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setCreateMenuOpen((value) => !value)}
-              className="flex items-center gap-1.5 text-sm text-green-700 hover:text-green-900 font-medium"
-            >
-              Create
-              <FontAwesomeIcon icon={faChevronDown} className="text-xs" />
-            </button>
-            {createMenuOpen && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setCreateMenuOpen(false)} />
-                <div className="absolute right-0 top-full mt-1 z-20 bg-white rounded shadow-lg border border-gray-200 min-w-[130px]">
-                  <button
-                    type="button"
-                    onClick={() => { setCreateMenuOpen(false); setCreatePhaseOpen(true); }}
-                    className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    <FontAwesomeIcon icon={faLayerGroup} className="text-primary-dark w-4" />
-                    Phase
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setCreateMenuOpen(false); setCreateMatchOpen(true); }}
-                    disabled={division.phases.length === 0}
-                    className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <FontAwesomeIcon icon={faDice} className="text-primary-dark w-4" />
-                    Match
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Phase selector */}
       <div className="overflow-x-auto">
         <div className="flex items-center gap-2 min-w-max pb-1">
@@ -130,7 +55,7 @@ export default function BracketsTab({
           division={division}
           controls={controls}
           tournamentId={tournamentId}
-          matchRefreshKey={(matchRefreshKey ?? 0) + localRefreshKey}
+          matchRefreshKey={matchRefreshKey}
         />
       ) : selectedPhase ? (
         <PhaseSection
@@ -138,10 +63,10 @@ export default function BracketsTab({
           division={division}
           controls={controls}
           tournamentId={tournamentId}
-          matchRefreshKey={(matchRefreshKey ?? 0) + localRefreshKey}
+          matchRefreshKey={matchRefreshKey}
         />
       ) : (
-        <MatchList division={division} controls={controls} tournamentId={tournamentId} matchUpdateSignal={(matchRefreshKey ?? 0) + localRefreshKey} />
+        <MatchList division={division} controls={controls} tournamentId={tournamentId} matchUpdateSignal={matchRefreshKey} />
       )}
     </div>
   );
