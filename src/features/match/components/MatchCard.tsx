@@ -1,12 +1,12 @@
 import { Match } from "@/features/match/types/Match";
 import { Division } from "@/features/division/types/Division";
 import AddEditSongToMatchModal from "@/features/match/modals/AddEditSongToMatchModal";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StandingModal from "@/features/match/modals/StandingModal";
 import EditMatchNotesModal from "@/features/match/modals/EditMatchNotesModal";
 import MatchHeader from "@/features/match/components/MatchHeader";
 import MatchTable from "@/features/match/components/MatchTable";
-import { MatchUpdateContext } from "@/features/match/context/MatchUpdateContext";
+import { useTournamentUpdates } from "@/features/tournament/context/TournamentUpdatesContext";
 
 type MatchCardProps = {
   division: Division;
@@ -106,7 +106,7 @@ export default function MatchCard({
   }, [matchUpdateSignal]);
 
   const cardRef = useRef<HTMLDivElement>(null);
-  const updatedMatchIds = useContext(MatchUpdateContext);
+  const { updatedMatchIds } = useTournamentUpdates();
   const onRefreshSelfRef = useRef(onRefreshSelf);
   useEffect(() => { onRefreshSelfRef.current = onRefreshSelf; });
   useEffect(() => {

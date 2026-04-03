@@ -2,6 +2,7 @@ import { Navigate, useParams } from "react-router-dom";
 import { usePermissions } from "@/shared/services/permissions/PermissionContext";
 import TournamentLayout from "@/features/tournament/layout/TournamentLayout";
 import { TournamentPageContextValue } from "@/features/tournament/context/TournamentPageContext";
+import { TournamentUpdatesProvider } from "@/features/tournament/context/TournamentUpdatesContext";
 import { useTournamentPage } from "@/features/tournament/hooks/useTournamentPage";
 import { getSelectedTournament } from "@/features/tournament/services/recentTournaments";
 
@@ -17,7 +18,11 @@ export default function TournamentPage() {
     return <Navigate to="/" replace />;
   }
 
-  return <TournamentPageContainer tournamentId={selectedTournamentId} />;
+  return (
+    <TournamentUpdatesProvider tournamentId={selectedTournamentId}>
+      <TournamentPageContainer tournamentId={selectedTournamentId} />
+    </TournamentUpdatesProvider>
+  );
 }
 
 function TournamentPageContainer({ tournamentId }: { tournamentId: number }) {

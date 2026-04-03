@@ -1,21 +1,20 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { Division } from "@/features/division/types/Division";
-import { useMatchHub } from "@/features/live/services/useMatchHub";
+import { useTournamentUpdates } from "@/features/tournament/context/TournamentUpdatesContext";
 
 type UseDivisionPageResult = {
   division: Division | null;
-  updatedMatchIds: ReadonlySet<number>;
   refreshDivision: () => Promise<void>;
 };
 
 export function useDivisionPage(tournamentId: number, divisionId: number): UseDivisionPageResult {
   const location = useLocation();
+  const { divisionDetailVersions, matchListVersions } = useTournamentUpdates();
   const [division, setDivision] = useState<Division | null>(null);
-  const [updatedMatchIds, setUpdatedMatchIds] = useState<ReadonlySet<number>>(new Set());
-  const pendingUpdates = useRef<Set<number>>(new Set());
-  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const divisionDetailVersion = divisionDetailVersions.get(divisionId) ?? 0;
+  const matchListVersion = matchListVersions.get(divisionId) ?? 0;
 
   const refreshDivision = useCallback(async () => {
     const response = await axios.get<Division>(`divisions/${divisionId}`);
@@ -26,23 +25,13 @@ export function useDivisionPage(tournamentId: number, divisionId: number): UseDi
     refreshDivision().catch(() => {});
   }, [location.search, refreshDivision]);
 
-  const handleMatchHubUpdate = useCallback((data: { matchId: number; phaseId: number }) => {
-    const phaseIds = new Set((division?.phases ?? []).map((phase) => phase.id));
-    if (!phaseIds.has(data.phaseId)) return;
-    pendingUpdates.current.add(data.matchId);
-    if (debounceTimer.current) clearTimeout(debounceTimer.current);
-    debounceTimer.current = setTimeout(() => {
-      const flush = new Set(pendingUpdates.current);
-      pendingUpdates.current = new Set();
-      setUpdatedMatchIds(flush);
-    }, 50);
-  }, [division]);
-
-  useMatchHub(handleMatchHubUpdate, tournamentId);
+  useEffect(() => {
+    if (divisionDetailVersion === 0 && matchListVersion === 0) return;
+    refreshDivision().catch(() => {});
+  }, [divisionDetailVersion, matchListVersion, refreshDivision, tournamentId]);
 
   return {
     division,
-    updatedMatchIds,
     refreshDivision,
   };
 }
