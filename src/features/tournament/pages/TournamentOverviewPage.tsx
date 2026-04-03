@@ -3,7 +3,7 @@ import { useTournamentPageContext } from "@/features/tournament/context/Tourname
 import { useNavigate } from "react-router-dom";
 
 export default function TournamentOverviewPage() {
-  const { divisions, tournamentName, tournamentId } = useTournamentPageContext();
+  const { divisions, tournamentId } = useTournamentPageContext();
   const navigate = useNavigate();
 
   const divisionCount = divisions.length;
@@ -36,7 +36,6 @@ export default function TournamentOverviewPage() {
             <DivisionCard
               key={division.id}
               division={division}
-              tournamentName={tournamentName}
               onSelect={() => navigate(`/tournament/${tournamentId}/division/${division.id}/phases`)}
             />
           ))}
