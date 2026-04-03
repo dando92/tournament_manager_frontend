@@ -30,9 +30,7 @@ export default function LobbyLiveBlock({ lobbyState }: Props) {
           <span>OBS source</span>
         </a>
       </div>
-      {import.meta.env.VITE_PUBLIC_ENABLE_LIVE_SCORES === "true" && (
-        <LiveScores lobbyState={lobbyState} singleColumn />
-      )}
+      <LiveScores lobbyState={lobbyState} singleColumn />
     </div>
   );
 }
