@@ -1,21 +1,17 @@
 import { Division } from "@/features/division/types/Division";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDiagramProject } from "@fortawesome/free-solid-svg-icons";
 
 type DivisionCardProps = {
   division: Division;
   tournamentName: string;
   onSelect: () => void;
-  onGenerateBracket: () => void;
 };
 
 const MAX_VISIBLE_PLAYERS = 3;
 const MAX_VISIBLE_PHASES = 4;
 
-export default function DivisionCard({ division, tournamentName, onSelect, onGenerateBracket }: DivisionCardProps) {
+export default function DivisionCard({ division, tournamentName, onSelect }: DivisionCardProps) {
   const visiblePlayers = division.players?.slice(0, MAX_VISIBLE_PLAYERS) ?? [];
   const extraPlayers = (division.players?.length ?? 0) - visiblePlayers.length;
-  const hasPlayers = (division.players?.length ?? 0) > 0;
 
   const visiblePhases = division.phases?.slice(0, MAX_VISIBLE_PHASES) ?? [];
   const extraPhases = (division.phases?.length ?? 0) - visiblePhases.length;
@@ -23,7 +19,11 @@ export default function DivisionCard({ division, tournamentName, onSelect, onGen
   const totalMatchCount = (division.phases ?? []).flatMap(p => p.matches ?? []).length;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow flex flex-col">
+    <button
+      type="button"
+      onClick={onSelect}
+      className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow flex flex-col text-left overflow-hidden"
+    >
       {/* Header */}
       <div className="px-4 pt-4 pb-3 border-b border-gray-100">
         <p className="text-xs text-gray-400 mb-0.5">{tournamentName}</p>
@@ -87,26 +87,11 @@ export default function DivisionCard({ division, tournamentName, onSelect, onGen
       </div>
 
       {/* CTA */}
-      <div className="px-4 pb-4 flex flex-col gap-2">
-        <button
-          onClick={onSelect}
-          className="w-full py-2 border border-primary-dark text-primary-dark text-sm font-medium rounded hover:bg-primary-dark/5 transition-colors"
-        >
-          View Bracket
-        </button>
-        <button
-          onClick={onGenerateBracket}
-          disabled={!hasPlayers}
-          className={`w-full py-2 border text-sm font-medium rounded transition-colors flex items-center justify-center gap-2 ${
-            hasPlayers
-              ? "border-green-300 text-green-700 hover:bg-green-50"
-              : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
-          }`}
-        >
-          <FontAwesomeIcon icon={faDiagramProject} />
-          Generate bracket
-        </button>
+      <div className="px-4 pb-4 pt-1">
+        <span className="inline-flex items-center text-sm font-medium text-primary-dark">
+          Open division
+        </span>
       </div>
-    </div>
+    </button>
   );
 }
