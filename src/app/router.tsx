@@ -3,12 +3,16 @@ import { PageTitleProvider } from "@/shared/context/PageTitleContext";
 import { SidebarProvider } from "@/shared/context/SidebarContext";
 import "./App.css";
 import HomePage from "@/pages/HomePage";
-import TournamentPage, { TournamentDivisionsTab, TournamentOverviewTab } from "@/pages/TournamentPage";
+import TournamentPage from "@/pages/TournamentPage";
 import DivisionPage from "@/pages/DivisionPage";
-import { TournamentLiveTab, TournamentSongsTab, TournamentStatsTab } from "@/pages/TournamentTabPages";
 import DivisionPhasesPage from "@/features/division/pages/DivisionPhasesPage";
 import DivisionPlayersPage from "@/features/division/pages/DivisionPlayersPage";
 import DivisionStandingsPage from "@/features/division/pages/DivisionStandingsPage";
+import TournamentOverviewPage from "@/features/tournament/pages/TournamentOverviewPage";
+import TournamentDivisionsPage from "@/features/tournament/pages/TournamentDivisionsPage";
+import TournamentSongsPage from "@/features/tournament/pages/TournamentSongsPage";
+import TournamentLivePage from "@/features/tournament/pages/TournamentLivePage";
+import TournamentStatsPage from "@/features/tournament/pages/TournamentStatsPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import AccountInfoPage from "@/pages/AccountInfoPage";
@@ -53,11 +57,11 @@ export default function AppRouter() {
             <Route path="/tournament" element={<TournamentPage />} />
             <Route path="/tournament/:tournamentId" element={<KeyedTournamentPage />}>
               <Route index element={<Navigate to="overview" replace />} />
-              <Route path="overview" element={<TournamentOverviewTab />} />
-              <Route path="divisions" element={<TournamentDivisionsTab />} />
-              <Route path="songs" element={<TournamentSongsTab />} />
-              <Route path="live" element={<TournamentLiveTab />} />
-              <Route path="stats" element={<TournamentStatsTab />} />
+              <Route path="overview" element={<TournamentOverviewPage />} />
+              <Route path="divisions" element={<TournamentDivisionsPage />} />
+              <Route path="songs" element={<TournamentSongsPage />} />
+              <Route path="live" element={<TournamentLivePage />} />
+              <Route path="stats" element={<TournamentStatsPage />} />
               <Route path="division/:divisionId" element={<DivisionPage />}>
                 <Route index element={<Navigate to="phases" replace />} />
                 <Route path="phases" element={<DivisionPhasesPage />} />
