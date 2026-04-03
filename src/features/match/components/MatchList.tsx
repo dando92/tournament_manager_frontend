@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Division } from "@/features/division/types/Division";
 import MatchCard from "@/features/match/components/MatchCard";
 import { useMatches } from "@/features/match/services/useMatches";
+import { useTournamentUpdates } from "@/features/tournament/context/TournamentUpdatesContext";
 
 type MatchListProps = {
   division: Division;
@@ -16,27 +17,44 @@ export default function MatchList({
   controls = false,
   tournamentId,
   matchUpdateSignal,
+  phaseId,
 }: MatchListProps) {
   const { state, actions } = useMatches(division.id);
+  const { matchListVersions } = useTournamentUpdates();
   const [highlightedMatchId, setHighlightedMatchId] = useState<number | null>(null);
+  const matchListVersion = matchListVersions.get(division.id) ?? 0;
+
+  const visibleMatches = phaseId === undefined
+    ? state.matches
+    : state.matches.filter((match) =>
+        division.phases
+          .find((phase) => phase.id === phaseId)
+          ?.matches?.some((phaseMatch) => phaseMatch.id === match.id),
+      );
 
   useEffect(() => {
     actions.list();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [division.id, matchUpdateSignal]);
 
+  useEffect(() => {
+    if (matchListVersion === 0) return;
+    actions.list();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matchListVersion]);
+
   return (
     <div className="mt-4">
-      {state.matches.length === 0 ? (
+      {visibleMatches.length === 0 ? (
         <p className="text-center text-gray-400 text-sm py-8">No matches yet.</p>
       ) : (
         <div>
-          {[...state.matches].sort((a, b) => a.id - b.id).map((match) => (
+          {[...visibleMatches].sort((a, b) => a.id - b.id).map((match) => (
             <MatchCard
               key={match.id}
               controls={controls}
               division={division}
-              allMatches={state.matches}
+              allMatches={visibleMatches}
               tournamentId={tournamentId}
               matchUpdateSignal={matchUpdateSignal}
               highlightedMatchId={highlightedMatchId}

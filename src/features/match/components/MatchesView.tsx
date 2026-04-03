@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Division } from "@/features/division/types/Division";
 import MatchCard from "@/features/match/components/MatchCard";
 import { useMatches } from "@/features/match/services/useMatches";
+import { useTournamentUpdates } from "@/features/tournament/context/TournamentUpdatesContext";
 
 type MatchesViewProps = {
   division: Division;
@@ -17,12 +18,20 @@ export default function MatchesView({
   matchUpdateSignal,
 }: MatchesViewProps) {
   const { state, actions } = useMatches(division.id);
+  const { matchListVersions } = useTournamentUpdates();
   const [highlightedMatchId, setHighlightedMatchId] = useState<number | null>(null);
+  const matchListVersion = matchListVersions.get(division.id) ?? 0;
 
   useEffect(() => {
     actions.list();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [division.id]);
+
+  useEffect(() => {
+    if (matchListVersion === 0) return;
+    actions.list();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matchListVersion]);
 
   return (
     <div className="mt-4">

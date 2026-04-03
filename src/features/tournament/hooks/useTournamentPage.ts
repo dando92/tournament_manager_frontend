@@ -4,6 +4,7 @@ import { Tournament } from "@/features/tournament/types/Tournament";
 import { Division } from "@/features/division/types/Division";
 import { ActiveLobbyDto } from "@/features/live/services/useScoreHub";
 import { addRecentTournament } from "@/features/tournament/services/recentTournaments";
+import { useTournamentUpdates } from "@/features/tournament/context/TournamentUpdatesContext";
 import * as MatchesApi from "@/features/match/services/matches.api";
 import { CreateMatchRequest } from "@/features/match/types/match-requests";
 
@@ -40,6 +41,7 @@ export function useTournamentPage({
   tournamentId,
   canControl,
 }: UseTournamentPageOptions): TournamentPageState {
+  const { tournamentVersion } = useTournamentUpdates();
   const [initialActiveLobbies, setInitialActiveLobbies] = useState<ActiveLobbyDto[]>([]);
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [tournamentName, setTournamentName] = useState("");
@@ -93,6 +95,11 @@ export function useTournamentPage({
       .then((r) => setBracketTypes(r.data))
       .catch(() => {});
   }, [canControl]);
+
+  useEffect(() => {
+    if (tournamentVersion === 0) return;
+    refreshDivisions().catch(() => {});
+  }, [refreshDivisions, tournamentVersion]);
 
   const handleGenerateBracket = useCallback(async (bracketType: string, playerPerMatch: number) => {
     if (!generateBracketDivisionId) return;
