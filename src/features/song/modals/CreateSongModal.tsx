@@ -107,20 +107,22 @@ export default function CreateSongModal({
             required
           />
         </div>
-        {isNewGroup && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Group name</label>
-            <input
-              type="text"
-              value={group}
-              onChange={(e) => { setGroup(e.target.value); setGroupError(null); }}
-              className="w-full border rounded px-3 py-1.5 text-sm"
-              placeholder="e.g. Pack A"
-              required
-            />
-            {groupError && <p className="text-red-500 text-xs mt-1">{groupError}</p>}
-          </div>
-        )}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Pack</label>
+          <input
+            type="text"
+            value={group}
+            onChange={(e) => { setGroup(e.target.value); setGroupError(null); }}
+            className="w-full border rounded px-3 py-1.5 text-sm disabled:bg-gray-50 disabled:text-gray-500"
+            placeholder="e.g. Pack A"
+            required
+            disabled={!isNewGroup}
+          />
+          {!isNewGroup && (
+            <p className="text-xs text-gray-400 mt-1">Pack is preselected for this action.</p>
+          )}
+          {groupError && <p className="text-red-500 text-xs mt-1">{groupError}</p>}
+        </div>
       </form>
     </BaseModal>
   );
