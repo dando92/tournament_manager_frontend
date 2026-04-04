@@ -112,7 +112,7 @@ export default function SongsList({ canEdit = true, tournamentId }: SongsListPro
   const packOptions = useMemo(() => groups, [groups]);
 
   return (
-    <div className="flex flex-col gap-4 max-w-3xl mx-auto">
+    <div className="flex flex-col gap-4 w-full max-w-5xl mx-auto">
       <CreateSongModal
         open={addInGroupOpen}
         onClose={() => setAddInGroupOpen(false)}
