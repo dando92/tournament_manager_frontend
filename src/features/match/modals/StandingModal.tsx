@@ -20,7 +20,6 @@ type StandingModalProps = {
     score: number,
     isFailed: boolean,
   ) => void;
-  onDelete?: (playerId: number, songId: number) => void;
 };
 
 export default function StandingModal({
@@ -35,7 +34,6 @@ export default function StandingModal({
   initialIsFailed,
   onClose,
   onSave,
-  onDelete,
 }: StandingModalProps) {
   const [percentage, setPercentage] = useState("0");
   const [score, setScore] = useState("0");
@@ -60,29 +58,13 @@ export default function StandingModal({
     onClose();
   }
 
-  function handleDelete() {
-    onDelete?.(playerId, songId);
-    onClose();
-  }
-
   return (
     <BaseModal
       open={open}
       onClose={onClose}
       title={mode === "add" ? "Add standing" : "Edit standing"}
       footer={
-        <div className="flex flex-row gap-2 justify-between">
-          <div>
-            {mode === "edit" && onDelete && (
-              <button
-                type="button"
-                className="bg-red-600 text-white px-3 py-1.5 rounded hover:opacity-90"
-                onClick={handleDelete}
-              >
-                Delete
-              </button>
-            )}
-          </div>
+        <div className="flex flex-row gap-2 justify-end">
           <div className="flex flex-row gap-2">
             <button
               type="button"

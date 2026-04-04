@@ -1,7 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faPencil } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Match } from "@/features/match/types/Match";
 import { Player } from "@/features/player/types/Player";
+import { btnTrash } from "@/styles/buttonStyles";
 
 type ScoreEntry = { score: number; percentage: number; isFailed: boolean };
 
@@ -35,7 +36,7 @@ export default function MatchRow({
   onDeleteStanding,
 }: MatchRowProps) {
   const totalPoints = match.rounds
-    .map((r) => r.standings.find((s) => s.score.player.id === player.id))
+    .map((r) => (r.standings ?? []).find((s) => s.score.player.id === player.id))
     .reduce((acc, s) => acc + (s?.points ?? 0), 0);
 
   return (
@@ -105,23 +106,32 @@ export default function MatchRow({
               <div className="flex items-center justify-center gap-1">
                 <span className="text-xs text-gray-400">{scoreData.score} pts</span>
                 {controls && (
-                  <button
-                    onClick={() =>
-                      onOpenEditStanding(
-                        player.id,
-                        round.song.id,
-                        player.playerName,
-                        round.song.title,
-                        scoreData.percentage,
-                        scoreData.score,
-                        scoreData.isFailed,
-                      )
-                    }
-                    title="Edit score"
-                    className="text-xs text-blue-400 hover:text-blue-600 shrink-0"
-                  >
-                    <FontAwesomeIcon icon={faPencil} />
-                  </button>
+                  <>
+                    <button
+                      onClick={() =>
+                        onOpenEditStanding(
+                          player.id,
+                          round.song.id,
+                          player.playerName,
+                          round.song.title,
+                          scoreData.percentage,
+                          scoreData.score,
+                          scoreData.isFailed,
+                        )
+                      }
+                      title="Edit score"
+                      className="text-xs text-blue-400 hover:text-blue-600 shrink-0"
+                    >
+                      <FontAwesomeIcon icon={faPencil} />
+                    </button>
+                    <button
+                      onClick={() => onDeleteStanding(player.id, round.song.id)}
+                      title="Delete score"
+                      className={`${btnTrash} text-xs shrink-0`}
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                  </>
                 )}
               </div>
             </div>

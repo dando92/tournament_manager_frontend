@@ -176,7 +176,6 @@ export default function MatchCard({
             onEditStanding(playerId, songId, pct, score, isFailed);
           }
         }}
-        onDelete={(playerId, songId) => onDeleteStanding(playerId, songId)}
       />
       <EditMatchNotesModal
         match={match}
