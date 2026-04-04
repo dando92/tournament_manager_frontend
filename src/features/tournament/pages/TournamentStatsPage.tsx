@@ -31,6 +31,11 @@ export default function TournamentStatsPage() {
   const [search, setSearch] = useState("");
   const [expandedPlayers, setExpandedPlayers] = useState<Set<number>>(new Set());
 
+  function toNumber(value: unknown): number {
+    const parsed = typeof value === "number" ? value : Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
   const playerScores = useMemo<PlayerScoreRow[]>(() => {
     return divisions.flatMap((division) =>
       (division.phases ?? []).flatMap((phase) =>
@@ -45,8 +50,8 @@ export default function TournamentStatsPage() {
               matchName: match.name,
               songTitle: round.song.title,
               songArtist: round.song.artist,
-              percentage: standing.score.percentage,
-              points: standing.points,
+              percentage: toNumber(standing.score.percentage),
+              points: toNumber(standing.points),
               isFailed: standing.score.isFailed,
             })),
           ),

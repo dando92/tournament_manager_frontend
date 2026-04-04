@@ -67,7 +67,7 @@ export default function MatchTable({
 
   const scoreTable: Record<string, ScoreEntry> = {};
   match.rounds.forEach((round) => {
-    round.standings.forEach((standing) => {
+    (round.standings ?? []).forEach((standing) => {
       const key = `${standing.score.player.id}-${standing.score.song.id}`;
       scoreTable[key] = {
         score: standing.points,
@@ -79,7 +79,7 @@ export default function MatchTable({
 
   const getTotalPoints = (playerId: number) =>
     match.rounds
-      .map((round) => round.standings.find((s) => s.score.player.id === playerId))
+      .map((round) => (round.standings ?? []).find((s) => s.score.player.id === playerId))
       .reduce((acc, standing) => acc + (standing?.points ?? 0), 0);
 
   const sortedPlayers = [...match.players].sort(
@@ -101,7 +101,7 @@ export default function MatchTable({
               <tr className="bg-primary-dark text-white">
                 <th className="px-3 py-2.5 text-left font-semibold w-[120px] sm:w-[160px]">Player</th>
                 {match.rounds.map((round, idx) => {
-                  const roundHasStandings = round.standings.length > 0;
+                  const roundHasStandings = (round.standings ?? []).length > 0;
                   return (
                     <th key={round.song.id} className="px-1 sm:px-3 py-2.5 text-center font-semibold min-w-[70px] sm:min-w-[130px]">
                       <div className="flex items-center justify-center gap-1.5">
@@ -174,7 +174,7 @@ export default function MatchTable({
               const rows = positions.length > 0 ? positions : [1];
 
               // Source match is complete when every standing across all rounds has points > 0
-              const allStandings = sourceMatch?.rounds.flatMap((r) => r.standings) ?? [];
+              const allStandings = sourceMatch?.rounds.flatMap((r) => r.standings ?? []) ?? [];
               const isSourceComplete = allStandings.length > 0 && allStandings.every((s) => s.points > 0);
               if (isSourceComplete) return [];
 
