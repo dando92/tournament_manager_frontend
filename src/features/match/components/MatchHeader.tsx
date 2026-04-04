@@ -128,8 +128,11 @@ export default function MatchHeader({
               title="Add song/round"
               className="inline-flex items-center gap-1 text-green-700 hover:text-green-900 text-sm font-medium"
             >
-              <FontAwesomeIcon icon={faPlus} />
-              <span>Add song</span>
+              <FontAwesomeIcon icon={faPlus} className="sm:hidden" />
+              <span className="hidden sm:inline-flex items-center gap-1">
+                <FontAwesomeIcon icon={faPlus} />
+                <span>Add song</span>
+              </span>
             </button>
           )}
           <button

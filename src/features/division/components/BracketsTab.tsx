@@ -2,6 +2,10 @@ import { useState } from "react";
 import { Division } from "@/features/division/types/Division";
 import { Phase } from "@/features/division/types/Phase";
 import MatchList from "@/features/match/components/MatchList";
+import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { btnTrash } from "@/styles/buttonStyles";
 
 type BracketsTabProps = {
   division: Division;
@@ -16,6 +20,7 @@ export default function BracketsTab({
   controls,
   tournamentId,
   matchRefreshKey,
+  onDivisionChanged,
 }: BracketsTabProps) {
   const [selectedPhaseId, setSelectedPhaseId] = useState<number | "all">("all");
 
@@ -64,6 +69,11 @@ export default function BracketsTab({
           controls={controls}
           tournamentId={tournamentId}
           matchRefreshKey={matchRefreshKey}
+          onDelete={async (phaseId) => {
+            await axios.delete(`phases/${phaseId}`);
+            setSelectedPhaseId("all");
+            await onDivisionChanged?.();
+          }}
         />
       ) : (
         <MatchList division={division} controls={controls} tournamentId={tournamentId} matchUpdateSignal={matchRefreshKey} />
@@ -124,12 +134,14 @@ function PhaseSection({
   controls,
   tournamentId,
   matchRefreshKey,
+  onDelete,
 }: {
   phase: Phase;
   division: Division;
   controls: boolean;
   tournamentId?: number;
   matchRefreshKey?: number;
+  onDelete?: (phaseId: number) => Promise<void>;
 }) {
   return (
     <div>
@@ -138,6 +150,19 @@ function PhaseSection({
         <span className="text-xs text-gray-400">
           {phase.matches?.length ?? 0} match{(phase.matches?.length ?? 0) !== 1 ? "es" : ""}
         </span>
+        {controls && onDelete && (
+          <button
+            type="button"
+            title="Delete phase"
+            onClick={async () => {
+              if (!window.confirm(`Delete phase "${phase.name}"?`)) return;
+              await onDelete(phase.id);
+            }}
+            className={`ml-auto text-sm ${btnTrash}`}
+          >
+            <FontAwesomeIcon icon={faTrash} />
+          </button>
+        )}
       </div>
       <MatchList
         key={`phase-${phase.id}`}

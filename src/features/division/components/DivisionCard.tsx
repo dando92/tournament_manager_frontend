@@ -1,14 +1,19 @@
 import { Division } from "@/features/division/types/Division";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { btnTrash } from "@/styles/buttonStyles";
 
 type DivisionCardProps = {
   division: Division;
   onSelect: () => void;
+  controls?: boolean;
+  onDelete?: () => void;
 };
 
 const MAX_VISIBLE_PLAYERS = 3;
 const MAX_VISIBLE_PHASES = 4;
 
-export default function DivisionCard({ division, onSelect }: DivisionCardProps) {
+export default function DivisionCard({ division, onSelect, controls = false, onDelete }: DivisionCardProps) {
   const visiblePlayers = division.players?.slice(0, MAX_VISIBLE_PLAYERS) ?? [];
   const extraPlayers = (division.players?.length ?? 0) - visiblePlayers.length;
 
@@ -18,18 +23,27 @@ export default function DivisionCard({ division, onSelect }: DivisionCardProps) 
   const totalMatchCount = (division.phases ?? []).flatMap(p => p.matches ?? []).length;
 
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow flex flex-col text-left overflow-hidden"
-    >
+    <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow flex flex-col text-left overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 bg-primary border-b border-white/10">
+      <div className="px-4 py-3 bg-primary border-b border-white/10 flex items-center justify-between gap-2">
         <h3 className="font-bold text-white text-base leading-tight">{division.name}</h3>
+        {controls && onDelete && (
+          <button
+            type="button"
+            title="Delete division"
+            onClick={(event) => {
+              event.stopPropagation();
+              onDelete();
+            }}
+            className={`text-sm ${btnTrash}`}
+          >
+            <FontAwesomeIcon icon={faTrash} />
+          </button>
+        )}
       </div>
 
       {/* Players */}
-      <div className="px-4 py-3 border-b border-gray-100">
+      <button type="button" onClick={onSelect} className="px-4 py-3 border-b border-gray-100 text-left">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs font-semibold text-primary-dark shrink-0">Players</span>
           {visiblePlayers.length === 0 ? (
@@ -48,10 +62,10 @@ export default function DivisionCard({ division, onSelect }: DivisionCardProps) 
             </>
           )}
         </div>
-      </div>
+      </button>
 
       {/* Brackets / Phases */}
-      <div className="px-4 py-3 flex-1">
+      <button type="button" onClick={onSelect} className="px-4 py-3 flex-1 text-left">
         <div className="flex items-start gap-2">
           <span className="text-xs font-semibold text-primary-dark shrink-0 mt-0.5">Brackets</span>
           <div className="flex flex-col gap-1 min-w-0">
@@ -82,14 +96,18 @@ export default function DivisionCard({ division, onSelect }: DivisionCardProps) 
             )}
           </div>
         </div>
-      </div>
+      </button>
 
       {/* CTA */}
-      <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-center">
+      <button
+        type="button"
+        onClick={onSelect}
+        className="px-4 py-3 border-t border-gray-100 flex items-center justify-center"
+      >
         <span className="inline-flex items-center justify-center text-sm font-medium text-primary-dark">
           Open division
         </span>
-      </div>
-    </button>
+      </button>
+    </div>
   );
 }

@@ -1,9 +1,10 @@
 import DivisionCard from "@/features/division/components/DivisionCard";
 import { useTournamentPageContext } from "@/features/tournament/context/TournamentPageContext";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function TournamentOverviewPage() {
-  const { divisions, tournamentId } = useTournamentPageContext();
+  const { divisions, tournamentId, controls, refreshDivisions } = useTournamentPageContext();
   const navigate = useNavigate();
 
   const divisionCount = divisions.length;
@@ -36,7 +37,13 @@ export default function TournamentOverviewPage() {
             <DivisionCard
               key={division.id}
               division={division}
+              controls={controls}
               onSelect={() => navigate(`/tournament/${tournamentId}/division/${division.id}/phases`)}
+              onDelete={async () => {
+                if (!window.confirm(`Delete division "${division.name}"?`)) return;
+                await axios.delete(`divisions/${division.id}`);
+                await refreshDivisions();
+              }}
             />
           ))}
           {divisions.length === 0 && (
