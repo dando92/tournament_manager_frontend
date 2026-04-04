@@ -21,8 +21,8 @@ import {
 import { useSidebar } from "@/shared/context/SidebarContext";
 import { usePermissions } from "@/shared/services/permissions/PermissionContext";
 import { isLocalMode } from "@/features/auth/services/auth-mode";
+import { TOURNAMENT_TABS } from "@/features/tournament/config/tournamentTabs";
 
-// ── Scrolling text — animates when text overflows the container ───────────────
 function ScrollingText({ text }: { text: string }) {
   const containerRef = useRef<HTMLSpanElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
@@ -46,7 +46,6 @@ function ScrollingText({ text }: { text: string }) {
   );
 }
 
-// ── Tournament button in sidebar ──────────────────────────────────────────────
 function TournamentButton({
   tournament,
   selected,
@@ -80,7 +79,6 @@ function TournamentButton({
   );
 }
 
-// ── Nav link ──────────────────────────────────────────────────────────────────
 function SidebarLink({
   to,
   state,
@@ -113,10 +111,9 @@ function SidebarLink({
   );
 }
 
-// ── Main Sidebar ──────────────────────────────────────────────────────────────
 export default function Sidebar() {
   const { state, actions } = useAuthContext();
-  const { isAdmin } = usePermissions();
+  const { isAdmin, canCreateTournament } = usePermissions();
   const navigate = useNavigate();
   const location = useLocation();
   const { isOpen, close } = useSidebar();
@@ -125,7 +122,6 @@ export default function Sidebar() {
     getRecentTournaments,
   );
 
-  // Re-read recent tournaments on location change (user may have selected one)
   const prevPathname = useRef(location.pathname);
   useLayoutEffect(() => {
     if (prevPathname.current !== location.pathname) {
@@ -155,26 +151,38 @@ export default function Sidebar() {
     navigate(`/tournament/${t.id}`);
   }
 
+  const tournamentMatch = location.pathname.match(/^\/tournament\/(\d+)(?:\/([^/]+))?/);
+  const currentTournamentId = tournamentMatch ? Number(tournamentMatch[1]) : null;
+  const currentTournamentTab = TOURNAMENT_TABS.find((tab) =>
+    location.pathname.endsWith(`/${tab.key}`),
+  )?.key;
 
   const content = (
     <aside className="flex flex-col w-56 h-full bg-primary border-r border-white/10">
-      {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-white/10 shrink-0">
+      <button
+        type="button"
+        onClick={() => {
+          navigate("/");
+          close();
+        }}
+        className="flex items-center gap-3 p-4 border-b border-white/10 shrink-0 text-left hover:bg-white/10 transition-colors"
+      >
         <img src={Logo} alt="logo" className="h-10 w-10 rounded-lg shrink-0" />
         <h2 className="text-white font-bold text-base leading-tight">
           Tournament<br />Manager
         </h2>
-      </div>
+      </button>
 
-      {/* Create button */}
       <div className="p-3 border-b border-white/10 shrink-0 flex flex-col gap-2">
-        <button
-          onClick={() => { navigate(state.account ? "/?create=1" : "/login"); close(); }}
-          className="flex items-center justify-center gap-2 w-full bg-white/15 hover:bg-white/25 text-white text-sm font-semibold px-3 py-2 rounded transition-colors"
-        >
-          <FontAwesomeIcon icon={faPlus} className="text-xs" />
-          Create tournament
-        </button>
+        {canCreateTournament && (
+          <button
+            onClick={() => { navigate(state.account ? "/?create=1" : "/login"); close(); }}
+            className="flex items-center justify-center gap-2 w-full bg-white/15 hover:bg-white/25 text-white text-sm font-semibold px-3 py-2 rounded transition-colors"
+          >
+            <FontAwesomeIcon icon={faPlus} className="text-xs" />
+            Create tournament
+          </button>
+        )}
         <button
           onClick={() => setSearchModalOpen(true)}
           className="flex items-center justify-center gap-2 w-full bg-white/15 hover:bg-white/25 text-white text-sm font-semibold px-3 py-2 rounded transition-colors"
@@ -184,7 +192,6 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* Recent tournaments */}
       <div className="flex flex-col gap-0.5 p-3 border-b border-white/10 shrink-0">
         <p className="text-red-200 text-xs uppercase tracking-wide mb-1 px-1">Recent tournaments</p>
         {recentTournaments.length > 0 ? (
@@ -201,11 +208,24 @@ export default function Sidebar() {
         )}
       </div>
 
+      {currentTournamentId !== null && (
+        <div className="flex flex-col gap-0.5 p-3 border-b border-white/10 shrink-0">
+          <p className="text-red-200 text-xs uppercase tracking-wide mb-1 px-1">Tournament</p>
+          {TOURNAMENT_TABS.map((tab) => (
+            <SidebarLink
+              key={tab.key}
+              to={`/tournament/${currentTournamentId}/${tab.key}`}
+              active={currentTournamentTab === tab.key}
+              onClick={close}
+            >
+              {tab.label}
+            </SidebarLink>
+          ))}
+        </div>
+      )}
 
-      {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Bottom: account / login / manage roles */}
       <div className="flex flex-col gap-0.5 p-3 border-t border-white/10 shrink-0">
         {isAdmin && !isLocalMode() && (
           <SidebarLink
@@ -256,18 +276,14 @@ export default function Sidebar() {
     <>
       <SearchTournamentModal open={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
 
-      {/* Desktop: always visible */}
       <div className="hidden md:flex min-h-screen shrink-0">{content}</div>
 
-      {/* Mobile: overlay drawer */}
       {isOpen && (
         <div className="md:hidden fixed inset-0 z-50 flex">
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50"
             onClick={close}
           />
-          {/* Drawer */}
           <div className="relative z-10 flex h-full">{content}</div>
         </div>
       )}

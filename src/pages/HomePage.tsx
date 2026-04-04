@@ -8,8 +8,7 @@ import CreateTournamentModal from "@/features/tournament/modals/CreateTournament
 import SearchTournamentModal from "@/features/tournament/modals/SearchTournamentModal";
 import { useAuthContext } from "@/features/auth/context/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import { btnPrimary } from "@/styles/buttonStyles";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 export default function HomePage() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -57,13 +56,6 @@ export default function HomePage() {
         {/* Hero */}
         <div className="flex flex-col items-center gap-4 py-6">
           <h1 className="text-3xl font-black text-gray-900">Tournament Manager</h1>
-          <button
-            onClick={() => { if (state.account) { setCreateModalOpen(true); } else { navigate("/login"); } }}
-            className={`${btnPrimary} flex items-center gap-2 font-semibold`}
-          >
-            <FontAwesomeIcon icon={faPlus} />
-            Create a tournament
-          </button>
         </div>
 
         {/* All tournaments */}

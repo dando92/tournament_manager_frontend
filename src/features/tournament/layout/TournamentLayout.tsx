@@ -3,14 +3,13 @@ import CreatePhaseModal from "@/features/division/modals/CreatePhaseModal";
 import GenerateBracketModal from "@/features/division/modals/GenerateBracketModal";
 import ManageActionsMenu from "@/features/match/components/ManageActionsMenu";
 import CreateMatchModal from "@/features/match/modals/CreateMatchModal";
-import { TOURNAMENT_TABS, TournamentTabKey } from "@/features/tournament/config/tournamentTabs";
 import { TournamentPageContextValue } from "@/features/tournament/context/TournamentPageContext";
 import SelectDivisionForBracketModal from "@/features/tournament/components/SelectDivisionForBracketModal";
 import { TournamentPageState } from "@/features/tournament/hooks/useTournamentPage";
 import { btnPrimary } from "@/styles/buttonStyles";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faDiagramProject, faDice, faLayerGroup, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 type TournamentLayoutProps = {
   context: TournamentPageContextValue;
@@ -19,7 +18,6 @@ type TournamentLayoutProps = {
 
 export default function TournamentLayout({ context, state }: TournamentLayoutProps) {
   const navigate = useNavigate();
-  const location = useLocation();
   const {
     tournamentId,
     tournamentName,
@@ -46,9 +44,6 @@ export default function TournamentLayout({ context, state }: TournamentLayoutPro
     handleCreateMatch,
     handleGenerateBracket,
   } = state;
-
-  const activeTab: TournamentTabKey =
-    TOURNAMENT_TABS.find((tab) => location.pathname.endsWith(`/${tab.key}`))?.key ?? "overview";
 
   return (
     <div className="flex flex-col gap-4">
@@ -177,23 +172,6 @@ export default function TournamentLayout({ context, state }: TournamentLayoutPro
             />
           </div>
         )}
-      </div>
-
-      <div className="flex items-end border-b border-gray-200 overflow-x-auto">
-        {TOURNAMENT_TABS.map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => navigate(`/tournament/${tournamentId}/${tab.key}`)}
-            className={`px-4 py-2 text-sm border-b-2 shrink-0 transition-colors ${
-              activeTab === tab.key
-                ? "border-primary-dark text-primary-dark font-semibold"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
       </div>
 
       <Outlet context={context} />

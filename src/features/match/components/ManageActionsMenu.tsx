@@ -5,6 +5,7 @@ import { btnPrimary } from "@/styles/buttonStyles";
 import { useHelpers } from "@/shared/services/helpers/useHelpers";
 import LobbiesModal from "@/features/admin/modals/LobbiesModal";
 import ManageHelpersModal from "@/features/admin/modals/ManageHelpersModal";
+import { isLocalMode } from "@/features/auth/services/auth-mode";
 
 type Props = {
   tournamentId: string;
@@ -15,6 +16,7 @@ export default function ManageActionsMenu({ tournamentId, canEditHelpers }: Prop
   const [lobbiesOpen, setLobbiesOpen] = useState(false);
   const [participantsOpen, setParticipantsOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const localMode = isLocalMode();
 
   const { state: helpersState, actions: helpersActions } = useHelpers(Number(tournamentId));
 
@@ -38,13 +40,15 @@ export default function ManageActionsMenu({ tournamentId, canEditHelpers }: Prop
           <FontAwesomeIcon icon={faBroadcastTower} className="text-sm" />
           <span className="text-sm">Lobbies</span>
         </button>
-        <button
-          onClick={() => setParticipantsOpen(true)}
-          className={`flex items-center gap-2 ${btnPrimary}`}
-        >
-          <FontAwesomeIcon icon={faUsers} className="text-sm" />
-          <span className="text-sm">Helpers</span>
-        </button>
+        {!localMode && (
+          <button
+            onClick={() => setParticipantsOpen(true)}
+            className={`flex items-center gap-2 ${btnPrimary}`}
+          >
+            <FontAwesomeIcon icon={faUsers} className="text-sm" />
+            <span className="text-sm">Helpers</span>
+          </button>
+        )}
       </div>
 
       {/* Mobile: gear button with dropdown */}
@@ -66,13 +70,15 @@ export default function ManageActionsMenu({ tournamentId, canEditHelpers }: Prop
                 <FontAwesomeIcon icon={faBroadcastTower} className="text-primary-dark" />
                 Lobbies
               </button>
-              <button
-                onClick={() => { setMenuOpen(false); setParticipantsOpen(true); }}
-                className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-              >
-                <FontAwesomeIcon icon={faUsers} className="text-primary-dark" />
-                Helpers
-              </button>
+              {!localMode && (
+                <button
+                  onClick={() => { setMenuOpen(false); setParticipantsOpen(true); }}
+                  className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  <FontAwesomeIcon icon={faUsers} className="text-primary-dark" />
+                  Helpers
+                </button>
+              )}
             </div>
           </>
         )}
