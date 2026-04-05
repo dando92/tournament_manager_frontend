@@ -21,13 +21,18 @@ export default function PhaseSelector({
           onClick={() => onSelect("all")}
         />
         {phases.map((phase) => (
+          (() => {
+            const matchCount = phase.matchCount ?? phase.matches?.length ?? 0;
+            return (
           <PhaseButton
             key={phase.id}
             label={phase.name}
-            sublabel={`${phase.matches?.length ?? 0} match${(phase.matches?.length ?? 0) !== 1 ? "es" : ""}`}
+            sublabel={`${matchCount} match${matchCount !== 1 ? "es" : ""}`}
             selected={selectedPhaseId === phase.id}
             onClick={() => onSelect(phase.id)}
           />
+            );
+          })()
         ))}
       </div>
     </div>

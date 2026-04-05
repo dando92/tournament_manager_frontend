@@ -66,7 +66,7 @@ export function useTournamentPage({
     phases: (division.phases ?? []).map((phase) => ({
       id: phase.id,
       name: phase.name,
-      matches: (phase.matches ?? []).map((match) => ({ id: match.id })),
+      matchCount: phase.matches?.length ?? 0,
     })),
   }), []);
 
@@ -90,7 +90,7 @@ export function useTournamentPage({
         id: division.id,
         name: division.name,
         players: division.players,
-        phases: division.phases.map((phase) => ({ id: phase.id, name: phase.name, matches: phase.matches })),
+        phases: division.phases.map((phase) => ({ id: phase.id, name: phase.name, matchCount: phase.matchCount })),
       })),
     );
   }, [tournamentId]);
@@ -180,7 +180,7 @@ export function useTournamentPage({
         division.id === divisionId
           ? {
               ...division,
-              phases: [...division.phases, { id: response.data.id, name: response.data.name, matches: [] }],
+              phases: [...division.phases, { id: response.data.id, name: response.data.name, matchCount: 0 }],
             }
           : division,
       ),
@@ -188,7 +188,7 @@ export function useTournamentPage({
   }, []);
 
   const handleCreateMatch = useCallback(async (request: CreateMatchRequest) => {
-    const match = await MatchesApi.create(request);
+    await MatchesApi.create(request);
     const divisionId = request.divisionId;
     if (!divisionId) return;
 
@@ -201,9 +201,7 @@ export function useTournamentPage({
                 phase.id === request.phaseId
                   ? {
                       ...phase,
-                      matches: phase.matches.some((entry) => entry.id === match.id)
-                        ? phase.matches
-                        : [...phase.matches, { id: match.id }],
+                      matchCount: phase.matchCount + 1,
                     }
                   : phase,
               ),

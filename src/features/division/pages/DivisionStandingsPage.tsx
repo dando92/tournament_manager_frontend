@@ -1,9 +1,13 @@
 import { useDivisionPageContext } from "@/features/division/context/DivisionPageContext";
-import { buildDivisionStandings } from "@/features/division/utils/buildDivisionStandings";
+import { useDivisionStandings } from "@/features/division/hooks/useDivisionStandings";
 
 export default function DivisionStandingsPage() {
-  const { division } = useDivisionPageContext();
-  const rows = buildDivisionStandings(division);
+  const { divisionId } = useDivisionPageContext();
+  const { rows, loaded } = useDivisionStandings(divisionId);
+
+  if (!loaded) {
+    return <p className="text-sm text-gray-400 italic">Loading standings...</p>;
+  }
 
   if (rows.length === 0) {
     return <p className="text-sm text-gray-400 italic">No standings recorded yet.</p>;

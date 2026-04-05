@@ -26,11 +26,7 @@ export default function MatchList({
 
   const visibleMatches = phaseId === undefined
     ? state.matches
-    : state.matches.filter((match) =>
-        division.phases
-          .find((phase) => phase.id === phaseId)
-          ?.matches?.some((phaseMatch) => phaseMatch.id === match.id),
-      );
+    : state.matches.filter((match) => match.phaseId === phaseId);
 
   useEffect(() => {
     actions.list();

@@ -6,7 +6,7 @@ export interface TournamentOverviewPlayer {
 export interface TournamentOverviewPhase {
   id: number;
   name: string;
-  matches: { id: number }[];
+  matchCount: number;
 }
 
 export interface TournamentOverviewDivision {

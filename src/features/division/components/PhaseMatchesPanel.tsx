@@ -22,12 +22,14 @@ export default function PhaseMatchesPanel({
   matchRefreshKey,
   onDelete,
 }: PhaseMatchesPanelProps) {
+  const matchCount = phase.matchCount ?? phase.matches?.length ?? 0;
+
   return (
     <div>
       <div className="flex items-center gap-2 mb-2">
         <h4 className="text-sm font-semibold text-gray-700">{phase.name}</h4>
         <span className="text-xs text-gray-400">
-          {phase.matches?.length ?? 0} match{(phase.matches?.length ?? 0) !== 1 ? "es" : ""}
+          {matchCount} match{matchCount !== 1 ? "es" : ""}
         </span>
         {controls && onDelete && (
           <button

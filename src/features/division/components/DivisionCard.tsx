@@ -20,7 +20,7 @@ export default function DivisionCard({ division, onSelect, controls = false, onD
   const visiblePhases = division.phases?.slice(0, MAX_VISIBLE_PHASES) ?? [];
   const extraPhases = (division.phases?.length ?? 0) - visiblePhases.length;
 
-  const totalMatchCount = (division.phases ?? []).flatMap(p => p.matches ?? []).length;
+  const totalMatchCount = (division.phases ?? []).reduce((count, phase) => count + phase.matchCount, 0);
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow flex flex-col text-left overflow-hidden">
@@ -84,7 +84,7 @@ export default function DivisionCard({ division, onSelect, controls = false, onD
                     <div className="min-w-0">
                       <span className="text-xs font-medium text-gray-800">{phase.name}</span>
                       <span className="text-xs text-gray-400 ml-1">
-                        {phase.matches?.length ?? 0} match{(phase.matches?.length ?? 0) !== 1 ? "es" : ""}
+                        {phase.matchCount} match{phase.matchCount !== 1 ? "es" : ""}
                       </span>
                     </div>
                   </div>

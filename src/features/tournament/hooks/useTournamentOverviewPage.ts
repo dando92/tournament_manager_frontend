@@ -25,10 +25,7 @@ export function useTournamentOverviewPage({
     const matchCount = divisions.reduce(
       (count, division) =>
         count +
-        (division.phases ?? []).reduce(
-          (sum, phase) => sum + (phase.matches?.length ?? 0),
-          0,
-        ),
+        (division.phases ?? []).reduce((sum, phase) => sum + phase.matchCount, 0),
       0,
     );
 

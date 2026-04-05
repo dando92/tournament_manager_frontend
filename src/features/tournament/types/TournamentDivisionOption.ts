@@ -1,7 +1,7 @@
 export interface TournamentDivisionOptionPhase {
   id: number;
   name: string;
-  matches: { id: number }[];
+  matchCount: number;
 }
 
 export interface TournamentDivisionOption {
