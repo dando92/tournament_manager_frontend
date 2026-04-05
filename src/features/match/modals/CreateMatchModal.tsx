@@ -1,366 +1,111 @@
-import {useEffect, useState} from "react";
 import OkModal from "@/shared/components/ui/OkModal";
-import {Player} from "@/features/player/types/Player";
-import axios from "axios";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faMinusCircle, faPlusCircle} from "@fortawesome/free-solid-svg-icons";
-import {Song} from "@/features/song/types/Song";
-import {CreateMatchRequest} from "@/features/match/types/match-requests";
-import { selectPortalStyles } from "@/styles/selectStyles";
 import Select from "react-select";
+import { selectPortalStyles } from "@/styles/selectStyles";
+import { CreateMatchRequest } from "@/features/match/types/match-requests";
 import { Phase } from "@/features/division/types/Phase";
 import { Division } from "@/features/division/types/Division";
+import CreateMatchScopeFields from "@/features/match/components/CreateMatchScopeFields";
+import CreateMatchSongFields from "@/features/match/components/CreateMatchSongFields";
+import { useCreateMatchModal } from "@/features/match/hooks/useCreateMatchModal";
 
-type CreateMatchModal = {
-    open: boolean;
-    onClose: () => void;
-    onCreate: (request: CreateMatchRequest) => void;
-    phaseId?: number;
-    phases?: Phase[];
-    divisionId?: number;
-    divisions?: Division[];
-    tournamentId?: number;
+type CreateMatchModalProps = {
+  open: boolean;
+  onClose: () => void;
+  onCreate: (request: CreateMatchRequest) => void;
+  phaseId?: number;
+  phases?: Phase[];
+  divisionId?: number;
+  divisions?: Division[];
+  tournamentId?: number;
 };
 
-export default function CreateMatchModal({
-                                             open,
-                                             onClose,
-                                             onCreate,
-                                             phaseId: phaseIdProp,
-                                             phases,
-                                             divisionId,
-                                             divisions,
-                                             tournamentId,
-                                         }: CreateMatchModal) {
-    const [selectedDivisionId, setSelectedDivisionId] = useState<number | null>(divisionId ?? divisions?.[0]?.id ?? null);
-    const availablePhases = divisionId
-      ? (phases ?? [])
-      : (divisions?.find((division) => division.id === selectedDivisionId)?.phases ?? []);
-    const [selectedPhaseId, setSelectedPhaseId] = useState<number | null>(phaseIdProp ?? availablePhases[0]?.id ?? null);
+export default function CreateMatchModal(props: CreateMatchModalProps) {
+  const state = useCreateMatchModal(props);
 
-    useEffect(() => {
-        if (open) {
-            const initialDivisionId = divisionId ?? divisions?.[0]?.id ?? null;
-            const initialPhases = divisionId
-              ? (phases ?? [])
-              : (divisions?.find((division) => division.id === initialDivisionId)?.phases ?? []);
-            setSelectedDivisionId(initialDivisionId);
-            setSelectedPhaseId(phaseIdProp ?? initialPhases[0]?.id ?? null);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open]);
+  return (
+    <OkModal
+      okText="Create match"
+      title="Create Match"
+      open={props.open}
+      onClose={props.onClose}
+      onOk={state.handleSubmit}
+    >
+      <div className="flex flex-col w-full gap-3">
+        <CreateMatchScopeFields
+          divisionId={props.divisionId}
+          phaseId={props.phaseId}
+          divisions={props.divisions}
+          phases={props.phases}
+          availablePhases={state.availablePhases}
+          selectedDivisionId={state.selectedDivisionId}
+          selectedPhaseId={state.selectedPhaseId}
+          onDivisionChange={state.setSelectedDivisionId}
+          onPhaseChange={state.setSelectedPhaseId}
+        />
 
-    const resolvedPhaseId = phaseIdProp ?? selectedPhaseId;
-    const resolvedDivisionId = divisionId ?? selectedDivisionId;
-    const [players, setPlayers] = useState<Player[]>([]);
-    const [scoringSystems, setScoringSystems] = useState<string[]>([])
-    const [scoringSystem, setScoringSystem] = useState("");
+        <div className="w-full">
+          <h3>Name</h3>
+          <input
+            className="w-full border border-gray-300 px-2 py-2 rounded-lg"
+            type="text"
+            value={state.name}
+            onChange={(event) => state.setName(event.target.value)}
+            placeholder="Type match name"
+          />
+        </div>
+        <div className="w-full">
+          <h3>Subtitle</h3>
+          <input
+            className="w-full border border-gray-300 px-2 py-2 rounded-lg"
+            type="text"
+            value={state.subtitle}
+            onChange={(event) => state.setSubtitle(event.target.value)}
+            placeholder="Type subtitle"
+          />
+        </div>
+        <div>
+          <h3>Scoring system</h3>
+          <Select
+            options={state.scoringSystems.map((system) => ({ value: system, label: system }))}
+            placeholder="Select scoring system..."
+            value={state.scoringSystem ? { value: state.scoringSystem, label: state.scoringSystem } : null}
+            onChange={(selected) => state.setScoringSystem(selected?.value ?? "")}
+            menuPortalTarget={document.body}
+            styles={selectPortalStyles}
+          />
+        </div>
+        <div className="w-full">
+          <h3>Players</h3>
+          <Select
+            isMulti
+            options={state.players.map((player) => ({ value: player.id, label: player.playerName }))}
+            onChange={(selected) =>
+              state.setSelectedPlayers(
+                selected.map((option) => state.players.find((player) => player.id === option.value)!),
+              )
+            }
+            value={state.selectedPlayers.map((player) => ({ value: player.id, label: player.playerName }))}
+            menuPortalTarget={document.body}
+            styles={selectPortalStyles}
+          />
+        </div>
 
-    const [name, setName] = useState<string>("");
-    const [subtitle, setSubtitle] = useState<string>("");
-
-    const [selectedPlayers, setSelectedPlayers] = useState<Player[]>([]);
-
-    const [songAddType, setSongAddType] = useState<"title" | "roll">("roll");
-    // if by roll
-    const [selectedSongDifficulties, setSelectedSongDifficulties] = useState<
-        string[]
-    >([]);
-    const [difficultyInput, setDifficultyInput] = useState<string>("");
-    const [songs, setSongs] = useState<Song[]>([]);
-    const [songGroups, setSongGroups] = useState<string[]>([]);
-    const [selectedGroupName, setSelectedGroupName] = useState<string>("");
-
-    // if by title
-    const [selectedSongs, setSelectedSongs] = useState<Song[]>([]);
-
-    useEffect(() => {
-        open && resolvedDivisionId &&
-        axios.get<Player[]>(`divisions/${resolvedDivisionId}/players`).then((response) => {
-            setPlayers(response.data);
-        });
-
-        open &&
-        axios.get<Song[]>(tournamentId ? `songs?tournamentId=${tournamentId}` : `songs`).then((response) => {
-            setSongs(response.data);
-            setSongGroups([...new Set(response.data.map((s) => s.group))]);
-            if (response.data.length > 0)
-                setSelectedGroupName(response.data[0].group);
-        });
-
-        open &&
-        axios.get("matches/scoring-systems").then((response) => {
-            setScoringSystems(response.data);
-            setScoringSystem(response.data[0]);
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open, resolvedDivisionId]);
-
-    useEffect(() => {
-        if (!open || divisionId || phaseIdProp) return;
-        const nextPhases = divisions?.find((division) => division.id === selectedDivisionId)?.phases ?? [];
-        setSelectedPhaseId(nextPhases[0]?.id ?? null);
-    }, [divisionId, divisions, open, phaseIdProp, selectedDivisionId]);
-
-    const onSubmit = () => {
-        switch (songAddType) {
-            case "roll":
-                createMatchByRoll();
-                break;
-            case "title":
-                createMatchByTitle();
-                break;
-        }
-    };
-
-    const createMatchByTitle = () => {
-        if (!resolvedPhaseId || !resolvedDivisionId) return;
-        const request = {
-            phaseId: resolvedPhaseId!,
-            divisionId: resolvedDivisionId,
-            name: name,
-            subtitle: subtitle,
-            group: selectedGroupName,
-            scoringSystem: scoringSystem,
-            songIds: selectedSongs.map((s) => s.id),
-            playerIds: selectedPlayers.map((p) => p.id),
-        } as CreateMatchRequest;
-
-        onCreate(request);
-        onClose();
-    };
-
-    const createMatchByRoll = () => {
-        if (!resolvedPhaseId || !resolvedDivisionId) return;
-        const request = {
-            phaseId: resolvedPhaseId!,
-            divisionId: resolvedDivisionId,
-            name: name,
-            subtitle: subtitle,
-            group: selectedGroupName,
-            scoringSystem: scoringSystem,
-            levels: selectedSongDifficulties.join(","),
-            playerIds: selectedPlayers.map((p) => p.id),
-        } as CreateMatchRequest;
-
-        onCreate(request);
-        onClose();
-    };
-
-    return (
-        <OkModal
-            okText="Create match"
-            title="Create Match"
-            open={open}
-            onClose={onClose}
-            onOk={onSubmit}
-        >
-            <div className="flex flex-col w-full gap-3">
-                {!divisionId && divisions && divisions.length > 0 && (
-                    <div className="w-full">
-                        <h3>Division</h3>
-                        <Select
-                            options={divisions.map((division) => ({ value: division.id, label: division.name }))}
-                            value={
-                                selectedDivisionId
-                                    ? { value: selectedDivisionId, label: divisions.find((division) => division.id === selectedDivisionId)?.name ?? "" }
-                                    : null
-                            }
-                            onChange={(selected) => setSelectedDivisionId(selected?.value ?? null)}
-                            menuPortalTarget={document.body}
-                            styles={selectPortalStyles}
-                        />
-                    </div>
-                )}
-                {!phaseIdProp && phases && phases.length > 0 && (
-                    <div className="w-full">
-                        <h3>Phase</h3>
-                        <Select
-                            options={phases.map((p) => ({ value: p.id, label: p.name }))}
-                            value={selectedPhaseId ? { value: selectedPhaseId, label: phases.find(p => p.id === selectedPhaseId)?.name ?? "" } : null}
-                            onChange={(selected) => setSelectedPhaseId(selected?.value ?? null)}
-                            menuPortalTarget={document.body}
-                            styles={selectPortalStyles}
-                        />
-                    </div>
-                )}
-                {!phaseIdProp && !divisionId && availablePhases.length > 0 && (
-                    <div className="w-full">
-                        <h3>Phase</h3>
-                        <Select
-                            options={availablePhases.map((p) => ({ value: p.id, label: p.name }))}
-                            value={
-                                selectedPhaseId
-                                    ? { value: selectedPhaseId, label: availablePhases.find((phase) => phase.id === selectedPhaseId)?.name ?? "" }
-                                    : null
-                            }
-                            onChange={(selected) => setSelectedPhaseId(selected?.value ?? null)}
-                            menuPortalTarget={document.body}
-                            styles={selectPortalStyles}
-                        />
-                    </div>
-                )}
-                <div className="w-full">
-                    <h3>Name</h3>
-                    <input
-                        className="w-full border border-gray-300 px-2 py-2 rounded-lg"
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Type match name"
-                    />
-                </div>
-                <div className="w-full">
-                    <h3>Subtitle</h3>
-                    <input
-                        className="w-full border border-gray-300 px-2 py-2 rounded-lg"
-                        type="text"
-                        value={subtitle}
-                        onChange={(e) => setSubtitle(e.target.value)}
-                        placeholder="Type subtitle"
-                    />
-                </div>
-                <div>
-                    <h3>Scoring system</h3>
-                    <Select
-                        options={scoringSystems.map((s) => ({value: s, label: s}))}
-                        placeholder="Select scoring system..."
-                        value={{value: scoringSystem, label: scoringSystem}}
-                        onChange={(selected) => setScoringSystem(selected!.value)}
-                        menuPortalTarget={document.body}
-                        styles={selectPortalStyles}
-                    ></Select>
-                </div>
-                <div className="w-full">
-                    <h3>Players</h3>
-                    <Select
-                        isMulti
-                        options={players.map((p) => ({value: p.id, label: p.playerName}))}
-                        onChange={(e) => {
-                            setSelectedPlayers(
-                                e.map((p) => players.find((pl) => pl.id === p.value)!),
-                            );
-                        }}
-                        value={selectedPlayers.map((p) => ({value: p.id, label: p.playerName}))}
-                        menuPortalTarget={document.body}
-                        styles={selectPortalStyles}
-                    />
-                </div>
-                <div className="w-full">
-                    <h3>Songs</h3>
-                    <div className="flex flex-row gap-3 mb-2">
-                        <div className="flex flex-row gap-1">
-                            <input
-                                type="radio"
-                                id="title"
-                                name="songAddType"
-                                value="title"
-                                checked={songAddType === "title"}
-                                onChange={() => setSongAddType("title")}
-                            />
-                            <label htmlFor="title">By titles</label>
-                        </div>
-                        <div className="flex flex-row gap-1">
-                            <input
-                                type="radio"
-                                id="roll"
-                                name="songAddType"
-                                value="roll"
-                                checked={songAddType === "roll"}
-                                onChange={() => setSongAddType("roll")}
-                            />
-                            <label htmlFor="roll">By roll</label>
-                        </div>
-                    </div>
-                    {songAddType === "roll" && (
-                        <div>
-                            <div className="w-full py-2">
-                                <h3>Select song pack to roll</h3>
-                                <Select
-                                    options={songGroups.map((g) => ({value: g, label: g}))}
-                                    placeholder="Select group..."
-                                    className="w-[300px]"
-                                    value={
-                                        selectedGroupName
-                                            ? {value: selectedGroupName, label: selectedGroupName}
-                                            : null
-                                    }
-                                    onChange={(selected) =>
-                                        selected
-                                            ? setSelectedGroupName(selected.value)
-                                            : setSelectedGroupName("")
-                                    }
-                                    menuPortalTarget={document.body}
-                                    styles={selectPortalStyles}
-                                ></Select>
-                            </div>
-
-                            <h3 className="mt-2">Type song difficulties to roll</h3>
-                            {selectedSongDifficulties.length > 0 && (
-                                <div className="flex my-2 flex-col gap-2 w-96">
-                                    {selectedSongDifficulties.map((d, i) => (
-                                        <div key={i} className="flex flex-row items-center gap-2">
-                                            <span className="w-6 font-bold">{d}</span>
-                                            <button
-                                                onClick={() =>
-                                                    setSelectedSongDifficulties(
-                                                        selectedSongDifficulties.filter(
-                                                            (_, index) => index !== i,
-                                                        ),
-                                                    )
-                                                }
-                                                className="text-red-700 text-sm"
-                                            >
-                                                <FontAwesomeIcon icon={faMinusCircle}/>
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            <div>
-                                <input
-                                    value={difficultyInput}
-                                    onChange={(e) => setDifficultyInput(e.target.value)}
-                                    className="border border-gray-300 px-2 py-2 mr-2 rounded-lg"
-                                    type="number"
-                                    placeholder="Type difficulty"
-                                />
-                                <button
-                                    onClick={() => {
-                                        setSelectedSongDifficulties([
-                                            ...selectedSongDifficulties,
-                                            difficultyInput,
-                                        ]);
-                                        setDifficultyInput("");
-                                    }}
-                                    className="text-green-700 text-lg"
-                                >
-                                    <FontAwesomeIcon icon={faPlusCircle}/>
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                    {songAddType === "title" && (
-                        <div>
-                            <Select
-                                isMulti
-                                options={songs.map((s) => ({value: s.id, label: s.title}))}
-                                onChange={(e) => {
-                                    setSelectedSongs(
-                                        e.map((s) => songs.find((song) => song.id === s.value)!),
-                                    );
-                                }}
-                                value={selectedSongs.map((s) => ({
-                                    value: s.id,
-                                    label: s.title,
-                                }))}
-                                menuPortalTarget={document.body}
-                                styles={selectPortalStyles}
-                            />
-                        </div>
-                    )}
-                </div>
-            </div>
-        </OkModal>
-    );
+        <CreateMatchSongFields
+          songAddType={state.songAddType}
+          songs={state.songs}
+          songGroups={state.songGroups}
+          selectedSongs={state.selectedSongs}
+          selectedSongDifficulties={state.selectedSongDifficulties}
+          selectedGroupName={state.selectedGroupName}
+          difficultyInput={state.difficultyInput}
+          onSongAddTypeChange={state.setSongAddType}
+          onSelectedSongsChange={state.setSelectedSongs}
+          onSelectedGroupNameChange={state.setSelectedGroupName}
+          onDifficultyInputChange={state.setDifficultyInput}
+          onAddDifficulty={state.addDifficulty}
+          onRemoveDifficulty={state.removeDifficulty}
+        />
+      </div>
+    </OkModal>
+  );
 }

@@ -1,10 +1,8 @@
 import type { Dispatch, SetStateAction } from "react";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faLink, faPlug, faSatelliteDish } from "@fortawesome/free-solid-svg-icons";
 import { btnPrimary } from "@/styles/buttonStyles";
+import { useTournamentHeaderLobbyManageMenu } from "@/features/tournament/hooks/useTournamentHeaderLobbyManageMenu";
 import HeaderActionModal from "./HeaderActionModal";
 
 type Props = {
@@ -18,91 +16,42 @@ export default function TournamentHeaderLobbyManageMenu({
   syncstartUrl,
   setSyncstartUrl,
 }: Props) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [urlModalOpen, setUrlModalOpen] = useState(false);
-  const [createLobbyModalOpen, setCreateLobbyModalOpen] = useState(false);
-  const [connectLobbyModalOpen, setConnectLobbyModalOpen] = useState(false);
-  const [syncstartDraft, setSyncstartDraft] = useState(syncstartUrl);
-  const [savingUrl, setSavingUrl] = useState(false);
-  const [creatingLobby, setCreatingLobby] = useState(false);
-  const [connectingLobby, setConnectingLobby] = useState(false);
-  const [createLobbyName, setCreateLobbyName] = useState("");
-  const [createLobbyPassword, setCreateLobbyPassword] = useState("");
-  const [connectLobbyName, setConnectLobbyName] = useState("");
-  const [connectLobbyCode, setConnectLobbyCode] = useState("");
-  const [connectLobbyPassword, setConnectLobbyPassword] = useState("");
-
-  useEffect(() => {
-    setSyncstartDraft(syncstartUrl);
-  }, [syncstartUrl]);
-
-  async function handleSaveUrl() {
-    setSavingUrl(true);
-    try {
-      await axios.patch(`tournaments/${tournamentId}`, { syncstartUrl: syncstartDraft.trim() });
-      setSyncstartUrl(syncstartDraft.trim());
-      setUrlModalOpen(false);
-      toast.success("Lobby URL saved.");
-    } catch {
-      toast.error("Failed to save lobby URL.");
-    } finally {
-      setSavingUrl(false);
-    }
-  }
-
-  async function handleCreateLobby() {
-    if (!syncstartDraft.trim() && !syncstartUrl.trim()) {
-      toast.error("Set the lobby URL before creating a lobby.");
-      return;
-    }
-
-    setCreatingLobby(true);
-    try {
-      await axios.post(`tournaments/${tournamentId}/lobbies/create`, {
-        name: createLobbyName.trim() || undefined,
-        password: createLobbyPassword,
-      });
-      setCreateLobbyName("");
-      setCreateLobbyPassword("");
-      setCreateLobbyModalOpen(false);
-      toast.success("Lobby created.");
-    } catch (error: unknown) {
-      const message =
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        "Failed to create lobby.";
-      toast.error(message);
-    } finally {
-      setCreatingLobby(false);
-    }
-  }
-
-  async function handleConnectLobby() {
-    if (!connectLobbyCode.trim()) {
-      toast.error("Lobby code is required.");
-      return;
-    }
-
-    setConnectingLobby(true);
-    try {
-      await axios.post(`tournaments/${tournamentId}/lobbies/connect`, {
-        name: connectLobbyName.trim() || connectLobbyCode.trim().toUpperCase(),
-        lobbyCode: connectLobbyCode.trim().toUpperCase(),
-        password: connectLobbyPassword,
-      });
-      setConnectLobbyName("");
-      setConnectLobbyCode("");
-      setConnectLobbyPassword("");
-      setConnectLobbyModalOpen(false);
-      toast.success("Connected to lobby.");
-    } catch (error: unknown) {
-      const message =
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        "Failed to connect to lobby.";
-      toast.error(message);
-    } finally {
-      setConnectingLobby(false);
-    }
-  }
+  const {
+    menuOpen,
+    urlModalOpen,
+    createLobbyModalOpen,
+    connectLobbyModalOpen,
+    syncstartDraft,
+    savingUrl,
+    creatingLobby,
+    connectingLobby,
+    createLobbyName,
+    createLobbyPassword,
+    connectLobbyName,
+    connectLobbyCode,
+    connectLobbyPassword,
+    setUrlModalOpen,
+    setCreateLobbyModalOpen,
+    setConnectLobbyModalOpen,
+    setSyncstartDraft,
+    setCreateLobbyName,
+    setCreateLobbyPassword,
+    setConnectLobbyName,
+    setConnectLobbyCode,
+    setConnectLobbyPassword,
+    toggleMenu,
+    closeMenu,
+    openUrlModal,
+    openCreateLobbyModal,
+    openConnectLobbyModal,
+    handleSaveUrl,
+    handleCreateLobby,
+    handleConnectLobby,
+  } = useTournamentHeaderLobbyManageMenu({
+    tournamentId,
+    syncstartUrl,
+    setSyncstartUrl,
+  });
 
   return (
     <>
@@ -201,7 +150,7 @@ export default function TournamentHeaderLobbyManageMenu({
       <div className="relative">
         <button
           type="button"
-          onClick={() => setMenuOpen((value) => !value)}
+          onClick={toggleMenu}
           className={`flex items-center gap-2 ${btnPrimary}`}
         >
           Manage
@@ -209,14 +158,11 @@ export default function TournamentHeaderLobbyManageMenu({
         </button>
         {menuOpen && (
           <>
-            <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+            <div className="fixed inset-0 z-10" onClick={closeMenu} />
             <div className="absolute right-0 top-full mt-1 z-20 bg-white rounded shadow-lg border border-gray-200 min-w-[190px]">
               <button
                 type="button"
-                onClick={() => {
-                  setMenuOpen(false);
-                  setUrlModalOpen(true);
-                }}
+                onClick={openUrlModal}
                 className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
               >
                 <FontAwesomeIcon icon={faLink} className="text-primary-dark" />
@@ -224,10 +170,7 @@ export default function TournamentHeaderLobbyManageMenu({
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setMenuOpen(false);
-                  setCreateLobbyModalOpen(true);
-                }}
+                onClick={openCreateLobbyModal}
                 className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
               >
                 <FontAwesomeIcon icon={faSatelliteDish} className="text-primary-dark" />
@@ -235,10 +178,7 @@ export default function TournamentHeaderLobbyManageMenu({
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setMenuOpen(false);
-                  setConnectLobbyModalOpen(true);
-                }}
+                onClick={openConnectLobbyModal}
                 className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
               >
                 <FontAwesomeIcon icon={faPlug} className="text-primary-dark" />

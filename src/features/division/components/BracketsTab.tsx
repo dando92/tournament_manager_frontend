@@ -1,11 +1,8 @@
-import { useState } from "react";
-import { Division } from "@/features/division/types/Division";
-import { Phase } from "@/features/division/types/Phase";
 import MatchList from "@/features/match/components/MatchList";
-import axios from "axios";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { btnTrash } from "@/styles/buttonStyles";
+import PhaseMatchesPanel from "@/features/division/components/PhaseMatchesPanel";
+import PhaseSelector from "@/features/division/components/PhaseSelector";
+import { Division } from "@/features/division/types/Division";
+import { useBracketsTab } from "@/features/division/hooks/useBracketsTab";
 
 type BracketsTabProps = {
   division: Division;
@@ -22,156 +19,44 @@ export default function BracketsTab({
   matchRefreshKey,
   onDivisionChanged,
 }: BracketsTabProps) {
-  const [selectedPhaseId, setSelectedPhaseId] = useState<number | "all">("all");
-
-  const phases = division.phases ?? [];
-
-  const selectedPhase = selectedPhaseId !== "all"
-    ? phases.find((p) => p.id === selectedPhaseId) ?? null
-    : null;
+  const state = useBracketsTab({ division, onDivisionChanged });
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Phase selector */}
-      <div className="overflow-x-auto">
-        <div className="flex items-center gap-2 min-w-max pb-1">
-          <PhaseButton
-            label="Summary"
-            sublabel="All phases"
-            selected={selectedPhaseId === "all"}
-            onClick={() => setSelectedPhaseId("all")}
-          />
-          {phases.map((phase) => (
-            <PhaseButton
-              key={phase.id}
-              label={phase.name}
-              sublabel={`${phase.matches?.length ?? 0} match${(phase.matches?.length ?? 0) !== 1 ? "es" : ""}`}
-              selected={selectedPhaseId === phase.id}
-              onClick={() => setSelectedPhaseId(phase.id)}
-            />
-          ))}
-        </div>
-      </div>
+      <PhaseSelector
+        phases={state.phases}
+        selectedPhaseId={state.selectedPhaseId}
+        onSelect={state.setSelectedPhaseId}
+      />
 
-      {/* Content */}
-      {selectedPhaseId === "all" ? (
-        <AllPhasesView
-          phases={phases}
+      {state.selectedPhaseId === "all" ? (
+        state.phases.length === 0 ? (
+          <p className="text-center text-gray-400 text-sm py-8">No bracket yet.</p>
+        ) : (
+          <MatchList
+            division={division}
+            controls={controls}
+            tournamentId={tournamentId}
+            matchUpdateSignal={matchRefreshKey}
+          />
+        )
+      ) : state.selectedPhase ? (
+        <PhaseMatchesPanel
+          phase={state.selectedPhase}
           division={division}
           controls={controls}
           tournamentId={tournamentId}
           matchRefreshKey={matchRefreshKey}
-        />
-      ) : selectedPhase ? (
-        <PhaseSection
-          phase={selectedPhase}
-          division={division}
-          controls={controls}
-          tournamentId={tournamentId}
-          matchRefreshKey={matchRefreshKey}
-          onDelete={async (phaseId) => {
-            await axios.delete(`phases/${phaseId}`);
-            setSelectedPhaseId("all");
-            await onDivisionChanged?.();
-          }}
+          onDelete={state.handleDeletePhase}
         />
       ) : (
-        <MatchList division={division} controls={controls} tournamentId={tournamentId} matchUpdateSignal={matchRefreshKey} />
+        <MatchList
+          division={division}
+          controls={controls}
+          tournamentId={tournamentId}
+          matchUpdateSignal={matchRefreshKey}
+        />
       )}
-    </div>
-  );
-}
-
-function PhaseButton({
-  label,
-  sublabel,
-  selected,
-  onClick,
-}: {
-  label: string;
-  sublabel?: string;
-  selected: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex flex-col items-start w-32 px-3 py-1.5 rounded border text-left transition-colors text-xs ${
-        selected
-          ? "border-primary-dark bg-primary-dark/10 text-primary-dark"
-          : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
-      }`}
-    >
-      <span className={`font-medium ${selected ? "text-primary-dark" : "text-gray-700"}`}>{label}</span>
-      {sublabel && <span className="text-gray-400">{sublabel}</span>}
-    </button>
-  );
-}
-
-function AllPhasesView({
-  phases,
-  division,
-  controls,
-  tournamentId,
-  matchRefreshKey,
-}: {
-  phases: Phase[];
-  division: Division;
-  controls: boolean;
-  tournamentId?: number;
-  matchRefreshKey?: number;
-}) {
-  if (phases.length === 0) {
-    return <p className="text-center text-gray-400 text-sm py-8">No bracket yet.</p>;
-  }
-
-  return <MatchList division={division} controls={controls} tournamentId={tournamentId} matchUpdateSignal={matchRefreshKey} />;
-}
-
-function PhaseSection({
-  phase,
-  division,
-  controls,
-  tournamentId,
-  matchRefreshKey,
-  onDelete,
-}: {
-  phase: Phase;
-  division: Division;
-  controls: boolean;
-  tournamentId?: number;
-  matchRefreshKey?: number;
-  onDelete?: (phaseId: number) => Promise<void>;
-}) {
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-2">
-        <h4 className="text-sm font-semibold text-gray-700">{phase.name}</h4>
-        <span className="text-xs text-gray-400">
-          {phase.matches?.length ?? 0} match{(phase.matches?.length ?? 0) !== 1 ? "es" : ""}
-        </span>
-        {controls && onDelete && (
-          <button
-            type="button"
-            title="Delete phase"
-            onClick={async () => {
-              if (!window.confirm(`Delete phase "${phase.name}"?`)) return;
-              await onDelete(phase.id);
-            }}
-            className={`ml-auto text-sm ${btnTrash}`}
-          >
-            <FontAwesomeIcon icon={faTrash} />
-          </button>
-        )}
-      </div>
-      <MatchList
-        key={`phase-${phase.id}`}
-        division={division}
-        phaseId={phase.id}
-        controls={controls}
-        tournamentId={tournamentId}
-        matchUpdateSignal={matchRefreshKey}
-      />
     </div>
   );
 }
