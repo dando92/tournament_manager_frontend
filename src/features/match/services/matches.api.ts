@@ -1,6 +1,5 @@
 import axios from "axios";
 import { Match } from "@/features/match/types/Match";
-import { Division } from "@/features/division/types/Division";
 import {
   AddStandingToMatchRequest,
   CreateMatchRequest,
@@ -8,8 +7,8 @@ import {
 
 export async function listByDivision(divisionId: number): Promise<Match[]> {
   try {
-    const response = await axios.get<Division>(`divisions/${divisionId}`);
-    return response.data.phases.flatMap(p => p.matches ?? []);
+    const response = await axios.get<Match[]>(`matches/division/${divisionId}`);
+    return response.data;
   } catch (error) {
     console.error("Error listing matches by division:", error);
     throw new Error("Unable to list matches by division.");

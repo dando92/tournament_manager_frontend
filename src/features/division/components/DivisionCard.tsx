@@ -1,10 +1,10 @@
-import { Division } from "@/features/division/types/Division";
+import { TournamentDivisionOption } from "@/features/tournament/types/TournamentDivisionOption";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { btnTrash } from "@/styles/buttonStyles";
 
 type DivisionCardProps = {
-  division: Division;
+  division: TournamentDivisionOption;
   onSelect: () => void;
   controls?: boolean;
   onDelete?: () => void;

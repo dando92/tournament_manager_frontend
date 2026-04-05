@@ -1,12 +1,15 @@
 import type { Dispatch, SetStateAction } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Tournament } from "@/features/tournament/types/Tournament";
-import { Division } from "@/features/division/types/Division";
 import { addRecentTournament } from "@/features/tournament/services/recentTournaments";
 import { useTournamentUpdates } from "@/features/tournament/context/TournamentUpdatesContext";
 import * as MatchesApi from "@/features/match/services/matches.api";
 import { CreateMatchRequest } from "@/features/match/types/match-requests";
+import { TournamentOverview } from "@/features/tournament/types/TournamentOverview";
+import { TournamentDivisionOption } from "@/features/tournament/types/TournamentDivisionOption";
+import { Division } from "@/features/division/types/Division";
+import { Phase } from "@/features/division/types/Phase";
 
 type UseTournamentPageOptions = {
   tournamentId: number;
@@ -14,7 +17,7 @@ type UseTournamentPageOptions = {
 };
 
 export type TournamentPageState = {
-  divisions: Division[];
+  divisions: TournamentDivisionOption[];
   tournamentName: string;
   syncstartUrl: string;
   createDivisionOpen: boolean;
@@ -42,8 +45,8 @@ export function useTournamentPage({
   tournamentId,
   canControl,
 }: UseTournamentPageOptions): TournamentPageState {
-  const { tournamentVersion } = useTournamentUpdates();
-  const [divisions, setDivisions] = useState<Division[]>([]);
+  const { tournamentVersion, divisionDetailVersions, matchListVersions } = useTournamentUpdates();
+  const [divisions, setDivisions] = useState<TournamentDivisionOption[]>([]);
   const [tournamentName, setTournamentName] = useState("");
   const [syncstartUrl, setSyncstartUrl] = useState("");
   const [createDivisionOpen, setCreateDivisionOpen] = useState(false);
@@ -53,11 +56,49 @@ export function useTournamentPage({
   const [generateBracketDivisionId, setGenerateBracketDivisionId] = useState<number | null>(null);
   const [bracketTypes, setBracketTypes] = useState<string[]>([]);
   const [createMenuOpen, setCreateMenuOpen] = useState(false);
+  const previousDivisionDetailVersions = useRef<ReadonlyMap<number, number>>(new Map());
+  const previousMatchListVersions = useRef<ReadonlyMap<number, number>>(new Map());
+
+  const toDivisionOption = useCallback((division: Division): TournamentDivisionOption => ({
+    id: division.id,
+    name: division.name,
+    players: division.players ?? [],
+    phases: (division.phases ?? []).map((phase) => ({
+      id: phase.id,
+      name: phase.name,
+      matches: (phase.matches ?? []).map((match) => ({ id: match.id })),
+    })),
+  }), []);
+
+  const mergeDivisionOption = useCallback((nextDivision: TournamentDivisionOption) => {
+    setDivisions((prev) => {
+      const index = prev.findIndex((division) => division.id === nextDivision.id);
+      if (index === -1) {
+        return [...prev, nextDivision];
+      }
+
+      const next = [...prev];
+      next[index] = nextDivision;
+      return next;
+    });
+  }, []);
 
   const refreshDivisions = useCallback(async () => {
-    const response = await axios.get<Division[]>("divisions", { params: { tournamentId } });
-    setDivisions(response.data);
+    const response = await axios.get<TournamentOverview>(`tournaments/${tournamentId}/overview`);
+    setDivisions(
+      response.data.divisions.map((division) => ({
+        id: division.id,
+        name: division.name,
+        players: division.players,
+        phases: division.phases.map((phase) => ({ id: phase.id, name: phase.name, matches: phase.matches })),
+      })),
+    );
   }, [tournamentId]);
+
+  const refreshDivision = useCallback(async (divisionId: number) => {
+    const response = await axios.get<Division>(`divisions/${divisionId}`);
+    mergeDivisionOption(toDivisionOption(response.data));
+  }, [mergeDivisionOption, toDivisionOption]);
 
   useEffect(() => {
     axios
@@ -88,6 +129,31 @@ export function useTournamentPage({
     refreshDivisions().catch(() => {});
   }, [refreshDivisions, tournamentVersion]);
 
+  useEffect(() => {
+    const changedDivisionIds = new Set<number>();
+
+    for (const [divisionId, version] of divisionDetailVersions.entries()) {
+      if ((previousDivisionDetailVersions.current.get(divisionId) ?? 0) !== version) {
+        changedDivisionIds.add(divisionId);
+      }
+    }
+
+    for (const [divisionId, version] of matchListVersions.entries()) {
+      if ((previousMatchListVersions.current.get(divisionId) ?? 0) !== version) {
+        changedDivisionIds.add(divisionId);
+      }
+    }
+
+    previousDivisionDetailVersions.current = new Map(divisionDetailVersions);
+    previousMatchListVersions.current = new Map(matchListVersions);
+
+    if (changedDivisionIds.size === 0) return;
+
+    changedDivisionIds.forEach((divisionId) => {
+      refreshDivision(divisionId).catch(() => {});
+    });
+  }, [divisionDetailVersions, matchListVersions, refreshDivision]);
+
   const handleGenerateBracket = useCallback(async (bracketType: string, playerPerMatch: number) => {
     if (!generateBracketDivisionId) return;
     await axios.post(`bracket/divisions/${generateBracketDivisionId}/generate-bracket`, {
@@ -95,27 +161,57 @@ export function useTournamentPage({
       tournamentId,
       playerPerMatch,
     });
-    await refreshDivisions();
+    await refreshDivision(generateBracketDivisionId);
     setGenerateBracketDivisionId(null);
-  }, [generateBracketDivisionId, refreshDivisions, tournamentId]);
+  }, [generateBracketDivisionId, refreshDivision, tournamentId]);
 
   const handleCreateDivision = useCallback((name: string) => {
-    axios.post<Division>("divisions", { tournamentId, name })
+    axios.post<{ id: number; name: string }>("divisions", { tournamentId, name })
       .then((r) => {
-        setDivisions((prev) => [...prev, r.data]);
+        setDivisions((prev) => [...prev, { id: r.data.id, name: r.data.name, players: [], phases: [] }]);
       })
       .catch(() => {});
   }, [tournamentId]);
 
   const handleCreatePhase = useCallback(async (name: string, divisionId: number) => {
-    await axios.post("phases", { name, divisionId });
-    await refreshDivisions();
-  }, [refreshDivisions]);
+    const response = await axios.post<Phase>("phases", { name, divisionId });
+    setDivisions((prev) =>
+      prev.map((division) =>
+        division.id === divisionId
+          ? {
+              ...division,
+              phases: [...division.phases, { id: response.data.id, name: response.data.name, matches: [] }],
+            }
+          : division,
+      ),
+    );
+  }, []);
 
   const handleCreateMatch = useCallback(async (request: CreateMatchRequest) => {
-    await MatchesApi.create(request);
-    await refreshDivisions();
-  }, [refreshDivisions]);
+    const match = await MatchesApi.create(request);
+    const divisionId = request.divisionId;
+    if (!divisionId) return;
+
+    setDivisions((prev) =>
+      prev.map((division) =>
+        division.id === divisionId
+          ? {
+              ...division,
+              phases: division.phases.map((phase) =>
+                phase.id === request.phaseId
+                  ? {
+                      ...phase,
+                      matches: phase.matches.some((entry) => entry.id === match.id)
+                        ? phase.matches
+                        : [...phase.matches, { id: match.id }],
+                    }
+                  : phase,
+              ),
+            }
+          : division,
+      ),
+    );
+  }, []);
 
   return {
     divisions,

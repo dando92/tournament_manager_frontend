@@ -1,9 +1,9 @@
-import { Division } from "@/features/division/types/Division";
+import { TournamentDivisionOption } from "@/features/tournament/types/TournamentDivisionOption";
 import BaseModal from "@/shared/components/ui/BaseModal";
 
 type Props = {
   open: boolean;
-  divisions: Division[];
+  divisions: TournamentDivisionOption[];
   onClose: () => void;
   onSelect: (divisionId: number) => void;
 };

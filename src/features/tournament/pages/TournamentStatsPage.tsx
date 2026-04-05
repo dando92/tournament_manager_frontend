@@ -1,10 +1,12 @@
 import TournamentStatsPlayerList from "@/features/tournament/components/stats/TournamentStatsPlayerList";
 import TournamentStatsSearch from "@/features/tournament/components/stats/TournamentStatsSearch";
 import { useTournamentPageContext } from "@/features/tournament/context/TournamentPageContext";
+import { useTournamentStatsData } from "@/features/tournament/hooks/useTournamentStatsData";
 import { useTournamentStatsPage } from "@/features/tournament/hooks/useTournamentStatsPage";
 
 export default function TournamentStatsPage() {
-  const { divisions } = useTournamentPageContext();
+  const { tournamentId } = useTournamentPageContext();
+  const { divisions, loaded } = useTournamentStatsData(tournamentId);
   const {
     search,
     setSearch,
@@ -13,6 +15,10 @@ export default function TournamentStatsPage() {
     groupedPlayers,
     togglePlayer,
   } = useTournamentStatsPage(divisions);
+
+  if (!loaded) {
+    return <p className="text-sm text-gray-400 italic">Loading stats...</p>;
+  }
 
   if (playerScores.length === 0) {
     return <p className="text-sm text-gray-400 italic">No scores recorded yet.</p>;

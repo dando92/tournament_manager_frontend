@@ -1,8 +1,8 @@
 import DivisionCard from "@/features/division/components/DivisionCard";
-import { Division } from "@/features/division/types/Division";
+import { TournamentDivisionOption } from "@/features/tournament/types/TournamentDivisionOption";
 
 type Props = {
-  divisions: Division[];
+  divisions: TournamentDivisionOption[];
   controls: boolean;
   onSelectDivision: (divisionId: number) => void;
   onDeleteDivision: (divisionId: number, divisionName: string) => Promise<void>;

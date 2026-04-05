@@ -2,20 +2,20 @@ import OkModal from "@/shared/components/ui/OkModal";
 import Select from "react-select";
 import { selectPortalStyles } from "@/styles/selectStyles";
 import { CreateMatchRequest } from "@/features/match/types/match-requests";
-import { Phase } from "@/features/division/types/Phase";
-import { Division } from "@/features/division/types/Division";
 import CreateMatchScopeFields from "@/features/match/components/CreateMatchScopeFields";
 import CreateMatchSongFields from "@/features/match/components/CreateMatchSongFields";
 import { useCreateMatchModal } from "@/features/match/hooks/useCreateMatchModal";
+import { MatchPhaseOption } from "@/features/match/types/MatchPhaseOption";
+import { TournamentDivisionOption } from "@/features/tournament/types/TournamentDivisionOption";
 
 type CreateMatchModalProps = {
   open: boolean;
   onClose: () => void;
   onCreate: (request: CreateMatchRequest) => void;
   phaseId?: number;
-  phases?: Phase[];
+  phases?: MatchPhaseOption[];
   divisionId?: number;
-  divisions?: Division[];
+  divisions?: TournamentDivisionOption[];
   tournamentId?: number;
 };
 

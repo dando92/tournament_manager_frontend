@@ -1,14 +1,14 @@
 import Select from "react-select";
-import { Division } from "@/features/division/types/Division";
-import { Phase } from "@/features/division/types/Phase";
 import { selectPortalStyles } from "@/styles/selectStyles";
+import { MatchPhaseOption } from "@/features/match/types/MatchPhaseOption";
+import { TournamentDivisionOption } from "@/features/tournament/types/TournamentDivisionOption";
 
 type CreateMatchScopeFieldsProps = {
   divisionId?: number;
   phaseId?: number;
-  divisions?: Division[];
-  phases?: Phase[];
-  availablePhases: Phase[];
+  divisions?: TournamentDivisionOption[];
+  phases?: MatchPhaseOption[];
+  availablePhases: MatchPhaseOption[];
   selectedDivisionId: number | null;
   selectedPhaseId: number | null;
   onDivisionChange: (divisionId: number | null) => void;

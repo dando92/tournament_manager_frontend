@@ -1,12 +1,12 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useOutletContext } from "react-router-dom";
-import { Division } from "@/features/division/types/Division";
+import { TournamentDivisionOption } from "@/features/tournament/types/TournamentDivisionOption";
 export type TournamentPageContextValue = {
   tournamentId: number;
   tournamentName: string;
   syncstartUrl: string;
   songsVersion: number;
-  divisions: Division[];
+  divisions: TournamentDivisionOption[];
   controls: boolean;
   helpersEnabled: boolean;
   setSyncstartUrl: Dispatch<SetStateAction<string>>;

@@ -3,17 +3,17 @@ import axios from "axios";
 import { Player } from "@/features/player/types/Player";
 import { Song } from "@/features/song/types/Song";
 import { CreateMatchRequest } from "@/features/match/types/match-requests";
-import { Division } from "@/features/division/types/Division";
-import { Phase } from "@/features/division/types/Phase";
+import { MatchPhaseOption } from "@/features/match/types/MatchPhaseOption";
+import { TournamentDivisionOption } from "@/features/tournament/types/TournamentDivisionOption";
 
 type UseCreateMatchModalOptions = {
   open: boolean;
   onClose: () => void;
   onCreate: (request: CreateMatchRequest) => void;
   phaseId?: number;
-  phases?: Phase[];
+  phases?: MatchPhaseOption[];
   divisionId?: number;
-  divisions?: Division[];
+  divisions?: TournamentDivisionOption[];
   tournamentId?: number;
 };
 
@@ -45,7 +45,7 @@ export function useCreateMatchModal({
   const [selectedGroupName, setSelectedGroupName] = useState("");
   const [selectedSongs, setSelectedSongs] = useState<Song[]>([]);
 
-  const availablePhases = useMemo(
+  const availablePhases = useMemo<MatchPhaseOption[]>(
     () =>
       divisionId
         ? phases ?? []

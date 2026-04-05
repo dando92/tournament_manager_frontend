@@ -68,7 +68,7 @@ export default function MatchTable({
   const scoreTable: Record<string, ScoreEntry> = {};
   match.rounds.forEach((round) => {
     (round.standings ?? []).forEach((standing) => {
-      const key = `${standing.score.player.id}-${standing.score.song.id}`;
+      const key = `${standing.score.player.id}-${round.song.id}`;
       scoreTable[key] = {
         score: standing.points,
         percentage: Number(standing.score.percentage),

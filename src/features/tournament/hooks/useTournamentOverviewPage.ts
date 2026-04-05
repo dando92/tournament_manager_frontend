@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Division } from "@/features/division/types/Division";
+import { TournamentDivisionOption } from "@/features/tournament/types/TournamentDivisionOption";
 
 type Params = {
-  divisions: Division[];
+  divisions: TournamentDivisionOption[];
   tournamentId: number;
   refreshDivisions: () => Promise<void>;
 };
