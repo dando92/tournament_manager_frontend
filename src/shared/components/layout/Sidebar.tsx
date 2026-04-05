@@ -113,7 +113,7 @@ function SidebarLink({
 
 export default function Sidebar() {
   const { state, actions } = useAuthContext();
-  const { isAdmin, canCreateTournament } = usePermissions();
+  const { isAdmin, canCreateTournament, canEditTournament } = usePermissions();
   const navigate = useNavigate();
   const location = useLocation();
   const { isOpen, close } = useSidebar();
@@ -153,7 +153,11 @@ export default function Sidebar() {
 
   const tournamentMatch = location.pathname.match(/^\/tournament\/(\d+)(?:\/([^/]+))?/);
   const currentTournamentId = tournamentMatch ? Number(tournamentMatch[1]) : null;
-  const currentTournamentTab = TOURNAMENT_TABS.find((tab) =>
+  const visibleTournamentTabs = TOURNAMENT_TABS.filter((tab) => {
+    if (tab.key !== "lobbies") return true;
+    return currentTournamentId !== null && canEditTournament(currentTournamentId);
+  });
+  const currentTournamentTab = visibleTournamentTabs.find((tab) =>
     location.pathname.endsWith(`/${tab.key}`),
   )?.key;
 
@@ -211,7 +215,7 @@ export default function Sidebar() {
       {currentTournamentId !== null && (
         <div className="flex flex-col gap-0.5 p-3 border-b border-white/10 shrink-0">
           <p className="text-red-200 text-xs uppercase tracking-wide mb-1 px-1">Tournament</p>
-          {TOURNAMENT_TABS.map((tab) => (
+          {visibleTournamentTabs.map((tab) => (
             <SidebarLink
               key={tab.key}
               to={`/tournament/${currentTournamentId}/${tab.key}`}

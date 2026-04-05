@@ -5,6 +5,7 @@ import { TournamentPageContextValue } from "@/features/tournament/context/Tourna
 import { TournamentUpdatesProvider } from "@/features/tournament/context/TournamentUpdatesContext";
 import { useTournamentPage } from "@/features/tournament/hooks/useTournamentPage";
 import { getSelectedTournament } from "@/features/tournament/services/recentTournaments";
+import { useState } from "react";
 
 export default function TournamentPage() {
   const { tournamentId: tidParam } = useParams<{ tournamentId?: string }>();
@@ -30,16 +31,22 @@ function TournamentPageContainer({ tournamentId }: { tournamentId: number }) {
   const canControl = canEditTournament(tournamentId);
   const canHelpers = canEditHelpers(tournamentId);
   const state = useTournamentPage({ tournamentId, canControl });
+  const [songsVersion, setSongsVersion] = useState(0);
 
   const context: TournamentPageContextValue = {
     tournamentId,
     tournamentName: state.tournamentName,
+    syncstartUrl: state.syncstartUrl,
+    songsVersion,
     divisions: state.divisions,
     controls: canControl,
     helpersEnabled: canHelpers,
-    initialActiveLobbies: state.initialActiveLobbies,
+    setSyncstartUrl: state.setSyncstartUrl,
     refreshDivisions: state.refreshDivisions,
+    refreshSongs: () => setSongsVersion((value) => value + 1),
     openCreateDivision: () => state.setCreateDivisionOpen(true),
+    openCreatePhase: () => state.setCreatePhaseOpen(true),
+    openCreateMatch: () => state.setCreateMatchOpen(true),
     openGenerateBracketPicker: () => state.setSelectDivisionOpen(true),
   };
 

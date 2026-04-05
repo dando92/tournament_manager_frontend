@@ -1,6 +1,7 @@
 export const TOURNAMENT_TABS = [
   { key: "overview", label: "Overview" },
   { key: "songs", label: "Songs" },
+  { key: "lobbies", label: "Lobbies" },
   { key: "live", label: "Live" },
   { key: "stats", label: "Stats" },
 ] as const;

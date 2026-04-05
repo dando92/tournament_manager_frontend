@@ -1,7 +1,7 @@
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import DivisionCard from "@/features/division/components/DivisionCard";
 import { useTournamentPageContext } from "@/features/tournament/context/TournamentPageContext";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 export default function TournamentOverviewPage() {
   const { divisions, tournamentId, controls, refreshDivisions } = useTournamentPageContext();

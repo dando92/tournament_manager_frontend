@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Tournament } from "@/features/tournament/types/Tournament";
 import { Division } from "@/features/division/types/Division";
-import { ActiveLobbyDto } from "@/features/live/services/useScoreHub";
 import { addRecentTournament } from "@/features/tournament/services/recentTournaments";
 import { useTournamentUpdates } from "@/features/tournament/context/TournamentUpdatesContext";
 import * as MatchesApi from "@/features/match/services/matches.api";
@@ -14,9 +14,9 @@ type UseTournamentPageOptions = {
 };
 
 export type TournamentPageState = {
-  initialActiveLobbies: ActiveLobbyDto[];
   divisions: Division[];
   tournamentName: string;
+  syncstartUrl: string;
   createDivisionOpen: boolean;
   selectDivisionOpen: boolean;
   createPhaseOpen: boolean;
@@ -24,12 +24,13 @@ export type TournamentPageState = {
   generateBracketDivisionId: number | null;
   bracketTypes: string[];
   createMenuOpen: boolean;
-  setCreateDivisionOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setSelectDivisionOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setCreatePhaseOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setCreateMatchOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setGenerateBracketDivisionId: React.Dispatch<React.SetStateAction<number | null>>;
-  setCreateMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setCreateDivisionOpen: Dispatch<SetStateAction<boolean>>;
+  setSelectDivisionOpen: Dispatch<SetStateAction<boolean>>;
+  setCreatePhaseOpen: Dispatch<SetStateAction<boolean>>;
+  setCreateMatchOpen: Dispatch<SetStateAction<boolean>>;
+  setGenerateBracketDivisionId: Dispatch<SetStateAction<number | null>>;
+  setCreateMenuOpen: Dispatch<SetStateAction<boolean>>;
+  setSyncstartUrl: Dispatch<SetStateAction<string>>;
   refreshDivisions: () => Promise<void>;
   handleCreateDivision: (name: string) => void;
   handleCreatePhase: (name: string, divisionId: number) => Promise<void>;
@@ -42,9 +43,9 @@ export function useTournamentPage({
   canControl,
 }: UseTournamentPageOptions): TournamentPageState {
   const { tournamentVersion } = useTournamentUpdates();
-  const [initialActiveLobbies, setInitialActiveLobbies] = useState<ActiveLobbyDto[]>([]);
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [tournamentName, setTournamentName] = useState("");
+  const [syncstartUrl, setSyncstartUrl] = useState("");
   const [createDivisionOpen, setCreateDivisionOpen] = useState(false);
   const [selectDivisionOpen, setSelectDivisionOpen] = useState(false);
   const [createPhaseOpen, setCreatePhaseOpen] = useState(false);
@@ -52,7 +53,6 @@ export function useTournamentPage({
   const [generateBracketDivisionId, setGenerateBracketDivisionId] = useState<number | null>(null);
   const [bracketTypes, setBracketTypes] = useState<string[]>([]);
   const [createMenuOpen, setCreateMenuOpen] = useState(false);
-  const fetchedLobbies = useRef(false);
 
   const refreshDivisions = useCallback(async () => {
     const response = await axios.get<Division[]>("divisions", { params: { tournamentId } });
@@ -65,25 +65,12 @@ export function useTournamentPage({
       .then((r) => {
         addRecentTournament({ id: r.data.id, name: r.data.name });
         setTournamentName(r.data.name);
+        setSyncstartUrl(r.data.syncstartUrl ?? "");
         document.title = `${r.data.name} - Tournament Manager`;
       })
       .catch(() => {});
 
     refreshDivisions().catch(() => {});
-
-    if (!fetchedLobbies.current) {
-      fetchedLobbies.current = true;
-      axios
-        .get<{ id: string; name: string; lobbyCode: string; isActive: boolean; isConnected: boolean }[]>(`tournaments/${tournamentId}/lobbies/status`)
-        .then((r) => {
-          const active = r.data
-            .filter((l) => l.isActive && l.isConnected)
-            .map((l) => ({ tournamentId, lobbyId: l.id, lobbyName: l.name, lobbyCode: l.lobbyCode }));
-          setInitialActiveLobbies(active);
-        })
-        .catch(() => {});
-    }
-
     return () => {
       document.title = "Tournament Manager";
     };
@@ -131,9 +118,9 @@ export function useTournamentPage({
   }, [refreshDivisions]);
 
   return {
-    initialActiveLobbies,
     divisions,
     tournamentName,
+    syncstartUrl,
     createDivisionOpen,
     selectDivisionOpen,
     createPhaseOpen,
@@ -147,6 +134,7 @@ export function useTournamentPage({
     setCreateMatchOpen,
     setGenerateBracketDivisionId,
     setCreateMenuOpen,
+    setSyncstartUrl,
     refreshDivisions,
     handleCreateDivision,
     handleCreatePhase,

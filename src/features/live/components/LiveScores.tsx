@@ -1,10 +1,8 @@
 import { useMemo } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart } from "@fortawesome/free-solid-svg-icons";
-import { TournamentLobbyStateDto } from "@/features/live/services/useScoreHub";
+import { LiveMatchStateDto } from "@/features/live/services/useScoreHub";
 
 type Props = {
-  lobbyState: TournamentLobbyStateDto;
+  lobbyState: LiveMatchStateDto;
   singleColumn?: boolean;
 };
 
@@ -72,24 +70,6 @@ export default function LiveScores({ lobbyState, singleColumn }: Props) {
                 {player.judgments.misses > 0 && (
                   <span className="text-red-300">{player.judgments.misses}MISS</span>
                 )}
-              </div>
-            )}
-            {player.health != null && (
-              <div className="w-full flex flex-row items-center gap-3">
-                <FontAwesomeIcon icon={faHeart} className="text-white" />
-                <div className="relative w-full h-2 my-2 rounded-md bg-gray-200 overflow-hidden">
-                  <div
-                    className={`absolute top-0 left-0 h-full transition-all ${
-                      player.health === 1
-                        ? "bg-green-500"
-                        : player.health < 0.2
-                          ? "bg-red-500"
-                          : "bg-blue-500"
-                    }`}
-                    // health is a 0–1 float; width must be dynamic — cannot use Tailwind static classes
-                    style={{ width: `${player.health * 100}%` }}
-                  />
-                </div>
               </div>
             )}
           </div>

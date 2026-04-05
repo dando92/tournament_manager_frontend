@@ -1,11 +1,11 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTv } from "@fortawesome/free-solid-svg-icons";
 import LiveScores from "@/features/live/components/LiveScores";
-import { TournamentLobbyStateDto } from "@/features/live/services/useScoreHub";
+import { LiveMatchStateDto } from "@/features/live/services/useScoreHub";
 import { btnPrimary } from "@/styles/buttonStyles";
 
 type Props = {
-  lobbyState: TournamentLobbyStateDto;
+  lobbyState: LiveMatchStateDto;
 };
 
 export default function LobbyLiveBlock({ lobbyState }: Props) {

@@ -1,4 +1,10 @@
 import { ReactNode, createContext, useContext, useEffect, useRef, useState } from "react";
+import {
+  ActiveLobbyDto,
+  LobbyStateDto,
+  LiveMatchStateDto,
+  scoreHubUrl,
+} from "@/features/live/services/useScoreHub";
 
 type TournamentUpdateMessage = {
   tournamentId: number;
@@ -28,11 +34,20 @@ type TournamentSocketMessage =
   | { event: "PhaseUpdate"; data: PhaseUpdateMessage }
   | { event: "MatchUpdate"; data: MatchUpdateMessage };
 
+type LobbySocketMessage =
+  | { event: "OnLobbyActive"; data: ActiveLobbyDto }
+  | { event: "OnLobbyDisconnected"; data: { tournamentId: number; lobbyId: string } }
+  | { event: "OnLobbyState"; data: LobbyStateDto }
+  | { event: "OnLiveMatchState"; data: LiveMatchStateDto };
+
 type TournamentUpdatesContextValue = {
   tournamentVersion: number;
   divisionDetailVersions: ReadonlyMap<number, number>;
   matchListVersions: ReadonlyMap<number, number>;
   updatedMatchIds: ReadonlySet<number>;
+  activeLobbies: ReadonlyMap<string, ActiveLobbyDto>;
+  lobbyStates: ReadonlyMap<string, LobbyStateDto>;
+  liveMatchStates: ReadonlyMap<string, LiveMatchStateDto>;
 };
 
 const defaultValue: TournamentUpdatesContextValue = {
@@ -40,13 +55,16 @@ const defaultValue: TournamentUpdatesContextValue = {
   divisionDetailVersions: new Map(),
   matchListVersions: new Map(),
   updatedMatchIds: new Set(),
+  activeLobbies: new Map(),
+  lobbyStates: new Map(),
+  liveMatchStates: new Map(),
 };
 
 const TournamentUpdatesContext = createContext<TournamentUpdatesContextValue>(defaultValue);
 
-function wsUrl(path: string): string {
+function uiUpdateHubUrl(): string {
   const apiUrl = import.meta.env.VITE_PUBLIC_API_URL ?? "http://localhost:3000/";
-  const resolved = new URL(`../${path}`, apiUrl);
+  const resolved = new URL("../uiupdatehub", apiUrl);
   return resolved.href.replace(/^http/, "ws");
 }
 
@@ -67,11 +85,14 @@ export function TournamentUpdatesProvider({
   const [divisionDetailVersions, setDivisionDetailVersions] = useState<ReadonlyMap<number, number>>(new Map());
   const [matchListVersions, setMatchListVersions] = useState<ReadonlyMap<number, number>>(new Map());
   const [updatedMatchIds, setUpdatedMatchIds] = useState<ReadonlySet<number>>(new Set());
+  const [activeLobbies, setActiveLobbies] = useState<ReadonlyMap<string, ActiveLobbyDto>>(new Map());
+  const [lobbyStates, setLobbyStates] = useState<ReadonlyMap<string, LobbyStateDto>>(new Map());
+  const [liveMatchStates, setLiveMatchStates] = useState<ReadonlyMap<string, LiveMatchStateDto>>(new Map());
   const pendingMatchIds = useRef<Set<number>>(new Set());
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket(wsUrl("uiupdatehub"));
+    const ws = new WebSocket(uiUpdateHubUrl());
 
     function flushMatchUpdates() {
       const flush = new Set(pendingMatchIds.current);
@@ -115,6 +136,67 @@ export function TournamentUpdatesProvider({
     };
   }, [tournamentId]);
 
+  useEffect(() => {
+    const ws = new WebSocket(scoreHubUrl());
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data) as LobbySocketMessage;
+
+        if (!msg?.data || msg.data.tournamentId !== tournamentId) {
+          return;
+        }
+
+        if (msg.event === "OnLobbyActive") {
+          setActiveLobbies((prev) => new Map(prev).set(msg.data.lobbyId, msg.data));
+          return;
+        }
+
+        if (msg.event === "OnLobbyDisconnected") {
+          setActiveLobbies((prev) => {
+            const next = new Map(prev);
+            next.delete(msg.data.lobbyId);
+            return next;
+          });
+          setLobbyStates((prev) => {
+            const next = new Map(prev);
+            next.delete(msg.data.lobbyId);
+            return next;
+          });
+          setLiveMatchStates((prev) => {
+            const next = new Map(prev);
+            next.delete(msg.data.lobbyId);
+            return next;
+          });
+          return;
+        }
+
+        if (msg.event === "OnLobbyState") {
+          setLobbyStates((prev) => new Map(prev).set(msg.data.lobbyId, msg.data));
+          if (!msg.data.players.some((player) => player.screenName === "ScreenGameplay")) {
+            setLiveMatchStates((prev) => {
+              if (!prev.has(msg.data.lobbyId)) return prev;
+              const next = new Map(prev);
+              next.delete(msg.data.lobbyId);
+              return next;
+            });
+          }
+          return;
+        }
+
+        if (msg.event === "OnLiveMatchState") {
+          setLiveMatchStates((prev) => new Map(prev).set(msg.data.lobbyId, msg.data));
+        }
+      } catch {
+        // ignore malformed websocket messages
+      }
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [tournamentId]);
+
   return (
     <TournamentUpdatesContext.Provider
       value={{
@@ -122,6 +204,9 @@ export function TournamentUpdatesProvider({
         divisionDetailVersions,
         matchListVersions,
         updatedMatchIds,
+        activeLobbies,
+        lobbyStates,
+        liveMatchStates,
       }}
     >
       {children}

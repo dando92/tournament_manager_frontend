@@ -1,16 +1,20 @@
+import type { Dispatch, SetStateAction } from "react";
 import { useOutletContext } from "react-router-dom";
 import { Division } from "@/features/division/types/Division";
-import { ActiveLobbyDto } from "@/features/live/services/useScoreHub";
-
 export type TournamentPageContextValue = {
   tournamentId: number;
   tournamentName: string;
+  syncstartUrl: string;
+  songsVersion: number;
   divisions: Division[];
   controls: boolean;
   helpersEnabled: boolean;
-  initialActiveLobbies: ActiveLobbyDto[];
+  setSyncstartUrl: Dispatch<SetStateAction<string>>;
   refreshDivisions: () => Promise<void>;
+  refreshSongs: () => void;
   openCreateDivision: () => void;
+  openCreatePhase: () => void;
+  openCreateMatch: () => void;
   openGenerateBracketPicker: () => void;
 };
 

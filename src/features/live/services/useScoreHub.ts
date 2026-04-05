@@ -3,10 +3,31 @@ import { useEffect } from "react";
 export type LobbyPlayerDto = {
   name: string;
   playerId: string;
+  screenName: "NoScreen" | "ScreenSelectMusic" | "ScreenGameplay" | "ScreenPlayerOptions" | "ScreenEvaluation";
+  ready: boolean;
+};
+
+export type LobbyStateDto = {
+  tournamentId: number;
+  lobbyId: string;
+  lobbyName: string;
+  lobbyCode: string;
+  songTitle: string;
+  songPath: string;
+  spectators: string[];
+  players: LobbyPlayerDto[];
+};
+
+export type LiveMatchPlayerDto = {
+  name: string;
+  playerId: string;
   scorePercent: number;
   exScore?: number;
-  health?: number;
   isFailed?: boolean;
+  songProgression?: {
+    currentTime: number;
+    totalTime: number;
+  };
   judgments?: {
     fantasticPlus: number;
     fantastics: number;
@@ -21,14 +42,14 @@ export type LobbyPlayerDto = {
   };
 };
 
-export type TournamentLobbyStateDto = {
+export type LiveMatchStateDto = {
   tournamentId: number;
   lobbyId: string;
   lobbyName: string;
   lobbyCode: string;
   songTitle: string;
   songPath: string;
-  players: LobbyPlayerDto[];
+  players: LiveMatchPlayerDto[];
 };
 
 export type ActiveLobbyDto = {
@@ -38,41 +59,47 @@ export type ActiveLobbyDto = {
   lobbyCode: string;
 };
 
-function wsUrl(path: string): string {
+type ScoreHubMessage =
+  | { event: "OnLobbyActive"; data: ActiveLobbyDto }
+  | { event: "OnLobbyDisconnected"; data: { tournamentId: number; lobbyId: string } }
+  | { event: "OnLobbyState"; data: LobbyStateDto }
+  | { event: "OnLiveMatchState"; data: LiveMatchStateDto };
+
+export function scoreHubUrl(): string {
   const apiUrl = import.meta.env.VITE_PUBLIC_API_URL ?? "http://localhost:3000/";
-  const resolved = new URL('../' + path, apiUrl);
-  return resolved.href.replace(/^http/, 'ws');
+  const resolved = new URL("../scoreupdatehub", apiUrl);
+  return resolved.href.replace(/^http/, "ws");
 }
 
-/**
- * Creates a native WebSocket connection to /scoreupdatehub for the duration of the component's life.
- * Calls onLobbyActive when a lobby becomes active (started, may not yet have data).
- * Calls onLobbyState whenever an OnLobbyState event arrives.
- * Calls onLobbyDisconnected whenever an OnLobbyDisconnected event arrives.
- */
 export function useScoreHub(
-  onLobbyState: (data: TournamentLobbyStateDto) => void,
+  onLiveMatchState: (data: LiveMatchStateDto) => void,
   onLobbyDisconnected?: (tournamentId: number, lobbyId: string) => void,
   onLobbyActive?: (data: ActiveLobbyDto) => void,
+  onLobbyState?: (data: LobbyStateDto) => void,
 ) {
   useEffect(() => {
-    const ws = new WebSocket(wsUrl('scoreupdatehub'));
+    const ws = new WebSocket(scoreHubUrl());
 
     ws.onmessage = (event) => {
       try {
-        const msg = JSON.parse(event.data);
-        if (msg.event === 'OnLobbyState') {
-          onLobbyState(msg.data as TournamentLobbyStateDto);
-        } else if (msg.event === 'OnLobbyDisconnected') {
-          onLobbyDisconnected?.(msg.data.tournamentId as number, msg.data.lobbyId as string);
-        } else if (msg.event === 'OnLobbyActive') {
-          onLobbyActive?.(msg.data as ActiveLobbyDto);
+        const msg = JSON.parse(event.data) as ScoreHubMessage;
+        if (msg.event === "OnLiveMatchState") {
+          onLiveMatchState(msg.data);
+        } else if (msg.event === "OnLobbyDisconnected") {
+          onLobbyDisconnected?.(msg.data.tournamentId, msg.data.lobbyId);
+        } else if (msg.event === "OnLobbyActive") {
+          onLobbyActive?.(msg.data);
+        } else if (msg.event === "OnLobbyState") {
+          onLobbyState?.(msg.data);
         }
-      // eslint-disable-next-line no-empty
-      } catch {}
+      } catch {
+        // ignore malformed websocket messages
+      }
     };
 
-    return () => { ws.close(); };
+    return () => {
+      ws.close();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
