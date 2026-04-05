@@ -1,9 +1,9 @@
-import { Account } from "@/features/player/types/Account";
 import { HelpersActions } from "@/shared/services/helpers/helpers.actions";
+import { HelperAccount } from "@/shared/services/helpers/types";
 
 export interface HelpersState {
-  helpers: Account[];
-  candidates: Account[];
+  helpers: HelperAccount[];
+  candidates: HelperAccount[];
 }
 
 export const initialState: HelpersState = {

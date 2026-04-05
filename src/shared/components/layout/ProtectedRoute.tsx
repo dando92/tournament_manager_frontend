@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuthContext } from "@/features/auth/context/AuthContext";
+import { usePermissions } from "@/shared/services/permissions/PermissionContext";
 
 interface ProtectedRouteProps {
   require?: "auth" | "admin" | "owner";
@@ -7,9 +8,10 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ require }: ProtectedRouteProps) {
   const { state } = useAuthContext();
+  const permissions = usePermissions();
   const location = useLocation();
 
-  if (state.isLoading) {
+  if (state.isLoading || !permissions.isLoaded) {
     return null;
   }
 
@@ -17,11 +19,11 @@ export default function ProtectedRoute({ require }: ProtectedRouteProps) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
-  if (require === "admin" && !state.account.isAdmin) {
+  if (require === "admin" && !permissions.isAdmin) {
     return <Navigate to="/" replace />;
   }
 
-  if (require === "owner" && !state.account.isTournamentCreator && !state.account.isAdmin) {
+  if (require === "owner" && !permissions.canCreateTournament) {
     return <Navigate to="/" replace />;
   }
 

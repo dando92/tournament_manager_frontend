@@ -1,7 +1,7 @@
-import { Account } from "@/features/player/types/Account";
+import { AdminAccount } from "@/features/player/types/Account";
 
 type Props = {
-  account: Account;
+  account: AdminAccount;
   onFlagChange: (flag: "isAdmin" | "isTournamentCreator", value: boolean) => void;
 };
 
@@ -10,7 +10,6 @@ export default function RoleAccountItem({ account, onFlagChange }: Props) {
     <div className="flex flex-row items-center justify-between bg-gray-50 px-5 py-4 rounded-lg">
       <div>
         <p className="font-semibold">{account.username}</p>
-        <p className="text-sm text-gray-500">{account.email}</p>
       </div>
       <div className="flex flex-row gap-6">
         <label className="flex flex-row items-center gap-2 cursor-pointer">

@@ -277,16 +277,6 @@ export default function AccountInfoPage() {
           <span className="text-sm text-gray-500">Username</span>
           <p className="font-semibold">{account.username}</p>
         </div>
-        <div>
-          <span className="text-sm text-gray-500">Email</span>
-          <p className="font-semibold">{account.email}</p>
-        </div>
-        <div>
-          <span className="text-sm text-gray-500">Permissions</span>
-          <p className="font-semibold">
-            {account.isAdmin ? "Admin" : account.isTournamentCreator ? "Tournament Creator" : "Player"}
-          </p>
-        </div>
       </div>
     </div>
   );

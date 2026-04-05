@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Account } from "@/features/player/types/Account";
 import BaseModal from "@/shared/components/ui/BaseModal";
+import { HelperAccount } from "@/shared/services/helpers/types";
 
 type HelpersSection = {
-  helpers: Account[];
-  availableCandidates: Account[];
+  helpers: HelperAccount[];
+  availableCandidates: HelperAccount[];
   onAdd: (id: string) => void;
   onRemove: (id: string) => void;
 };

@@ -20,3 +20,8 @@ export async function fetchMe(): Promise<Account> {
   const response = await axios.get<Account>("auth/me");
   return response.data;
 }
+
+export async function fetchPermissions(): Promise<{ isAdmin: boolean; isTournamentCreator: boolean }> {
+  const response = await axios.get<{ isAdmin: boolean; isTournamentCreator: boolean }>("auth/permissions");
+  return response.data;
+}

@@ -1,19 +1,19 @@
 import axios from "axios";
 import { Account } from "@/features/player/types/Account";
-import { Tournament } from "@/features/tournament/types/Tournament";
+import { TournamentHelpersResponse, HelperAccount } from "@/shared/services/helpers/types";
 
-export async function fetchHelpers(tournamentId: number): Promise<Account[]> {
-  const response = await axios.get<Tournament>(`tournaments/${tournamentId}`);
-  return (response.data as Tournament & { helpers: Account[] }).helpers ?? [];
+export async function fetchHelpers(tournamentId: number): Promise<HelperAccount[]> {
+  const response = await axios.get<TournamentHelpersResponse>(`tournaments/${tournamentId}`);
+  return response.data.helpers ?? [];
 }
 
-export async function addHelper(tournamentId: number, accountId: string): Promise<Tournament> {
-  const response = await axios.post<Tournament>(`tournaments/${tournamentId}/helpers`, { accountId });
+export async function addHelper(tournamentId: number, accountId: string): Promise<TournamentHelpersResponse> {
+  const response = await axios.post<TournamentHelpersResponse>(`tournaments/${tournamentId}/helpers`, { accountId });
   return response.data;
 }
 
-export async function removeHelper(tournamentId: number, accountId: string): Promise<Tournament> {
-  const response = await axios.delete<Tournament>(`tournaments/${tournamentId}/helpers/${accountId}`);
+export async function removeHelper(tournamentId: number, accountId: string): Promise<TournamentHelpersResponse> {
+  const response = await axios.delete<TournamentHelpersResponse>(`tournaments/${tournamentId}/helpers/${accountId}`);
   return response.data;
 }
 

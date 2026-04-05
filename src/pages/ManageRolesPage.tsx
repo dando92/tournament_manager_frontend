@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import axios from "axios";
-import { Account } from "@/features/player/types/Account";
+import { AdminAccount } from "@/features/player/types/Account";
 import { toast } from "react-toastify";
 import RoleAccountItem from "@/features/admin/components/RoleAccountItem";
 import { isLocalMode } from "@/features/auth/services/auth-mode";
 
 export default function ManageRolesPage() {
   if (isLocalMode()) return <Navigate to="/" replace />;
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [accounts, setAccounts] = useState<AdminAccount[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get<Account[]>("user").then((r) => {
+    axios.get<AdminAccount[]>("user").then((r) => {
       setAccounts(r.data);
     }).catch(() => {
       toast.error("Failed to load accounts.");
@@ -21,7 +21,7 @@ export default function ManageRolesPage() {
 
   async function handleFlagChange(accountId: string, flag: "isAdmin" | "isTournamentCreator", value: boolean) {
     try {
-      const updated = await axios.patch<Account>(`user/${accountId}/flags`, { [flag]: value });
+      const updated = await axios.patch<AdminAccount>(`user/${accountId}/flags`, { [flag]: value });
       setAccounts((prev) =>
         prev.map((a) => (a.id === accountId ? updated.data : a))
       );

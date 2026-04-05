@@ -6,7 +6,7 @@ import { addRecentTournament } from "@/features/tournament/services/recentTourna
 import TournamentCard from "@/features/tournament/components/TournamentCard";
 import CreateTournamentModal from "@/features/tournament/modals/CreateTournamentModal";
 import SearchTournamentModal from "@/features/tournament/modals/SearchTournamentModal";
-import { useAuthContext } from "@/features/auth/context/AuthContext";
+import { usePermissions } from "@/shared/services/permissions/PermissionContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
@@ -17,8 +17,8 @@ export default function HomePage() {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { state } = useAuthContext();
-  const canCreate = state.account?.isTournamentCreator || state.account?.isAdmin;
+  const { canCreateTournament } = usePermissions();
+  const canCreate = canCreateTournament;
 
   useEffect(() => {
     if (searchParams.get("create") === "1" && canCreate) {

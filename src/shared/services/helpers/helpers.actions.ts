@@ -1,13 +1,13 @@
-import { Account } from "@/features/player/types/Account";
+import { HelperAccount } from "@/shared/services/helpers/types";
 
 export type onLoadHelpers = {
   type: "onLoadHelpers";
-  payload: { helpers: Account[]; candidates: Account[] };
+  payload: { helpers: HelperAccount[]; candidates: HelperAccount[] };
 };
 
 export type onAddHelper = {
   type: "onAddHelper";
-  payload: Account;
+  payload: HelperAccount;
 };
 
 export type onRemoveHelper = {
