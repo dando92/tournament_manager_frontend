@@ -13,14 +13,14 @@ type Props = {
 export default function ManageActionsMenu({ tournamentId, canEditHelpers }: Props) {
   const localMode = isLocalMode();
   const {
-    participantsOpen,
+    helpersOpen,
     menuOpen,
     helpersState,
     availableCandidates,
     helpersActions,
-    setParticipantsOpen,
+    setHelpersOpen,
     setMenuOpen,
-    openParticipants,
+    openHelpers,
   } = useManageActionsMenu(Number(tournamentId));
 
   if (localMode) {
@@ -31,7 +31,7 @@ export default function ManageActionsMenu({ tournamentId, canEditHelpers }: Prop
     <>
       <div className="hidden md:flex items-center gap-2">
         <button
-          onClick={openParticipants}
+          onClick={openHelpers}
           className={`flex items-center gap-2 ${btnPrimary}`}
         >
           <FontAwesomeIcon icon={faUsers} className="text-sm" />
@@ -51,7 +51,7 @@ export default function ManageActionsMenu({ tournamentId, canEditHelpers }: Prop
             <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
             <div className="absolute right-0 top-full mt-1 z-20 bg-white rounded shadow-lg border border-gray-200 min-w-[150px]">
               <button
-                onClick={openParticipants}
+                onClick={openHelpers}
                 className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
               >
                 <FontAwesomeIcon icon={faUsers} className="text-primary-dark" />
@@ -63,8 +63,8 @@ export default function ManageActionsMenu({ tournamentId, canEditHelpers }: Prop
       </div>
 
       <ManageHelpersModal
-        open={participantsOpen}
-        onClose={() => setParticipantsOpen(false)}
+        open={helpersOpen}
+        onClose={() => setHelpersOpen(false)}
         canEditHelpers={canEditHelpers}
         helpers={{
           helpers: helpersState.helpers,

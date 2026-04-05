@@ -84,10 +84,12 @@ export default function TournamentPageHeader({
               setSyncstartUrl={setSyncstartUrl}
             />
           )}
-          <ManageActionsMenu
-            tournamentId={String(tournamentId)}
-            canEditHelpers={helpersEnabled}
-          />
+          {isOverviewPage && (
+            <ManageActionsMenu
+              tournamentId={String(tournamentId)}
+              canEditHelpers={helpersEnabled}
+            />
+          )}
         </div>
       )}
     </div>

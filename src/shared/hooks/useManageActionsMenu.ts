@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useHelpers } from "@/shared/services/helpers/useHelpers";
 
 export function useManageActionsMenu(tournamentId: number) {
-  const [participantsOpen, setParticipantsOpen] = useState(false);
+  const [helpersOpen, setHelpersOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { state: helpersState, actions: helpersActions } = useHelpers(tournamentId);
 
@@ -19,19 +19,19 @@ export function useManageActionsMenu(tournamentId: number) {
     [helpersState.candidates, helpersState.helpers],
   );
 
-  const openParticipants = () => {
+  const openHelpers = () => {
     setMenuOpen(false);
-    setParticipantsOpen(true);
+    setHelpersOpen(true);
   };
 
   return {
-    participantsOpen,
+    helpersOpen,
     menuOpen,
     helpersState,
     availableCandidates,
     helpersActions,
-    setParticipantsOpen,
+    setHelpersOpen,
     setMenuOpen,
-    openParticipants,
+    openHelpers,
   };
 }
