@@ -1,6 +1,6 @@
 export const DIVISION_TABS = [
   { key: "phases", label: "Phases" },
-  { key: "players", label: "Players" },
+  { key: "entrants", label: "Entrants" },
   { key: "standings", label: "Standings" },
 ] as const;
 

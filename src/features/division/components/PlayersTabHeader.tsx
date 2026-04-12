@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileImport, faSortAmountDown } from "@fortawesome/free-solid-svg-icons";
+import { faSortAmountDown, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { btnPrimary, btnSecondary } from "@/styles/buttonStyles";
 
 type Ordering = "name" | "seeding";
@@ -12,7 +12,7 @@ type PlayersTabHeaderProps = {
   onOrderingChange: (ordering: Ordering) => void;
   onEditSeeding: () => void;
   onDoneSeeding: () => void;
-  onBulkImport: () => void;
+  onSelectParticipants: () => void;
 };
 
 export default function PlayersTabHeader({
@@ -23,11 +23,11 @@ export default function PlayersTabHeader({
   onOrderingChange,
   onEditSeeding,
   onDoneSeeding,
-  onBulkImport,
+  onSelectParticipants,
 }: PlayersTabHeaderProps) {
   return (
     <div className="flex items-center justify-between gap-3 flex-wrap">
-      <h2 className="text-primary-dark font-bold text-xl">Players</h2>
+      <h2 className="text-primary-dark font-bold text-xl">Entrants</h2>
       <div className="flex items-center gap-2 flex-wrap">
         <div className={`flex border border-gray-200 rounded overflow-hidden text-sm ${editingSeeding ? "opacity-40 pointer-events-none" : ""}`}>
           <button
@@ -70,11 +70,11 @@ export default function PlayersTabHeader({
 
         {canEdit && (
           <button
-            onClick={onBulkImport}
+            onClick={onSelectParticipants}
             className={`${btnPrimary} flex items-center gap-1.5 text-sm`}
           >
-            <FontAwesomeIcon icon={faFileImport} />
-            <span className="hidden sm:inline">Bulk import</span>
+            <FontAwesomeIcon icon={faUsers} />
+            <span className="hidden sm:inline">Select participants</span>
           </button>
         )}
       </div>

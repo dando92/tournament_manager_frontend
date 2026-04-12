@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { usePermissions } from "@/shared/services/permissions/PermissionContext";
-import { TournamentPageContextValue } from "@/features/tournament/context/TournamentPageContext";
+import { ParticipantsManageModal, TournamentPageContextValue } from "@/features/tournament/context/TournamentPageContext";
 import { useTournamentPage } from "@/features/tournament/hooks/useTournamentPage";
 
 export function useTournamentPageContainer(tournamentId: number) {
@@ -9,6 +9,7 @@ export function useTournamentPageContainer(tournamentId: number) {
   const canHelpers = canEditHelpers(tournamentId);
   const state = useTournamentPage({ tournamentId, canControl });
   const [songsVersion, setSongsVersion] = useState(0);
+  const [participantsManageModal, setParticipantsManageModal] = useState<ParticipantsManageModal>("none");
 
   const context: TournamentPageContextValue = {
     tournamentId,
@@ -25,6 +26,8 @@ export function useTournamentPageContainer(tournamentId: number) {
     openCreatePhase: () => state.setCreatePhaseOpen(true),
     openCreateMatch: () => state.setCreateMatchOpen(true),
     openGenerateBracketPicker: () => state.setSelectDivisionOpen(true),
+    participantsManageModal,
+    setParticipantsManageModal,
   };
 
   return {

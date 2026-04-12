@@ -45,12 +45,12 @@ export default function DivisionCard({ division, onSelect, controls = false, onD
         )}
       </div>
 
-      {/* Players */}
+      {/* Entrants */}
       <button type="button" onClick={onSelect} className="px-4 py-3 border-b border-gray-100 text-left">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-semibold text-primary-dark shrink-0">Players</span>
+          <span className="text-xs font-semibold text-primary-dark shrink-0">Entrants</span>
           {visiblePlayers.length === 0 ? (
-            <span className="text-xs text-gray-400 italic">No players</span>
+            <span className="text-xs text-gray-400 italic">No entrants</span>
           ) : (
             <>
               {visiblePlayers.map((p, i) => (

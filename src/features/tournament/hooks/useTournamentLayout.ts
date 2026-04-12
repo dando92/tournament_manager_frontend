@@ -19,12 +19,15 @@ export function useTournamentLayout({ context, state }: UseTournamentLayoutOptio
   const routeState = useMemo(() => {
     const overviewPath = `/tournament/${tournamentId}/overview`;
     const lobbiesPath = `/tournament/${tournamentId}/lobbies`;
+    const participantsPath = `/tournament/${tournamentId}/participants`;
     const songsPath = `/tournament/${tournamentId}/songs`;
 
     return {
       isOverviewPage: location.pathname === overviewPath,
       isLobbiesPage: location.pathname === lobbiesPath,
+      isParticipantsPage: location.pathname === participantsPath,
       isSongsPage: location.pathname === songsPath,
+      isDivisionPhasesPage: /\/tournament\/\d+\/division\/\d+\/phases$/.test(location.pathname),
       headerSubtitle: getTournamentHeaderSubtitle(location.pathname, tournamentId),
     };
   }, [location.pathname, tournamentId]);

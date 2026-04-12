@@ -150,6 +150,9 @@ export default function Sidebar() {
   const tournamentMatch = location.pathname.match(/^\/tournament\/(\d+)(?:\/([^/]+))?/);
   const currentTournamentId = tournamentMatch ? Number(tournamentMatch[1]) : null;
   const visibleTournamentTabs = TOURNAMENT_TABS.filter((tab) => {
+    if (tab.key === "participants") {
+      return currentTournamentId !== null && canEditTournament(currentTournamentId);
+    }
     if (tab.key !== "lobbies") return true;
     return currentTournamentId !== null && canEditTournament(currentTournamentId);
   });
