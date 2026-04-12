@@ -139,14 +139,10 @@ export default function Sidebar() {
   const selectedTournament = recentTournaments[0] ?? null;
   const [searchModalOpen, setSearchModalOpen] = useState(false);
 
-  const accountPages = ["/account", "/admin/roles"];
-
   function handleTournamentClick(t: RecentTournament) {
     selectRecentTournament(t.id);
     setRecentTournaments(getRecentTournaments());
     close();
-
-    if (accountPages.some((p) => location.pathname === p)) return;
 
     navigate(`/tournament/${t.id}`);
   }

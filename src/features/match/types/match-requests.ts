@@ -8,7 +8,7 @@ export interface CreateMatchRequest {
   group: string;
   levels: string;
   songIds: number[];
-  playerIds: number[];
+  entrantIds: number[];
 }
 
 export interface AddSongToMatchRequest {

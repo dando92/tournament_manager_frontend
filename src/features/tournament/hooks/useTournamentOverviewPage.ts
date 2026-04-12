@@ -19,7 +19,7 @@ export function useTournamentOverviewPage({
   const summary = useMemo(() => {
     const divisionCount = divisions.length;
     const playerCount = divisions.reduce(
-      (count, division) => count + (division.players?.length ?? 0),
+      (count, division) => count + (division.entrants?.filter((entrant) => entrant.status === "active").length ?? 0),
       0,
     );
     const matchCount = divisions.reduce(

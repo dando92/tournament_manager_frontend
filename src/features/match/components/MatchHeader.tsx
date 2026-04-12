@@ -122,7 +122,7 @@ export default function MatchHeader({
       </div>
       {controls && (
         <div className="flex items-center gap-3 shrink-0">
-          {(match.players?.length ?? 0) > 0 && (
+          {(match.entrants?.length ?? 0) > 0 && (
             <button
               onClick={onOpenAddSong}
               title="Add song/round"

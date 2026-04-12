@@ -1,11 +1,10 @@
 import { Phase } from "@/features/division/types/Phase";
-import { Player } from "@/features/player/types/Player";
+import { Entrant } from "@/features/entrant/types/Entrant";
 
 export interface Division {
   id: number;
   name: string;
   phases: Phase[];
-  players: Player[];
+  entrants: Entrant[];
   playersPerMatch: number | null;
-  seeding: number[] | null;
 }

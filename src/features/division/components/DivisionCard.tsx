@@ -1,4 +1,6 @@
 import { TournamentDivisionOption } from "@/features/tournament/types/TournamentDivisionOption";
+import { entrantPlayer } from "@/features/entrant/types/Entrant";
+import { Player } from "@/features/player/types/Player";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { btnTrash } from "@/styles/buttonStyles";
@@ -14,8 +16,9 @@ const MAX_VISIBLE_PLAYERS = 3;
 const MAX_VISIBLE_PHASES = 4;
 
 export default function DivisionCard({ division, onSelect, controls = false, onDelete }: DivisionCardProps) {
-  const visiblePlayers = division.players?.slice(0, MAX_VISIBLE_PLAYERS) ?? [];
-  const extraPlayers = (division.players?.length ?? 0) - visiblePlayers.length;
+  const players = (division.entrants ?? []).map(entrantPlayer).filter((player): player is Player => Boolean(player));
+  const visiblePlayers = players.slice(0, MAX_VISIBLE_PLAYERS);
+  const extraPlayers = players.length - visiblePlayers.length;
 
   const visiblePhases = division.phases?.slice(0, MAX_VISIBLE_PHASES) ?? [];
   const extraPhases = (division.phases?.length ?? 0) - visiblePhases.length;

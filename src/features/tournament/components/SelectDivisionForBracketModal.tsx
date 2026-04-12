@@ -21,7 +21,7 @@ export default function SelectDivisionForBracketModal({
           <p className="text-sm text-gray-400">No divisions available.</p>
         ) : (
           divisions.map((division) => {
-            const playerCount = division.players?.length ?? 0;
+            const playerCount = division.entrants?.filter((entrant) => entrant.status === "active").length ?? 0;
             const disabled = playerCount === 0;
 
             return (

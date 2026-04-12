@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { DropResult } from "react-beautiful-dnd";
 import { Division } from "@/features/division/types/Division";
 import { Player } from "@/features/player/types/Player";
+import { entrantPlayer } from "@/features/entrant/types/Entrant";
 import {
   assignPlayerToDivision,
   bulkAddToDivision,
@@ -18,9 +19,39 @@ type UsePlayersTabOptions = {
 };
 
 export function usePlayersTab({ division, onPlayersChanged }: UsePlayersTabOptions) {
-  const [divPlayers, setDivPlayers] = useState<Player[]>(division.players ?? []);
+  const divisionPlayers = useMemo(
+    () =>
+      (division.entrants ?? [])
+        .filter((entrant) => entrant.status === "active" && entrant.type === "player")
+        .map(entrantPlayer)
+        .filter((player): player is Player => Boolean(player)),
+    [division.entrants],
+  );
+  const seededPlayerIds = useMemo(
+    () =>
+      [...(division.entrants ?? [])]
+        .filter((entrant) => entrant.status === "active" && entrant.type === "player")
+        .sort((a, b) => (a.seedNum ?? Number.MAX_SAFE_INTEGER) - (b.seedNum ?? Number.MAX_SAFE_INTEGER))
+        .map((entrant) => entrantPlayer(entrant)?.id)
+        .filter((playerId): playerId is number => playerId !== undefined),
+    [division.entrants],
+  );
+  const entrantIdByPlayerId = useMemo(
+    () =>
+      new Map(
+        (division.entrants ?? [])
+          .map((entrant) => {
+            const player = entrantPlayer(entrant);
+            return player ? [player.id, entrant.id] as const : null;
+          })
+          .filter((entry): entry is readonly [number, number] => Boolean(entry)),
+      ),
+    [division.entrants],
+  );
+
+  const [divPlayers, setDivPlayers] = useState<Player[]>(divisionPlayers);
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
-  const [localSeeding, setLocalSeeding] = useState<number[]>(division.seeding ?? []);
+  const [localSeeding, setLocalSeeding] = useState<number[]>(seededPlayerIds);
   const [ordering, setOrdering] = useState<Ordering>("seeding");
   const [editingSeeding, setEditingSeeding] = useState(false);
   const [draftSeeding, setDraftSeeding] = useState<number[]>([]);
@@ -34,9 +65,9 @@ export function usePlayersTab({ division, onPlayersChanged }: UsePlayersTabOptio
   }, []);
 
   useEffect(() => {
-    setDivPlayers(division.players ?? []);
-    setLocalSeeding(division.seeding ?? []);
-  }, [division.players, division.seeding]);
+    setDivPlayers(divisionPlayers);
+    setLocalSeeding(seededPlayerIds);
+  }, [divisionPlayers, seededPlayerIds]);
 
   const divPlayerIds = useMemo(() => new Set(divPlayers.map((player) => player.id)), [divPlayers]);
   const activeSeeding = editingSeeding ? draftSeeding : localSeeding;
@@ -78,7 +109,10 @@ export function usePlayersTab({ division, onPlayersChanged }: UsePlayersTabOptio
   const exitSeedingEdit = async () => {
     setSavingSeeding(true);
     try {
-      await updateDivisionSeeding(division.id, draftSeeding);
+      await updateDivisionSeeding(
+        division.id,
+        draftSeeding.map((playerId) => entrantIdByPlayerId.get(playerId)).filter((entrantId): entrantId is number => entrantId !== undefined),
+      );
       setLocalSeeding(draftSeeding);
       onPlayersChanged();
     } finally {

@@ -1,3 +1,5 @@
+import { Entrant } from "@/features/entrant/types/Entrant";
+
 export interface TournamentOverviewPlayer {
   id: number;
   playerName: string;
@@ -12,7 +14,7 @@ export interface TournamentOverviewPhase {
 export interface TournamentOverviewDivision {
   id: number;
   name: string;
-  players: TournamentOverviewPlayer[];
+  entrants: Entrant[];
   phases: TournamentOverviewPhase[];
 }
 

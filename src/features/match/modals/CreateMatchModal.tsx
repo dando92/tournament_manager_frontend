@@ -75,16 +75,16 @@ export default function CreateMatchModal(props: CreateMatchModalProps) {
           />
         </div>
         <div className="w-full">
-          <h3>Players</h3>
+          <h3>Entrants</h3>
           <Select
             isMulti
-            options={state.players.map((player) => ({ value: player.id, label: player.playerName }))}
+            options={state.entrants.map((entrant) => ({ value: entrant.id, label: entrant.name }))}
             onChange={(selected) =>
-              state.setSelectedPlayers(
-                selected.map((option) => state.players.find((player) => player.id === option.value)!),
+              state.setSelectedEntrants(
+                selected.map((option) => state.entrants.find((entrant) => entrant.id === option.value)!),
               )
             }
-            value={state.selectedPlayers.map((player) => ({ value: player.id, label: player.playerName }))}
+            value={state.selectedEntrants.map((entrant) => ({ value: entrant.id, label: entrant.name }))}
             menuPortalTarget={document.body}
             styles={selectPortalStyles}
           />

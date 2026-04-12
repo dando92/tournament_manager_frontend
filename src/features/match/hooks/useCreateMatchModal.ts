@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Player } from "@/features/player/types/Player";
+import { Entrant } from "@/features/entrant/types/Entrant";
 import { Song } from "@/features/song/types/Song";
 import { CreateMatchRequest } from "@/features/match/types/match-requests";
 import { MatchPhaseOption } from "@/features/match/types/MatchPhaseOption";
@@ -31,12 +31,12 @@ export function useCreateMatchModal({
     divisionId ?? divisions?.[0]?.id ?? null,
   );
   const [selectedPhaseId, setSelectedPhaseId] = useState<number | null>(null);
-  const [players, setPlayers] = useState<Player[]>([]);
+  const [entrants, setEntrants] = useState<Entrant[]>([]);
   const [scoringSystems, setScoringSystems] = useState<string[]>([]);
   const [scoringSystem, setScoringSystem] = useState("");
   const [name, setName] = useState("");
   const [subtitle, setSubtitle] = useState("");
-  const [selectedPlayers, setSelectedPlayers] = useState<Player[]>([]);
+  const [selectedEntrants, setSelectedEntrants] = useState<Entrant[]>([]);
   const [songAddType, setSongAddType] = useState<"title" | "roll">("roll");
   const [selectedSongDifficulties, setSelectedSongDifficulties] = useState<string[]>([]);
   const [difficultyInput, setDifficultyInput] = useState("");
@@ -66,7 +66,7 @@ export function useCreateMatchModal({
 
     setSelectedDivisionId(initialDivisionId);
     setSelectedPhaseId(phaseId ?? initialPhases[0]?.id ?? null);
-    setSelectedPlayers([]);
+    setSelectedEntrants([]);
     setSelectedSongs([]);
     setSelectedSongDifficulties([]);
     setDifficultyInput("");
@@ -81,8 +81,8 @@ export function useCreateMatchModal({
 
   useEffect(() => {
     if (!open || !resolvedDivisionId) return;
-    axios.get<Player[]>(`divisions/${resolvedDivisionId}/players`).then((response) => {
-      setPlayers(response.data);
+    axios.get<Entrant[]>(`divisions/${resolvedDivisionId}/entrants`).then((response) => {
+      setEntrants(response.data.filter((entrant) => entrant.status === "active" && entrant.type === "player"));
     });
   }, [open, resolvedDivisionId]);
 
@@ -125,7 +125,7 @@ export function useCreateMatchModal({
       subtitle,
       group: selectedGroupName,
       scoringSystem,
-      playerIds: selectedPlayers.map((player) => player.id),
+      entrantIds: selectedEntrants.map((entrant) => entrant.id),
     };
 
     const request: CreateMatchRequest =
@@ -144,13 +144,13 @@ export function useCreateMatchModal({
   };
 
   return {
-    players,
+    entrants,
     songs,
     songGroups,
     scoringSystems,
     selectedDivisionId,
     selectedPhaseId,
-    selectedPlayers,
+    selectedEntrants,
     selectedSongs,
     selectedSongDifficulties,
     selectedGroupName,
@@ -162,7 +162,7 @@ export function useCreateMatchModal({
     availablePhases,
     setSelectedDivisionId,
     setSelectedPhaseId,
-    setSelectedPlayers,
+    setSelectedEntrants,
     setSelectedSongs,
     setSelectedGroupName,
     setDifficultyInput,
