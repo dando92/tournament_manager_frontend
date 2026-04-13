@@ -9,6 +9,12 @@ export const initialState: MatchesState = {
   matches: [],
 };
 
+function mergeUpdatedMatch(matches: Match[], payload: Match) {
+  return matches.map((match) =>
+    match.id === payload.id ? { ...match, ...payload } : match,
+  );
+}
+
 export function matchesReducer(state: MatchesState, action: MatchesActions) {
   const { type, payload } = action;
 
@@ -45,51 +51,37 @@ export function matchesReducer(state: MatchesState, action: MatchesActions) {
     case "onAddSongToMatch":
       return {
         ...state,
-        matches: state.matches.map((match) =>
-          match.id === payload.id ? payload : match,
-        ),
+        matches: mergeUpdatedMatch(state.matches, payload),
       };
     case "onDeleteSongFromMatch":
       return {
         ...state,
-        matches: state.matches.map((match) =>
-          match.id === payload.id ? payload : match,
-        ),
+        matches: mergeUpdatedMatch(state.matches, payload),
       };
     case "onAddStandingToMatch":
       return {
         ...state,
-        matches: state.matches.map((match) =>
-          match.id === payload.id ? payload : match,
-        ),
+        matches: mergeUpdatedMatch(state.matches, payload),
       };
     case "onDeleteStandingFromMatch":
       return {
         ...state,
-        matches: state.matches.map((match) =>
-          match.id === payload.id ? payload : match,
-        ),
+        matches: mergeUpdatedMatch(state.matches, payload),
       };
     case "onEditStandingFromMatch":
       return {
         ...state,
-        matches: state.matches.map((match) =>
-          match.id === payload.id ? payload : match,
-        ),
+        matches: mergeUpdatedMatch(state.matches, payload),
       };
     case "onUpdateMatchPaths":
       return {
         ...state,
-        matches: state.matches.map((match) =>
-          match.id === payload.id ? payload : match,
-        ),
+        matches: mergeUpdatedMatch(state.matches, payload),
       };
     case "onRefreshMatch":
       return {
         ...state,
-        matches: state.matches.map((match) =>
-          match.id === payload.id ? payload : match,
-        ),
+        matches: mergeUpdatedMatch(state.matches, payload),
       };
     default:
       return state;
