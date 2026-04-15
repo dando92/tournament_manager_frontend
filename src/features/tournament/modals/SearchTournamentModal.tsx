@@ -57,7 +57,13 @@ export default function SearchTournamentModal({ open, onClose }: Props) {
 
   return (
     <BaseModal open={open} onClose={onClose} maxWidth="max-w-lg">
-      {/* Search input */}
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold text-primary-dark">Search tournaments</h3>
+          <p className="text-sm text-gray-500">Open an event.</p>
+        </div>
+      </div>
+
       <div className="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2 mb-5 focus-within:border-gray-400 transition-colors">
         <FontAwesomeIcon icon={faMagnifyingGlass} className="text-gray-400 shrink-0" />
         <input
@@ -70,7 +76,6 @@ export default function SearchTournamentModal({ open, onClose }: Props) {
         />
       </div>
 
-      {/* Results */}
       <div className="flex flex-col">
         {filtered.length === 0 && (
           <p className="text-sm text-gray-400 italic px-1">No tournaments found.</p>

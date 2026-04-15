@@ -4,10 +4,12 @@ import {
   faChevronDown,
   faDiagramProject,
   faDice,
+  faLink,
   faLayerGroup,
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { btnPrimary } from "@/styles/buttonStyles";
+import { ParticipantsManageModal } from "@/features/tournament/context/TournamentPageContext";
 
 type Props = {
   open: boolean;
@@ -19,6 +21,7 @@ type Props = {
   onGenerateBracket: () => void;
   onCreatePhase: () => void;
   onCreateMatch: () => void;
+  onOpenParticipantsManageModal: Dispatch<SetStateAction<ParticipantsManageModal>>;
 };
 
 export default function TournamentHeaderCreateMenu({
@@ -31,6 +34,7 @@ export default function TournamentHeaderCreateMenu({
   onGenerateBracket,
   onCreatePhase,
   onCreateMatch,
+  onOpenParticipantsManageModal,
 }: Props) {
   return (
     <div className="relative">
@@ -45,7 +49,7 @@ export default function TournamentHeaderCreateMenu({
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full mt-1 z-20 bg-white rounded shadow-lg border border-gray-200 min-w-[180px]">
+          <div className="absolute right-0 top-full mt-1 z-20 bg-white rounded shadow-lg border border-gray-200 min-w-[240px]">
             {showCreateDivision && (
               <button
                 type="button"
@@ -59,6 +63,17 @@ export default function TournamentHeaderCreateMenu({
                 New division
               </button>
             )}
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                onOpenParticipantsManageModal("startgg");
+              }}
+              className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+            >
+              <FontAwesomeIcon icon={faLink} className="text-primary-dark" />
+              Import from start.gg
+            </button>
             <button
               type="button"
               disabled={!hasDivisions}

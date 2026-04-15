@@ -3,6 +3,7 @@ import CreatePhaseModal from "@/features/division/modals/CreatePhaseModal";
 import GenerateBracketModal from "@/features/division/modals/GenerateBracketModal";
 import CreateMatchModal from "@/features/match/modals/CreateMatchModal";
 import SelectDivisionForBracketModal from "@/features/tournament/components/SelectDivisionForBracketModal";
+import StartggImportModal from "@/features/tournament/modals/StartggImportModal";
 import { TournamentPageContextValue } from "@/features/tournament/context/TournamentPageContext";
 import { TournamentPageState } from "@/features/tournament/hooks/useTournamentPage";
 import { CreateMatchRequest } from "@/features/match/types/match-requests";
@@ -56,6 +57,15 @@ export default function TournamentManagementModals({
         onClose={() => state.setGenerateBracketDivisionId(null)}
         bracketTypes={state.bracketTypes}
         onGenerate={onGenerateBracket}
+      />
+      <StartggImportModal
+        open={context.participantsManageModal === "startgg"}
+        onClose={() => context.setParticipantsManageModal("none")}
+        fixedTournamentId={context.tournamentId}
+        fixedTournamentName={context.tournamentName}
+        onImported={async () => {
+          await context.refreshDivisions();
+        }}
       />
     </>
   );
