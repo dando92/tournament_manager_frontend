@@ -2,7 +2,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { useOutletContext } from "react-router-dom";
 import { TournamentDivisionOption } from "@/features/tournament/types/TournamentDivisionOption";
 
-export type ParticipantsManageModal = "none" | "register" | "database" | "import";
+export type ParticipantsManageModal = "none" | "register" | "database" | "import" | "startgg";
 
 export type TournamentPageContextValue = {
   tournamentId: number;

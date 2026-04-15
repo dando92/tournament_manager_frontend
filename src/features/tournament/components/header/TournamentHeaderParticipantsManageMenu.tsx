@@ -52,8 +52,8 @@ export default function TournamentHeaderParticipantsManageMenu({ onOpen }: Props
             </button>
             <button
               type="button"
-              disabled
-              className="flex w-full cursor-not-allowed items-center gap-2 px-4 py-2.5 text-sm text-gray-700 opacity-40"
+              onClick={() => openModal("startgg")}
+              className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
             >
               <FontAwesomeIcon icon={faLink} className="text-primary-dark" />
               Import from start.gg

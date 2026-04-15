@@ -12,7 +12,7 @@ import { btnPrimary, btnSecondary } from "@/styles/buttonStyles";
 import { Participant } from "@/features/entrant/types/Entrant";
 import { Player } from "@/features/player/types/Player";
 import { getAllPlayers } from "@/features/player/services/player.api";
-import { useTournamentPageContext } from "@/features/tournament/context/TournamentPageContext";
+import { ParticipantsManageModal, useTournamentPageContext } from "@/features/tournament/context/TournamentPageContext";
 import {
   createParticipant,
   importParticipants,
@@ -36,6 +36,7 @@ export default function TournamentParticipantsPage() {
   const [preview, setPreview] = useState<ParticipantImportPreviewEntry[]>([]);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [previousManageModal, setPreviousManageModal] = useState<ParticipantsManageModal>("none");
 
   async function refreshParticipants() {
     const response = await listParticipants(tournamentId);
@@ -46,6 +47,13 @@ export default function TournamentParticipantsPage() {
     refreshParticipants().catch(() => {});
     getAllPlayers().then(setAllPlayers).catch(() => {});
   }, [tournamentId]);
+
+  useEffect(() => {
+    if (previousManageModal === "startgg" && participantsManageModal === "none") {
+      refreshParticipants().catch(() => {});
+    }
+    setPreviousManageModal(participantsManageModal);
+  }, [participantsManageModal, previousManageModal]);
 
   const participantPlayerIds = useMemo(
     () => new Set(participants.map((participant) => participant.player.id)),
