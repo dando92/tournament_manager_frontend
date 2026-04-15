@@ -1,6 +1,6 @@
 import { Player } from "@/features/player/types/Player";
 
-export type ParticipantRole = "competitor" | "spectator" | "staff" | "unknown";
+export type ParticipantRole = "competitor" | "spectator" | "owner" | "staff" | "unknown";
 export type ParticipantStatus = "registered" | "checked_in" | "withdrawn" | "unknown";
 export type EntrantType = "player" | "team";
 export type EntrantStatus = "active" | "dropped" | "withdrawn" | "dq" | "unknown";

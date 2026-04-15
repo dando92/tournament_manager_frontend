@@ -25,7 +25,7 @@ import {
 } from "@/features/participant/services/participant.api";
 
 export default function TournamentParticipantsPage() {
-  const { tournamentId, controls, helpersEnabled, participantsManageModal, setParticipantsManageModal } = useTournamentPageContext();
+  const { tournamentId, controls, participantsManageModal, setParticipantsManageModal } = useTournamentPageContext();
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
   const [name, setName] = useState("");
@@ -170,24 +170,26 @@ export default function TournamentParticipantsPage() {
           </p>
         ) : (
           filteredParticipants.map((participant) => {
+            const isOwner = participant.roles.includes("owner");
             const isStaff = participant.roles.includes("staff");
+            const roleLabel = isOwner ? "owner" : isStaff ? "staff" : null;
 
             return (
               <div
                 key={participant.id}
                 className={`flex items-center justify-between rounded border px-4 py-3 text-sm ${
-                  isStaff ? "border-amber-200 bg-amber-50" : "border-gray-200 bg-white"
+                  roleLabel ? "border-amber-200 bg-amber-50" : "border-gray-200 bg-white"
                 }`}
               >
                 <div>
                   <p className="font-medium text-gray-900">{participant.player.playerName}</p>
                   <p className="text-xs text-gray-500">
                     {participant.status}
-                    {isStaff ? " | staff" : ""}
+                    {roleLabel ? ` | ${roleLabel}` : ""}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {helpersEnabled && (
+                  {controls && !isOwner && (
                     isStaff ? (
                       <button
                         type="button"
@@ -208,7 +210,7 @@ export default function TournamentParticipantsPage() {
                       </button>
                     )
                   )}
-                  {controls && !isStaff && (
+                  {controls && !roleLabel && (
                     <button
                       type="button"
                       onClick={() => handleRemove(participant.id)}

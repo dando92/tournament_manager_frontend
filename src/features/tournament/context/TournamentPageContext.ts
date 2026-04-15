@@ -11,7 +11,6 @@ export type TournamentPageContextValue = {
   songsVersion: number;
   divisions: TournamentDivisionOption[];
   controls: boolean;
-  helpersEnabled: boolean;
   setSyncstartUrl: Dispatch<SetStateAction<string>>;
   refreshDivisions: () => Promise<void>;
   refreshSongs: () => void;

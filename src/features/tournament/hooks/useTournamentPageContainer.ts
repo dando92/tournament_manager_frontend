@@ -4,9 +4,8 @@ import { ParticipantsManageModal, TournamentPageContextValue } from "@/features/
 import { useTournamentPage } from "@/features/tournament/hooks/useTournamentPage";
 
 export function useTournamentPageContainer(tournamentId: number) {
-  const { canEditTournament, canEditHelpers } = usePermissions();
+  const { canEditTournament } = usePermissions();
   const canControl = canEditTournament(tournamentId);
-  const canHelpers = canEditHelpers(tournamentId);
   const state = useTournamentPage({ tournamentId, canControl });
   const [songsVersion, setSongsVersion] = useState(0);
   const [participantsManageModal, setParticipantsManageModal] = useState<ParticipantsManageModal>("none");
@@ -18,7 +17,6 @@ export function useTournamentPageContainer(tournamentId: number) {
     songsVersion,
     divisions: state.divisions,
     controls: canControl,
-    helpersEnabled: canHelpers,
     setSyncstartUrl: state.setSyncstartUrl,
     refreshDivisions: state.refreshDivisions,
     refreshSongs: () => setSongsVersion((value) => value + 1),
