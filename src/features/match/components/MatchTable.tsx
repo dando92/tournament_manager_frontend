@@ -87,9 +87,29 @@ export default function MatchTable({
   const sortedPlayers = [...matchPlayers].sort(
     (a, b) => getTotalPoints(b.id) - getTotalPoints(a.id),
   );
+  const sortedMatchResults = [...(match.matchResult?.playerPoints ?? [])].sort(
+    (a, b) => b.points - a.points || a.playerId - b.playerId,
+  );
+  const routedPlayerIds = new Set(
+    sortedMatchResults
+      .map((result, index) => ({ result, targetMatchId: match.targetPaths?.[index] ?? 0 }))
+      .filter(({ targetMatchId }) => targetMatchId > 0)
+      .map(({ result }) => result.playerId),
+  );
+  const routeByPlayerId = new Map(
+    sortedMatchResults
+      .map((result, index) => {
+        const targetMatchId = match.targetPaths?.[index] ?? 0;
+        if (targetMatchId <= 0) {
+          return [result.playerId, null] as const;
+        }
+        const targetMatchName = allMatches.find((candidate) => candidate.id === targetMatchId)?.name ?? String(targetMatchId);
+        return [result.playerId, targetMatchName] as const;
+      }),
+  );
 
   const sourcePaths = match.sourcePaths ?? [];
-  const hasContent = sortedPlayers.length > 0 || sourcePaths.length > 0;
+  const hasContent = sortedPlayers.length > 0 || sourcePaths.length > 0 || sortedMatchResults.length > 0;
 
   // colSpan for single-cell rows (PathRow, EditPathRow, empty message)
   const totalCols = editMode ? 1 : Math.max(2, match.rounds.length + 2);
@@ -206,6 +226,8 @@ export default function MatchTable({
                 rank={i}
                 controls={controls}
                 scoreTable={scoreTable}
+                highlightRoute={routedPlayerIds.has(player.id)}
+                routeMatchName={routeByPlayerId.get(player.id) ?? null}
                 onOpenAddStanding={onOpenAddStanding}
                 onOpenEditStanding={onOpenEditStanding}
                 onDeleteStanding={onDeleteStanding}
