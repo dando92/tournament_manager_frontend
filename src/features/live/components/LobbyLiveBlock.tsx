@@ -1,14 +1,15 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTv } from "@fortawesome/free-solid-svg-icons";
-import LiveScores from "@/features/live/components/LiveScores";
-import { LiveMatchStateDto } from "@/features/live/services/useScoreHub";
+import LobbyLiveScores from "@/features/live/components/LobbyLiveScores";
+import { LiveMatchStateDto, LobbyStateDto } from "@/features/live/services/useScoreHub";
 import { btnPrimary } from "@/styles/buttonStyles";
 
 type Props = {
   lobbyState: LiveMatchStateDto;
+  latestLobbyState?: LobbyStateDto;
 };
 
-export default function LobbyLiveBlock({ lobbyState }: Props) {
+export default function LobbyLiveBlock({ lobbyState, latestLobbyState }: Props) {
   const obsUrl = `${window.location.origin}/obs/${lobbyState.lobbyId}`;
 
   return (
@@ -30,7 +31,7 @@ export default function LobbyLiveBlock({ lobbyState }: Props) {
           <span>OBS source</span>
         </a>
       </div>
-      <LiveScores lobbyState={lobbyState} singleColumn />
+      <LobbyLiveScores lobbyState={lobbyState} latestLobbyState={latestLobbyState} singleColumn />
     </div>
   );
 }

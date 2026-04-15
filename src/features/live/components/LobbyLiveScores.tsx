@@ -1,14 +1,15 @@
-import { LiveMatchStateDto } from "@/features/live/services/useScoreHub";
+import { LiveMatchStateDto, LobbyStateDto } from "@/features/live/services/useScoreHub";
 import LiveScoreCard from "@/features/live/components/LiveScoreCard";
 import { useLiveScores } from "@/features/live/hooks/useLiveScores";
 
 type Props = {
   lobbyState: LiveMatchStateDto;
+  latestLobbyState?: LobbyStateDto;
   singleColumn?: boolean;
 };
 
-export default function LiveScores({ lobbyState, singleColumn }: Props) {
-  const { showJudgements, sortedPlayers, songTitle } = useLiveScores(lobbyState);
+export default function LobbyLiveScores({ lobbyState, latestLobbyState, singleColumn }: Props) {
+  const { showJudgements, sortedPlayers, songTitle } = useLiveScores(lobbyState, latestLobbyState);
 
   return (
     <div className="w-auto">

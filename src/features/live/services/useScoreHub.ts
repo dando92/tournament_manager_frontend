@@ -3,8 +3,9 @@ import { useEffect } from "react";
 export type LobbyPlayerDto = {
   name: string;
   playerId: string;
-  screenName: "NoScreen" | "ScreenSelectMusic" | "ScreenGameplay" | "ScreenPlayerOptions" | "ScreenEvaluation";
+  screenName: "NoScreen" | "ScreenSelectMusic" | "ScreenGameplay" | "ScreenPlayerOptions" | "ScreenEvaluationStage";
   ready: boolean;
+  isFailed?: boolean;
 };
 
 export type LobbyStateDto = {
