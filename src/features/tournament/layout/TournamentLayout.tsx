@@ -11,7 +11,7 @@ type TournamentLayoutProps = {
 };
 
 export default function TournamentLayout({ context, state }: TournamentLayoutProps) {
-  const { isOverviewPage, isLobbiesPage, isSongsPage, headerSubtitle, handleCreatePhase, handleCreateMatch, handleGenerateBracket } =
+  const { isOverviewPage, isLobbiesPage, isParticipantsPage, isSongsPage, isDivisionPhasesPage, headerSubtitle, handleCreatePhase, handleCreateMatch, handleGenerateBracket } =
     useTournamentLayout({ context, state });
 
   return (
@@ -29,10 +29,11 @@ export default function TournamentLayout({ context, state }: TournamentLayoutPro
         tournamentName={context.tournamentName}
         headerSubtitle={headerSubtitle}
         controls={context.controls}
-        helpersEnabled={context.helpersEnabled}
         isOverviewPage={isOverviewPage}
         isSongsPage={isSongsPage}
+        isParticipantsPage={isParticipantsPage}
         isLobbiesPage={isLobbiesPage}
+        isDivisionPhasesPage={isDivisionPhasesPage}
         syncstartUrl={context.syncstartUrl}
         setSyncstartUrl={context.setSyncstartUrl}
         songsVersion={context.songsVersion}
@@ -45,6 +46,7 @@ export default function TournamentLayout({ context, state }: TournamentLayoutPro
         onGenerateBracket={() => state.setSelectDivisionOpen(true)}
         onCreatePhase={() => state.setCreatePhaseOpen(true)}
         onCreateMatch={() => state.setCreateMatchOpen(true)}
+        onOpenParticipantsManageModal={context.setParticipantsManageModal}
       />
 
       <Outlet context={context} />

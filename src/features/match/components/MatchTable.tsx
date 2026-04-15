@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRefresh, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { btnTrash } from "@/styles/buttonStyles";
 import { Match } from "@/features/match/types/Match";
+import { entrantPlayers } from "@/features/entrant/types/Entrant";
 import MatchRow from "@/features/match/components/row/MatchRow";
 import PathRow from "@/features/match/components/row/PathRow";
 import EditPathRow from "@/features/match/components/row/EditPathRow";
@@ -82,7 +83,8 @@ export default function MatchTable({
       .map((round) => (round.standings ?? []).find((s) => s.score.player.id === playerId))
       .reduce((acc, standing) => acc + (standing?.points ?? 0), 0);
 
-  const sortedPlayers = [...match.players].sort(
+  const matchPlayers = entrantPlayers(match.entrants);
+  const sortedPlayers = [...matchPlayers].sort(
     (a, b) => getTotalPoints(b.id) - getTotalPoints(a.id),
   );
 
@@ -176,9 +178,9 @@ export default function MatchTable({
               // Keep routes visible until every player has a standing in every round of the source match.
               const isSourceComplete =
                 (sourceMatch?.rounds.length ?? 0) > 0 &&
-                (sourceMatch?.players.length ?? 0) > 0 &&
+                (sourceMatch?.entrants.length ?? 0) > 0 &&
                 (sourceMatch?.rounds ?? []).every((round) =>
-                  (sourceMatch?.players ?? []).every((player) =>
+                  entrantPlayers(sourceMatch?.entrants ?? []).every((player) =>
                     (round.standings ?? []).some((standing) => standing.score.player.id === player.id),
                   ),
                 );

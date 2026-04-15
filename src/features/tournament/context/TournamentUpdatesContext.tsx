@@ -47,6 +47,7 @@ type TournamentUpdatesContextValue = {
   updatedMatchIds: ReadonlySet<number>;
   activeLobbies: ReadonlyMap<string, ActiveLobbyDto>;
   lobbyStates: ReadonlyMap<string, LobbyStateDto>;
+  liveLobbyDisplayStates: ReadonlyMap<string, LobbyStateDto>;
   liveMatchStates: ReadonlyMap<string, LiveMatchStateDto>;
 };
 
@@ -57,6 +58,7 @@ const defaultValue: TournamentUpdatesContextValue = {
   updatedMatchIds: new Set(),
   activeLobbies: new Map(),
   lobbyStates: new Map(),
+  liveLobbyDisplayStates: new Map(),
   liveMatchStates: new Map(),
 };
 
@@ -87,6 +89,7 @@ export function TournamentUpdatesProvider({
   const [updatedMatchIds, setUpdatedMatchIds] = useState<ReadonlySet<number>>(new Set());
   const [activeLobbies, setActiveLobbies] = useState<ReadonlyMap<string, ActiveLobbyDto>>(new Map());
   const [lobbyStates, setLobbyStates] = useState<ReadonlyMap<string, LobbyStateDto>>(new Map());
+  const [liveLobbyDisplayStates, setLiveLobbyDisplayStates] = useState<ReadonlyMap<string, LobbyStateDto>>(new Map());
   const [liveMatchStates, setLiveMatchStates] = useState<ReadonlyMap<string, LiveMatchStateDto>>(new Map());
   const pendingMatchIds = useRef<Set<number>>(new Set());
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -163,6 +166,11 @@ export function TournamentUpdatesProvider({
             next.delete(msg.data.lobbyId);
             return next;
           });
+          setLiveLobbyDisplayStates((prev) => {
+            const next = new Map(prev);
+            next.delete(msg.data.lobbyId);
+            return next;
+          });
           setLiveMatchStates((prev) => {
             const next = new Map(prev);
             next.delete(msg.data.lobbyId);
@@ -173,7 +181,25 @@ export function TournamentUpdatesProvider({
 
         if (msg.event === "OnLobbyState") {
           setLobbyStates((prev) => new Map(prev).set(msg.data.lobbyId, msg.data));
-          if (!msg.data.players.some((player) => player.screenName === "ScreenGameplay")) {
+          setLiveLobbyDisplayStates((prev) => {
+            const next = new Map(prev);
+            const hasGameplay = msg.data.players.some((player) => player.screenName === "ScreenGameplay");
+            const hasEvaluation = msg.data.players.some(
+              (player) => player.screenName === "ScreenEvaluationStage",
+            );
+
+            if (hasGameplay) {
+              next.delete(msg.data.lobbyId);
+              return next;
+            }
+
+            if (hasEvaluation) {
+              next.set(msg.data.lobbyId, msg.data);
+            }
+
+            return next;
+          });
+          if (msg.data.players.some((player) => player.screenName === "ScreenGameplay")) {
             setLiveMatchStates((prev) => {
               if (!prev.has(msg.data.lobbyId)) return prev;
               const next = new Map(prev);
@@ -206,6 +232,7 @@ export function TournamentUpdatesProvider({
         updatedMatchIds,
         activeLobbies,
         lobbyStates,
+        liveLobbyDisplayStates,
         liveMatchStates,
       }}
     >

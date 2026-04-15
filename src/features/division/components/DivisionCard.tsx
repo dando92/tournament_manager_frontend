@@ -1,4 +1,6 @@
 import { TournamentDivisionOption } from "@/features/tournament/types/TournamentDivisionOption";
+import { entrantPlayer } from "@/features/entrant/types/Entrant";
+import { Player } from "@/features/player/types/Player";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { btnTrash } from "@/styles/buttonStyles";
@@ -14,8 +16,9 @@ const MAX_VISIBLE_PLAYERS = 3;
 const MAX_VISIBLE_PHASES = 4;
 
 export default function DivisionCard({ division, onSelect, controls = false, onDelete }: DivisionCardProps) {
-  const visiblePlayers = division.players?.slice(0, MAX_VISIBLE_PLAYERS) ?? [];
-  const extraPlayers = (division.players?.length ?? 0) - visiblePlayers.length;
+  const players = (division.entrants ?? []).map(entrantPlayer).filter((player): player is Player => Boolean(player));
+  const visiblePlayers = players.slice(0, MAX_VISIBLE_PLAYERS);
+  const extraPlayers = players.length - visiblePlayers.length;
 
   const visiblePhases = division.phases?.slice(0, MAX_VISIBLE_PHASES) ?? [];
   const extraPhases = (division.phases?.length ?? 0) - visiblePhases.length;
@@ -42,12 +45,12 @@ export default function DivisionCard({ division, onSelect, controls = false, onD
         )}
       </div>
 
-      {/* Players */}
+      {/* Entrants */}
       <button type="button" onClick={onSelect} className="px-4 py-3 border-b border-gray-100 text-left">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-semibold text-primary-dark shrink-0">Players</span>
+          <span className="text-xs font-semibold text-primary-dark shrink-0">Entrants</span>
           {visiblePlayers.length === 0 ? (
-            <span className="text-xs text-gray-400 italic">No players</span>
+            <span className="text-xs text-gray-400 italic">No entrants</span>
           ) : (
             <>
               {visiblePlayers.map((p, i) => (

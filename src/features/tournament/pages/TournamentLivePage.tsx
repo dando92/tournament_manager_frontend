@@ -1,7 +1,7 @@
-import LivePhase from "@/features/live/components/LivePhase";
+import TournamentLiveLobbies from "@/features/live/components/TournamentLiveLobbies";
 import { useTournamentPageContext } from "@/features/tournament/context/TournamentPageContext";
 
 export default function TournamentLivePage() {
   const { tournamentId } = useTournamentPageContext();
-  return <LivePhase tournamentId={tournamentId} />;
+  return <TournamentLiveLobbies tournamentId={tournamentId} />;
 }

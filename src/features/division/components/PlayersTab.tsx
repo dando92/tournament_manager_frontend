@@ -5,7 +5,7 @@ import PlayersSeedingList from "@/features/division/components/PlayersSeedingLis
 import PlayersTabHeader from "@/features/division/components/PlayersTabHeader";
 import PlayersWarning from "@/features/division/components/PlayersWarning";
 import { usePlayersTab } from "@/features/division/hooks/usePlayersTab";
-import BulkImportModal from "./BulkImportModal";
+import SelectParticipantsModal from "./SelectParticipantsModal";
 
 type Props = {
   division: Division;
@@ -18,10 +18,11 @@ export default function PlayersTab({ division, canEdit, onPlayersChanged }: Prop
 
   return (
     <div className="flex flex-col gap-4 max-w-3xl mx-auto">
-      <BulkImportModal
-        open={state.showBulkModal}
-        onImport={state.handleBulkImport}
-        onClose={() => state.setShowBulkModal(false)}
+      <SelectParticipantsModal
+        open={state.showSelectModal}
+        participants={state.filteredAvailableParticipants}
+        onAdd={state.handleAdd}
+        onClose={() => state.setShowSelectModal(false)}
       />
 
       <PlayersTabHeader
@@ -32,21 +33,20 @@ export default function PlayersTab({ division, canEdit, onPlayersChanged }: Prop
         onOrderingChange={state.setOrdering}
         onEditSeeding={state.enterSeedingEdit}
         onDoneSeeding={state.exitSeedingEdit}
-        onBulkImport={() => state.setShowBulkModal(true)}
+        onSelectParticipants={() => state.setShowSelectModal(true)}
       />
 
       <PlayersSearchBar value={state.search} onChange={state.setSearch} />
-      <PlayersWarning warnings={state.warnings} />
+      <PlayersWarning warnings={[]} />
 
       {state.ordering === "name" ? (
         <PlayersByNameList
           players={state.filteredAllAlpha}
           canEdit={canEdit}
-          divPlayerIds={state.divPlayerIds}
+          divisionParticipantIds={state.divisionParticipantIds}
           seedPos={state.seedPos}
-          onAdd={state.handleAdd}
           onRemove={state.handleRemove}
-          totalPlayers={state.allPlayers.length}
+          totalParticipants={state.filteredAllAlpha.length}
         />
       ) : (
         <PlayersSeedingList
@@ -54,10 +54,8 @@ export default function PlayersTab({ division, canEdit, onPlayersChanged }: Prop
           editingSeeding={state.editingSeeding}
           draftSeeding={state.draftSeeding}
           seededPlayers={state.filteredSeededDiv}
-          nonDivisionPlayers={state.filteredNonDiv}
           seedPos={state.seedPos}
           onDragEnd={state.handleDragEnd}
-          onAdd={state.handleAdd}
           onRemove={state.handleRemove}
         />
       )}

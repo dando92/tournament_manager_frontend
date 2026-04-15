@@ -9,6 +9,7 @@ import DivisionPhasesPage from "@/features/division/pages/DivisionPhasesPage";
 import DivisionPlayersPage from "@/features/division/pages/DivisionPlayersPage";
 import DivisionStandingsPage from "@/features/division/pages/DivisionStandingsPage";
 import TournamentOverviewPage from "@/features/tournament/pages/TournamentOverviewPage";
+import TournamentParticipantsPage from "@/features/tournament/pages/TournamentParticipantsPage";
 import TournamentSongsPage from "@/features/tournament/pages/TournamentSongsPage";
 import TournamentLobbiesPage from "@/features/tournament/pages/TournamentLobbiesPage";
 import TournamentLivePage from "@/features/tournament/pages/TournamentLivePage";
@@ -58,6 +59,7 @@ export default function AppRouter() {
             <Route path="/tournament/:tournamentId" element={<KeyedTournamentPage />}>
               <Route index element={<Navigate to="overview" replace />} />
               <Route path="overview" element={<TournamentOverviewPage />} />
+              <Route path="participants" element={<TournamentParticipantsPage />} />
               <Route path="songs" element={<TournamentSongsPage />} />
               <Route path="lobbies" element={<TournamentLobbiesPage />} />
               <Route path="live" element={<TournamentLivePage />} />
@@ -65,7 +67,7 @@ export default function AppRouter() {
               <Route path="division/:divisionId" element={<DivisionPage />}>
                 <Route index element={<Navigate to="phases" replace />} />
                 <Route path="phases" element={<DivisionPhasesPage />} />
-                <Route path="players" element={<DivisionPlayersPage />} />
+                <Route path="entrants" element={<DivisionPlayersPage />} />
                 <Route path="standings" element={<DivisionStandingsPage />} />
               </Route>
             </Route>

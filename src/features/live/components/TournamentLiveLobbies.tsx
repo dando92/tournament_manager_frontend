@@ -6,8 +6,8 @@ type Props = {
   tournamentId: number;
 };
 
-export default function LivePhase({ tournamentId }: Props) {
-  const { tournamentActiveLobbies, tournamentLiveStates, pendingLobbies } =
+export default function TournamentLiveLobbies({ tournamentId }: Props) {
+  const { tournamentActiveLobbies, tournamentLiveStates, pendingLobbies, lobbyStates, liveLobbyDisplayStates } =
     useLivePhase(tournamentId);
 
   if (tournamentActiveLobbies.length === 0) {
@@ -17,7 +17,11 @@ export default function LivePhase({ tournamentId }: Props) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl">
       {tournamentLiveStates.map((state) => (
-        <LobbyLiveBlock key={state.lobbyId} lobbyState={state} />
+        <LobbyLiveBlock
+          key={state.lobbyId}
+          lobbyState={state}
+          latestLobbyState={liveLobbyDisplayStates.get(state.lobbyId) ?? lobbyStates.get(state.lobbyId)}
+        />
       ))}
       {pendingLobbies.map((lobby) => (
         <LivePendingLobbyCard key={lobby.lobbyId} lobbyName={lobby.lobbyName} />

@@ -4,7 +4,7 @@ import { TournamentHelpersResponse, HelperAccount } from "@/shared/services/help
 
 export async function fetchHelpers(tournamentId: number): Promise<HelperAccount[]> {
   const response = await axios.get<TournamentHelpersResponse>(`tournaments/${tournamentId}`);
-  return response.data.helpers ?? [];
+  return response.data.staff ?? [];
 }
 
 export async function addHelper(tournamentId: number, accountId: string): Promise<TournamentHelpersResponse> {

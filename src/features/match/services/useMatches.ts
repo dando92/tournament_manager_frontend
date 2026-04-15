@@ -214,8 +214,8 @@ export function useMatches(divisionId: number) {
 
   async function updateMatchPaths(matchId: number, targetPaths: number[]) {
     try {
-      const item = await MatchesApi.updateMatchPaths(matchId, targetPaths);
-      dispatch({ type: "onUpdateMatchPaths", payload: item });
+      await MatchesApi.updateMatchPaths(matchId, targetPaths);
+      await list();
     } catch (error) {
       toast.error("Error updating match paths.");
       console.error("Error updating match paths:", error);

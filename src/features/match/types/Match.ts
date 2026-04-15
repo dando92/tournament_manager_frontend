@@ -1,4 +1,4 @@
-import { Player } from "@/features/player/types/Player";
+import { Entrant } from "@/features/entrant/types/Entrant";
 import { Round } from "@/features/match/types/Round";
 
 export interface Match {
@@ -7,7 +7,7 @@ export interface Match {
   subtitle: string;
   notes: string;
   scoringSystem: string;
-  players: Player[];
+  entrants: Entrant[];
   rounds: Round[];
   targetPaths: number[];
   sourcePaths: number[];

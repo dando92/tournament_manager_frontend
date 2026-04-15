@@ -12,6 +12,7 @@ import { btnPrimary } from "@/styles/buttonStyles";
 type Props = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  showCreateDivision: boolean;
   hasDivisions: boolean;
   hasPhases: boolean;
   onCreateDivision: () => void;
@@ -23,6 +24,7 @@ type Props = {
 export default function TournamentHeaderCreateMenu({
   open,
   setOpen,
+  showCreateDivision,
   hasDivisions,
   hasPhases,
   onCreateDivision,
@@ -44,17 +46,19 @@ export default function TournamentHeaderCreateMenu({
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-full mt-1 z-20 bg-white rounded shadow-lg border border-gray-200 min-w-[180px]">
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                onCreateDivision();
-              }}
-              className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-            >
-              <FontAwesomeIcon icon={faPlus} className="text-primary-dark" />
-              New division
-            </button>
+            {showCreateDivision && (
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  onCreateDivision();
+                }}
+                className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                <FontAwesomeIcon icon={faPlus} className="text-primary-dark" />
+                New division
+              </button>
+            )}
             <button
               type="button"
               disabled={!hasDivisions}

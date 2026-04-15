@@ -1,7 +1,8 @@
 import type { Dispatch, SetStateAction } from "react";
-import ManageActionsMenu from "@/features/match/components/ManageActionsMenu";
+import { ParticipantsManageModal } from "@/features/tournament/context/TournamentPageContext";
 import TournamentHeaderCreateMenu from "@/features/tournament/components/header/TournamentHeaderCreateMenu";
 import TournamentHeaderLobbyManageMenu from "@/features/tournament/components/header/TournamentHeaderLobbyManageMenu";
+import TournamentHeaderParticipantsManageMenu from "@/features/tournament/components/header/TournamentHeaderParticipantsManageMenu";
 import TournamentHeaderSongsManageMenu from "@/features/tournament/components/header/TournamentHeaderSongsManageMenu";
 
 type TournamentPageHeaderProps = {
@@ -9,10 +10,11 @@ type TournamentPageHeaderProps = {
   tournamentName: string;
   headerSubtitle: string;
   controls: boolean;
-  helpersEnabled: boolean;
   isOverviewPage: boolean;
   isSongsPage: boolean;
+  isParticipantsPage: boolean;
   isLobbiesPage: boolean;
+  isDivisionPhasesPage: boolean;
   syncstartUrl: string;
   setSyncstartUrl: Dispatch<SetStateAction<string>>;
   songsVersion: number;
@@ -25,6 +27,7 @@ type TournamentPageHeaderProps = {
   onGenerateBracket: () => void;
   onCreatePhase: () => void;
   onCreateMatch: () => void;
+  onOpenParticipantsManageModal: Dispatch<SetStateAction<ParticipantsManageModal>>;
 };
 
 export default function TournamentPageHeader({
@@ -32,10 +35,11 @@ export default function TournamentPageHeader({
   tournamentName,
   headerSubtitle,
   controls,
-  helpersEnabled,
   isOverviewPage,
   isSongsPage,
+  isParticipantsPage,
   isLobbiesPage,
+  isDivisionPhasesPage,
   syncstartUrl,
   setSyncstartUrl,
   songsVersion,
@@ -48,6 +52,7 @@ export default function TournamentPageHeader({
   onGenerateBracket,
   onCreatePhase,
   onCreateMatch,
+  onOpenParticipantsManageModal,
 }: TournamentPageHeaderProps) {
   return (
     <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -58,10 +63,11 @@ export default function TournamentPageHeader({
 
       {controls && (
         <div className="flex items-center gap-2 ml-auto">
-          {isOverviewPage && (
+          {(isOverviewPage || isDivisionPhasesPage) && (
             <TournamentHeaderCreateMenu
               open={createMenuOpen}
               setOpen={setCreateMenuOpen}
+              showCreateDivision={isOverviewPage}
               hasDivisions={hasDivisions}
               hasPhases={hasPhases}
               onCreateDivision={onCreateDivision}
@@ -77,17 +83,14 @@ export default function TournamentPageHeader({
               refreshSongs={refreshSongs}
             />
           )}
+          {isParticipantsPage && (
+            <TournamentHeaderParticipantsManageMenu onOpen={onOpenParticipantsManageModal} />
+          )}
           {isLobbiesPage && (
             <TournamentHeaderLobbyManageMenu
               tournamentId={tournamentId}
               syncstartUrl={syncstartUrl}
               setSyncstartUrl={setSyncstartUrl}
-            />
-          )}
-          {isOverviewPage && (
-            <ManageActionsMenu
-              tournamentId={String(tournamentId)}
-              canEditHelpers={helpersEnabled}
             />
           )}
         </div>

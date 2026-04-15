@@ -139,14 +139,10 @@ export default function Sidebar() {
   const selectedTournament = recentTournaments[0] ?? null;
   const [searchModalOpen, setSearchModalOpen] = useState(false);
 
-  const accountPages = ["/account", "/admin/roles"];
-
   function handleTournamentClick(t: RecentTournament) {
     selectRecentTournament(t.id);
     setRecentTournaments(getRecentTournaments());
     close();
-
-    if (accountPages.some((p) => location.pathname === p)) return;
 
     navigate(`/tournament/${t.id}`);
   }
@@ -154,6 +150,9 @@ export default function Sidebar() {
   const tournamentMatch = location.pathname.match(/^\/tournament\/(\d+)(?:\/([^/]+))?/);
   const currentTournamentId = tournamentMatch ? Number(tournamentMatch[1]) : null;
   const visibleTournamentTabs = TOURNAMENT_TABS.filter((tab) => {
+    if (tab.key === "participants") {
+      return currentTournamentId !== null && canEditTournament(currentTournamentId);
+    }
     if (tab.key !== "lobbies") return true;
     return currentTournamentId !== null && canEditTournament(currentTournamentId);
   });

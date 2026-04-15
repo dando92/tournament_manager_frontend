@@ -1,8 +1,9 @@
 import axios from "axios";
+import { Entrant } from "@/features/entrant/types/Entrant";
 import { Player } from "@/features/player/types/Player";
 
-export async function updateDivisionSeeding(divisionId: number, seeding: number[]): Promise<void> {
-  await axios.patch(`divisions/${divisionId}`, { seeding });
+export async function updateDivisionSeeding(divisionId: number, entrantIds: number[]): Promise<void> {
+  await axios.patch(`divisions/${divisionId}/entrant-seeding`, { entrantIds });
 }
 
 export async function getAllPlayers(): Promise<Player[]> {
@@ -14,11 +15,16 @@ export async function bulkAddToDivision(
   divisionId: number,
   playerNames: string[],
 ): Promise<{ players: Player[]; warnings: string[] }> {
-  const response = await axios.post<{ players: Player[]; warnings: string[] }>(
+  const response = await axios.post<{ entrants: Entrant[]; warnings: string[] }>(
     `players/divisions/${divisionId}/bulk`,
     { playerNames },
   );
-  return response.data;
+  return {
+    players: response.data.entrants
+      .map((entrant) => entrant.participants?.[0]?.player)
+      .filter(Boolean),
+    warnings: response.data.warnings,
+  };
 }
 
 export async function assignPlayerToDivision(playerId: number, divisionId: number): Promise<void> {

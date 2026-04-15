@@ -62,7 +62,7 @@ export function useTournamentPage({
   const toDivisionOption = useCallback((division: Division): TournamentDivisionOption => ({
     id: division.id,
     name: division.name,
-    players: division.players ?? [],
+    entrants: division.entrants ?? [],
     phases: (division.phases ?? []).map((phase) => ({
       id: phase.id,
       name: phase.name,
@@ -89,7 +89,7 @@ export function useTournamentPage({
       response.data.divisions.map((division) => ({
         id: division.id,
         name: division.name,
-        players: division.players,
+        entrants: division.entrants,
         phases: division.phases.map((phase) => ({ id: phase.id, name: phase.name, matchCount: phase.matchCount })),
       })),
     );
@@ -168,7 +168,7 @@ export function useTournamentPage({
   const handleCreateDivision = useCallback((name: string) => {
     axios.post<{ id: number; name: string }>("divisions", { tournamentId, name })
       .then((r) => {
-        setDivisions((prev) => [...prev, { id: r.data.id, name: r.data.name, players: [], phases: [] }]);
+        setDivisions((prev) => [...prev, { id: r.data.id, name: r.data.name, entrants: [], phases: [] }]);
       })
       .catch(() => {});
   }, [tournamentId]);
