@@ -1,19 +1,17 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from "react";
 import axios from "axios";
 import { useAuthContext } from "@/features/auth/context/AuthContext";
-import { fetchPermissions } from "@/features/auth/services/auth.api";
 
 interface PermissionState {
   isAdmin: boolean;
   canCreateTournament: boolean;
   ownedTournamentIds: number[];
-  helperTournamentIds: number[];
+  staffTournamentIds: number[];
   isLoaded: boolean;
 }
 
 interface PermissionContextValue extends PermissionState {
   canEditTournament: (tournamentId: number) => boolean;
-  canEditHelpers: (tournamentId: number) => boolean;
   reload: () => Promise<void>;
 }
 
@@ -23,8 +21,15 @@ const EMPTY_STATE: PermissionState = {
   isAdmin: false,
   canCreateTournament: false,
   ownedTournamentIds: [],
-  helperTournamentIds: [],
+  staffTournamentIds: [],
   isLoaded: false,
+};
+
+type MyTournamentRolesResponse = {
+  isAdmin: boolean;
+  canCreateTournament: boolean;
+  ownedTournamentIds: number[];
+  staffTournamentIds: number[];
 };
 
 export function PermissionProvider({ children }: { children: ReactNode }) {
@@ -50,17 +55,12 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
 
     setPermissions((current) => ({ ...current, isLoaded: false }));
     try {
-      const [permissionData, roleResponse] = await Promise.all([
-        fetchPermissions(),
-        axios.get<{ ownedTournamentIds: number[]; helperTournamentIds: number[] }>("tournaments/my-roles"),
-      ]);
-
-      const { data } = roleResponse;
+      const { data } = await axios.get<MyTournamentRolesResponse>("tournaments/my-roles");
       setPermissions({
-        isAdmin: permissionData.isAdmin,
-        canCreateTournament: permissionData.isTournamentCreator,
+        isAdmin: data.isAdmin,
+        canCreateTournament: data.canCreateTournament,
         ownedTournamentIds: data.ownedTournamentIds,
-        helperTournamentIds: data.helperTournamentIds,
+        staffTournamentIds: data.staffTournamentIds,
         isLoaded: true,
       });
       loadedTokenRef.current = token;
@@ -86,23 +86,15 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
       if (permissions.isAdmin) return true;
       return (
         permissions.ownedTournamentIds.includes(tournamentId) ||
-        permissions.helperTournamentIds.includes(tournamentId)
+        permissions.staffTournamentIds.includes(tournamentId)
       );
-    },
-    [permissions]
-  );
-
-  const canEditHelpers = useCallback(
-    (tournamentId: number): boolean => {
-      if (permissions.isAdmin) return true;
-      return permissions.ownedTournamentIds.includes(tournamentId);
     },
     [permissions]
   );
 
   return (
     <PermissionContext.Provider
-      value={{ ...permissions, canEditTournament, canEditHelpers, reload: () => load(true) }}
+      value={{ ...permissions, canEditTournament, reload: () => load(true) }}
     >
       {children}
     </PermissionContext.Provider>
