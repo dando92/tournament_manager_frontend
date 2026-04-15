@@ -195,15 +195,7 @@ export default function MatchTable({
               // Fallback: if no positions found, still show one row
               const rows = positions.length > 0 ? positions : [1];
 
-              // Keep routes visible until every player has a standing in every round of the source match.
-              const isSourceComplete =
-                (sourceMatch?.rounds.length ?? 0) > 0 &&
-                (sourceMatch?.entrants.length ?? 0) > 0 &&
-                (sourceMatch?.rounds ?? []).every((round) =>
-                  entrantPlayers(sourceMatch?.entrants ?? []).every((player) =>
-                    (round.standings ?? []).some((standing) => standing.score.player.id === player.id),
-                  ),
-                );
+              const isSourceComplete = Boolean(sourceMatch?.matchResult);
               if (isSourceComplete) return [];
 
               return rows.map((pos) => (

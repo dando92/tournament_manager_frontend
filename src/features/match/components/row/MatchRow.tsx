@@ -41,7 +41,8 @@ export default function MatchRow({
   onDeleteStanding,
 }: MatchRowProps) {
   const [showMobileTooltip, setShowMobileTooltip] = useState(false);
-  const totalPoints = match.rounds
+  const matchResultPoints = match.matchResult?.playerPoints?.find((entry) => entry.playerId === player.id)?.points;
+  const totalPoints = matchResultPoints ?? match.rounds
     .map((r) => (r.standings ?? []).find((s) => s.score.player.id === player.id))
     .reduce((acc, s) => acc + (s?.points ?? 0), 0);
 
