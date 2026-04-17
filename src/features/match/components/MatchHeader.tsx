@@ -34,6 +34,7 @@ export default function MatchHeader({
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const isMatchEnded = Boolean(match.matchResult);
 
   useEffect(() => {
     if (isRenaming) inputRef.current?.focus();
@@ -90,7 +91,7 @@ export default function MatchHeader({
               <FontAwesomeIcon icon={faStickyNote} />
             </span>
           ) : null}
-          {controls && (
+          {controls && !isMatchEnded && (
             editMode ? (
               <>
                 <button
@@ -122,7 +123,7 @@ export default function MatchHeader({
       </div>
       {controls && (
         <div className="flex items-center gap-3 shrink-0">
-          {(match.entrants?.length ?? 0) > 0 && (
+          {!isMatchEnded && (match.entrants?.length ?? 0) > 0 && (
             <button
               onClick={onOpenAddSong}
               title="Add song/round"

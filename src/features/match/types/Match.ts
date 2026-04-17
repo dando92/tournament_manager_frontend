@@ -1,6 +1,16 @@
 import { Entrant } from "@/features/entrant/types/Entrant";
 import { Round } from "@/features/match/types/Round";
 
+export interface MatchResultPlayerPoints {
+  playerId: number;
+  points: number;
+}
+
+export interface MatchResult {
+  id: number;
+  playerPoints: MatchResultPlayerPoints[];
+}
+
 export interface Match {
   id: number;
   name: string;
@@ -11,5 +21,6 @@ export interface Match {
   rounds: Round[];
   targetPaths: number[];
   sourcePaths: number[];
+  matchResult?: MatchResult | null;
   phaseId?: number;
 }
