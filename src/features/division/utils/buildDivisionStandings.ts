@@ -1,4 +1,5 @@
 import { Division } from "@/features/division/types/Division";
+import { Match } from "@/features/match/types/Match";
 
 export type DivisionStandingRow = {
   id: number;
@@ -11,7 +12,8 @@ export function buildDivisionStandings(division: Division): DivisionStandingRow[
   const playerTotals = new Map<number, DivisionStandingRow>();
 
   division.phases.forEach((phase) => {
-    phase.matches?.forEach((match) => {
+    const phaseMatches: Match[] = phase.matches ?? [];
+    phaseMatches.forEach((match) => {
       match.rounds?.forEach((round) => {
         round.standings?.forEach((standing) => {
           const player = standing.score.player;

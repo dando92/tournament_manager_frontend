@@ -33,8 +33,8 @@ export function useTournamentLayout({ context, state }: UseTournamentLayoutOptio
   }, [location.pathname, tournamentId]);
 
   const handleCreatePhase = useCallback(
-    async (name: string, divisionId: number) => {
-      await state.handleCreatePhase(name, divisionId);
+    async (name: string, divisionId: number, type: "pool" | "bracket") => {
+      await state.handleCreatePhase(name, divisionId, type);
       navigate(`/tournament/${tournamentId}/division/${divisionId}/phases?refresh=${Date.now()}`);
     },
     [navigate, state, tournamentId],

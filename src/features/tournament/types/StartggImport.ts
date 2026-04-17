@@ -33,7 +33,6 @@ export type StartggImportPreviewEntrant = {
   externalId: string;
   name: string;
   type: "player" | "team";
-  seedNum: number | null;
   action: string;
   localEntrantId: number | null;
   participantExternalIds: string[];
@@ -42,8 +41,25 @@ export type StartggImportPreviewEntrant = {
 export type StartggImportPreviewPhase = {
   externalId: string;
   name: string;
+  type: "pool" | "bracket";
   action: string;
   localPhaseId: number | null;
+};
+
+export type StartggImportPreviewPhaseGroup = {
+  externalId: string;
+  phaseExternalId: string;
+  name: string;
+  mode: "set-driven" | "progression-driven";
+  action: string;
+  localPhaseGroupId: number | null;
+};
+
+export type StartggImportPreviewPhaseSeed = {
+  externalId: string;
+  phaseExternalId: string;
+  entrantExternalId: string;
+  seedNum: number;
 };
 
 export type StartggImportPreviewMatch = {
@@ -69,11 +85,15 @@ export type StartggImportPreviewResponse = {
     participants: number;
     entrants: number;
     phases: number;
+    phaseGroups: number;
+    phaseSeeds: number;
     matches: number;
   };
   participants: StartggImportPreviewParticipant[];
   entrants: StartggImportPreviewEntrant[];
   phases: StartggImportPreviewPhase[];
+  phaseGroups: StartggImportPreviewPhaseGroup[];
+  phaseSeeds: StartggImportPreviewPhaseSeed[];
   matches: StartggImportPreviewMatch[];
 };
 
@@ -84,6 +104,8 @@ export type StartggImportResponse = {
     participants: number;
     entrants: number;
     phases: number;
+    phaseGroups: number;
+    phaseSeeds: number;
     matches: number;
   };
 };

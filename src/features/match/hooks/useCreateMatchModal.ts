@@ -31,6 +31,7 @@ export function useCreateMatchModal({
     divisionId ?? divisions?.[0]?.id ?? null,
   );
   const [selectedPhaseId, setSelectedPhaseId] = useState<number | null>(null);
+  const [selectedPhaseGroupId, setSelectedPhaseGroupId] = useState<number | null>(null);
   const [entrants, setEntrants] = useState<Entrant[]>([]);
   const [scoringSystems, setScoringSystems] = useState<string[]>([]);
   const [scoringSystem, setScoringSystem] = useState("");
@@ -52,8 +53,17 @@ export function useCreateMatchModal({
         : divisions?.find((division) => division.id === selectedDivisionId)?.phases ?? [],
     [divisionId, divisions, phases, selectedDivisionId],
   );
+  const selectedPhase = useMemo(
+    () => availablePhases.find((phase) => phase.id === (phaseId ?? selectedPhaseId)) ?? null,
+    [availablePhases, phaseId, selectedPhaseId],
+  );
+  const availablePhaseGroups = useMemo(
+    () => selectedPhase?.phaseGroups ?? [],
+    [selectedPhase],
+  );
 
   const resolvedPhaseId = phaseId ?? selectedPhaseId;
+  const resolvedPhaseGroupId = selectedPhaseGroupId ?? availablePhaseGroups[0]?.id ?? null;
   const resolvedDivisionId = divisionId ?? selectedDivisionId;
 
   useEffect(() => {
@@ -66,6 +76,7 @@ export function useCreateMatchModal({
 
     setSelectedDivisionId(initialDivisionId);
     setSelectedPhaseId(phaseId ?? initialPhases[0]?.id ?? null);
+    setSelectedPhaseGroupId(initialPhases[0]?.phaseGroups?.[0]?.id ?? null);
     setSelectedEntrants([]);
     setSelectedSongs([]);
     setSelectedSongDifficulties([]);
@@ -77,7 +88,18 @@ export function useCreateMatchModal({
     if (!open || divisionId || phaseId) return;
     const nextPhases = divisions?.find((division) => division.id === selectedDivisionId)?.phases ?? [];
     setSelectedPhaseId(nextPhases[0]?.id ?? null);
+    setSelectedPhaseGroupId(nextPhases[0]?.phaseGroups?.[0]?.id ?? null);
   }, [divisionId, divisions, open, phaseId, selectedDivisionId]);
+
+  useEffect(() => {
+    if (!open) return;
+    const nextPhaseGroups = selectedPhase?.phaseGroups ?? [];
+    setSelectedPhaseGroupId((current) =>
+      current && nextPhaseGroups.some((phaseGroup) => phaseGroup.id === current)
+        ? current
+        : nextPhaseGroups[0]?.id ?? null,
+    );
+  }, [open, selectedPhase]);
 
   useEffect(() => {
     if (!open || !resolvedDivisionId) return;
@@ -116,9 +138,10 @@ export function useCreateMatchModal({
   };
 
   const handleSubmit = () => {
-    if (!resolvedPhaseId || !resolvedDivisionId) return;
+    if (!resolvedPhaseId || !resolvedPhaseGroupId || !resolvedDivisionId) return;
 
     const baseRequest = {
+      phaseGroupId: resolvedPhaseGroupId,
       phaseId: resolvedPhaseId,
       divisionId: resolvedDivisionId,
       name,
@@ -150,6 +173,7 @@ export function useCreateMatchModal({
     scoringSystems,
     selectedDivisionId,
     selectedPhaseId,
+    selectedPhaseGroupId,
     selectedEntrants,
     selectedSongs,
     selectedSongDifficulties,
@@ -160,8 +184,10 @@ export function useCreateMatchModal({
     subtitle,
     songAddType,
     availablePhases,
+    availablePhaseGroups,
     setSelectedDivisionId,
     setSelectedPhaseId,
+    setSelectedPhaseGroupId,
     setSelectedEntrants,
     setSelectedSongs,
     setSelectedGroupName,

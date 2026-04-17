@@ -1,3 +1,4 @@
+import { PhaseGroup } from "@/features/division/types/PhaseGroup";
 import { Entrant } from "@/features/entrant/types/Entrant";
 
 export interface TournamentOverviewPlayer {
@@ -8,7 +9,9 @@ export interface TournamentOverviewPlayer {
 export interface TournamentOverviewPhase {
   id: number;
   name: string;
+  type: "pool" | "bracket";
   matchCount: number;
+  phaseGroups: PhaseGroup[];
 }
 
 export interface TournamentOverviewDivision {

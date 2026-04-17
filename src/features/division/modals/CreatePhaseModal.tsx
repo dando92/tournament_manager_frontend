@@ -9,25 +9,27 @@ type DivisionOption = {
 type CreatePhaseModalProps = {
   open: boolean;
   onClose: () => void;
-  onCreate: (name: string, divisionId: number) => void;
+  onCreate: (name: string, divisionId: number, type: "pool" | "bracket") => void;
   divisions?: DivisionOption[];
   divisionId?: number;
 };
 
 export default function CreatePhaseModal({ open, onClose, onCreate, divisions, divisionId }: CreatePhaseModalProps) {
   const [name, setName] = useState("");
+  const [type, setType] = useState<"pool" | "bracket">("bracket");
   const [selectedDivisionId, setSelectedDivisionId] = useState<number>(divisionId ?? divisions?.[0]?.id ?? 0);
 
   useEffect(() => {
     if (!open) return;
     setName("");
+    setType("bracket");
     setSelectedDivisionId(divisionId ?? divisions?.[0]?.id ?? 0);
   }, [divisionId, divisions, open]);
 
   const onSubmit = () => {
     const resolvedDivisionId = divisionId ?? selectedDivisionId;
     if (!name.trim() || !resolvedDivisionId) return;
-    onCreate(name.trim(), resolvedDivisionId);
+    onCreate(name.trim(), resolvedDivisionId, type);
     onClose();
   };
 
@@ -56,6 +58,17 @@ export default function CreatePhaseModal({ open, onClose, onCreate, divisions, d
             </select>
           </div>
         )}
+        <div>
+          <h3 className="mb-1">Type</h3>
+          <select
+            className="w-full border border-gray-300 px-2 py-2 rounded-lg"
+            value={type}
+            onChange={(e) => setType(e.target.value as "pool" | "bracket")}
+          >
+            <option value="bracket">Bracket</option>
+            <option value="pool">Pool</option>
+          </select>
+        </div>
         <div>
           <h3 className="mb-1">Name</h3>
           <input

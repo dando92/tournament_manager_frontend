@@ -23,4 +23,8 @@ export interface Match {
   sourcePaths: number[];
   matchResult?: MatchResult | null;
   phaseId?: number;
+  phaseType?: "pool" | "bracket";
+  phaseGroupId?: number;
+  phaseGroupName?: string;
+  phaseGroupMode?: "set-driven" | "progression-driven";
 }

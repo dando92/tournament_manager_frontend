@@ -11,7 +11,7 @@ import { CreateMatchRequest } from "@/features/match/types/match-requests";
 type TournamentManagementModalsProps = {
   context: TournamentPageContextValue;
   state: TournamentPageState;
-  onCreatePhase: (name: string, divisionId: number) => Promise<void>;
+  onCreatePhase: (name: string, divisionId: number, type: "pool" | "bracket") => Promise<void>;
   onCreateMatch: (request: CreateMatchRequest) => Promise<void>;
   onGenerateBracket: (bracketType: string, playerPerMatch: number) => Promise<void>;
 };

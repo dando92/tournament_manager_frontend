@@ -7,7 +7,7 @@ import {
   listAvailableParticipantsForDivision,
   removeParticipantFromDivision,
 } from "@/features/participant/services/participant.api";
-import { updateDivisionSeeding } from "@/features/player/services/player.api";
+import { updatePhaseSeeding } from "@/features/division/services/phase.api";
 
 type Ordering = "name" | "seeding";
 
@@ -17,14 +17,11 @@ type UsePlayersTabOptions = {
 };
 
 export function usePlayersTab({ division, onPlayersChanged }: UsePlayersTabOptions) {
-  const seededParticipantIds = useMemo(
-    () =>
-      [...(division.entrants ?? [])]
-        .filter((entrant) => entrant.status === "active" && entrant.type === "player")
-        .sort((a, b) => (a.seedNum ?? Number.MAX_SAFE_INTEGER) - (b.seedNum ?? Number.MAX_SAFE_INTEGER))
-        .map((entrant) => entrant.participants?.[0]?.id)
-        .filter((participantId): participantId is number => participantId !== undefined),
-    [division.entrants],
+  const phases = division.phases ?? [];
+  const [selectedPhaseId, setSelectedPhaseId] = useState<number | null>(phases[0]?.id ?? null);
+  const selectedPhase = useMemo(
+    () => phases.find((phase) => phase.id === selectedPhaseId) ?? null,
+    [phases, selectedPhaseId],
   );
   const entrantIdByParticipantId = useMemo(
     () =>
@@ -38,6 +35,31 @@ export function usePlayersTab({ division, onPlayersChanged }: UsePlayersTabOptio
       ),
     [division.entrants],
   );
+  const participantIdByEntrantId = useMemo(
+    () =>
+      new Map(
+        (division.entrants ?? [])
+          .map((entrant) => {
+            const participant = entrant.participants?.[0];
+            return participant ? [entrant.id, participant.id] as const : null;
+          })
+          .filter((entry): entry is readonly [number, number] => Boolean(entry)),
+      ),
+    [division.entrants],
+  );
+  const seededParticipantIds = useMemo(() => {
+    const phaseSeeds = [...(selectedPhase?.seeds ?? [])].sort((a, b) => a.seedNum - b.seedNum);
+    if (phaseSeeds.length > 0) {
+      return phaseSeeds
+        .map((phaseSeed) => participantIdByEntrantId.get(phaseSeed.entrantId))
+        .filter((participantId): participantId is number => participantId !== undefined);
+    }
+
+    return [...(division.entrants ?? [])]
+      .filter((entrant) => entrant.status === "active" && entrant.type === "player")
+      .map((entrant) => entrant.participants?.[0]?.id)
+      .filter((participantId): participantId is number => participantId !== undefined);
+  }, [division.entrants, participantIdByEntrantId, selectedPhase?.seeds]);
 
   const [divisionParticipants, setDivisionParticipants] = useState<Participant[]>(
     (division.entrants ?? []).flatMap((entrant) => entrant.participants ?? []).filter(Boolean),
@@ -50,6 +72,15 @@ export function usePlayersTab({ division, onPlayersChanged }: UsePlayersTabOptio
   const [search, setSearch] = useState("");
   const [showSelectModal, setShowSelectModal] = useState(false);
   const [savingSeeding, setSavingSeeding] = useState(false);
+
+  useEffect(() => {
+    if (phases.length === 0) {
+      setSelectedPhaseId(null);
+      return;
+    }
+
+    setSelectedPhaseId((current) => (current !== null && phases.some((phase) => phase.id === current) ? current : phases[0].id));
+  }, [phases]);
 
   useEffect(() => {
     listAvailableParticipantsForDivision(division.id).then(setAvailableParticipants).catch(() => {});
@@ -100,10 +131,11 @@ export function usePlayersTab({ division, onPlayersChanged }: UsePlayersTabOptio
   };
 
   const exitSeedingEdit = async () => {
+    if (!selectedPhaseId) return;
     setSavingSeeding(true);
     try {
-      await updateDivisionSeeding(
-        division.id,
+      await updatePhaseSeeding(
+        selectedPhaseId,
         draftSeeding
           .map((participantId) => entrantIdByParticipantId.get(participantId))
           .filter((entrantId): entrantId is number => entrantId !== undefined),
@@ -174,6 +206,9 @@ export function usePlayersTab({ division, onPlayersChanged }: UsePlayersTabOptio
   };
 
   return {
+    phases,
+    selectedPhaseId,
+    selectedPhase,
     ordering,
     editingSeeding,
     search,
@@ -184,6 +219,7 @@ export function usePlayersTab({ division, onPlayersChanged }: UsePlayersTabOptio
     filteredSeededDiv,
     filteredAvailableParticipants,
     filteredAllAlpha,
+    setSelectedPhaseId,
     setOrdering,
     setSearch,
     setShowSelectModal,

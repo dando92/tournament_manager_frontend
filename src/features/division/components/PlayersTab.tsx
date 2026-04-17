@@ -4,6 +4,7 @@ import PlayersSearchBar from "@/features/division/components/PlayersSearchBar";
 import PlayersSeedingList from "@/features/division/components/PlayersSeedingList";
 import PlayersTabHeader from "@/features/division/components/PlayersTabHeader";
 import PlayersWarning from "@/features/division/components/PlayersWarning";
+import PhaseSelector from "@/features/division/components/PhaseSelector";
 import { usePlayersTab } from "@/features/division/hooks/usePlayersTab";
 import SelectParticipantsModal from "./SelectParticipantsModal";
 
@@ -27,6 +28,7 @@ export default function PlayersTab({ division, canEdit, onPlayersChanged }: Prop
 
       <PlayersTabHeader
         canEdit={canEdit}
+        selectedPhase={state.selectedPhase}
         ordering={state.ordering}
         editingSeeding={state.editingSeeding}
         savingSeeding={state.savingSeeding}
@@ -36,10 +38,24 @@ export default function PlayersTab({ division, canEdit, onPlayersChanged }: Prop
         onSelectParticipants={() => state.setShowSelectModal(true)}
       />
 
+      <PhaseSelector
+        phases={state.phases}
+        selectedPhaseId={state.selectedPhaseId ?? "all"}
+        onSelect={(phaseId) => state.setSelectedPhaseId(phaseId === "all" ? state.phases[0]?.id ?? null : phaseId)}
+        summaryLabel="First phase"
+        summarySublabel="Select a phase to manage entrant seeding"
+      />
+
       <PlayersSearchBar value={state.search} onChange={state.setSearch} />
       <PlayersWarning warnings={[]} />
 
-      {state.ordering === "name" ? (
+      {state.selectedPhase === null && (
+        <p className="rounded border border-dashed border-gray-200 bg-gray-50 px-4 py-5 text-sm text-gray-500">
+          Create a phase before setting seeding for entrants.
+        </p>
+      )}
+
+      {state.selectedPhase !== null && state.ordering === "name" ? (
         <PlayersByNameList
           players={state.filteredAllAlpha}
           canEdit={canEdit}
@@ -48,7 +64,7 @@ export default function PlayersTab({ division, canEdit, onPlayersChanged }: Prop
           onRemove={state.handleRemove}
           totalParticipants={state.filteredAllAlpha.length}
         />
-      ) : (
+      ) : state.selectedPhase !== null ? (
         <PlayersSeedingList
           canEdit={canEdit}
           editingSeeding={state.editingSeeding}
@@ -58,7 +74,7 @@ export default function PlayersTab({ division, canEdit, onPlayersChanged }: Prop
           onDragEnd={state.handleDragEnd}
           onRemove={state.handleRemove}
         />
-      )}
+      ) : null}
     </div>
   );
 }

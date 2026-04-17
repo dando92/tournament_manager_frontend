@@ -6,6 +6,7 @@ type Ordering = "name" | "seeding";
 
 type PlayersTabHeaderProps = {
   canEdit: boolean;
+  selectedPhase: { id: number; name: string; type: "pool" | "bracket" } | null;
   ordering: Ordering;
   editingSeeding: boolean;
   savingSeeding: boolean;
@@ -17,6 +18,7 @@ type PlayersTabHeaderProps = {
 
 export default function PlayersTabHeader({
   canEdit,
+  selectedPhase,
   ordering,
   editingSeeding,
   savingSeeding,
@@ -27,7 +29,12 @@ export default function PlayersTabHeader({
 }: PlayersTabHeaderProps) {
   return (
     <div className="flex items-center justify-between gap-3 flex-wrap">
-      <h2 className="text-primary-dark font-bold text-xl">Entrants</h2>
+      <div>
+        <h2 className="text-primary-dark font-bold text-xl">Entrants</h2>
+        <p className="text-sm text-gray-500">
+          {selectedPhase ? `Seeding for ${selectedPhase.name}` : "Select a phase to manage seeding"}
+        </p>
+      </div>
       <div className="flex items-center gap-2 flex-wrap">
         <div className={`flex border border-gray-200 rounded overflow-hidden text-sm ${editingSeeding ? "opacity-40 pointer-events-none" : ""}`}>
           <button

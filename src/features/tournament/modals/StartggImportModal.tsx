@@ -32,6 +32,7 @@ const ACTION_LABELS: Record<string, string> = {
   "create-phase": "Create phase",
   "create-match": "Create match",
   "create-division": "Create division",
+  "create-phase-group": "Create phase group",
   "unscoped-preview": "Preview only",
 };
 
@@ -213,10 +214,12 @@ export default function StartggImportModal({
                   <h3 className="text-lg font-semibold text-gray-900">{preview.event.name}</h3>
                   <p className="text-sm text-gray-500">{preview.event.slug}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
+                <div className="grid grid-cols-2 gap-2 text-sm text-gray-700 md:grid-cols-3">
                   <span>Participants: {preview.counts.participants}</span>
                   <span>Entrants: {preview.counts.entrants}</span>
                   <span>Phases: {preview.counts.phases}</span>
+                  <span>Phase groups: {preview.counts.phaseGroups}</span>
+                  <span>Phase seeds: {preview.counts.phaseSeeds}</span>
                   <span>Matches: {preview.counts.matches}</span>
                 </div>
               </div>
@@ -253,7 +256,7 @@ export default function StartggImportModal({
 
             <section className="rounded border border-gray-200 p-4">
               <div className="mb-3">
-                <h4 className="font-semibold text-gray-900">Entrants and seeding</h4>
+                <h4 className="font-semibold text-gray-900">Entrants</h4>
                 <p className="text-sm text-gray-500">Event entrants, including singles and team cases.</p>
               </div>
               <div className="grid gap-2">
@@ -261,10 +264,7 @@ export default function StartggImportModal({
                   <div key={entrant.externalId} className="flex items-center justify-between gap-3 rounded bg-gray-50 px-3 py-2 text-sm">
                     <div>
                       <p className="font-medium text-gray-900">{entrant.name}</p>
-                      <p className="text-xs text-gray-500">
-                        {entrant.type} entrant
-                        {entrant.seedNum !== null ? ` • seed ${entrant.seedNum}` : ""}
-                      </p>
+                      <p className="text-xs text-gray-500">{entrant.type} entrant</p>
                     </div>
                     <ActionBadge action={entrant.action} />
                   </div>
@@ -281,10 +281,55 @@ export default function StartggImportModal({
                 <div className="grid gap-2">
                   {preview.phases.map((phase) => (
                     <div key={phase.externalId} className="flex items-center justify-between gap-3 rounded bg-gray-50 px-3 py-2 text-sm">
-                      <span className="font-medium text-gray-900">{phase.name}</span>
+                      <div>
+                        <span className="font-medium text-gray-900">{phase.name}</span>
+                        <p className="text-xs text-gray-500">{phase.type}</p>
+                      </div>
                       <ActionBadge action={phase.action} />
                     </div>
                   ))}
+                </div>
+              </section>
+
+              <section className="rounded border border-gray-200 p-4">
+                <div className="mb-3">
+                  <h4 className="font-semibold text-gray-900">Phase groups</h4>
+                  <p className="text-sm text-gray-500">Pool and bracket containers inside each phase.</p>
+                </div>
+                <div className="grid gap-2">
+                  {preview.phaseGroups.map((phaseGroup) => (
+                    <div key={phaseGroup.externalId} className="flex items-center justify-between gap-3 rounded bg-gray-50 px-3 py-2 text-sm">
+                      <div>
+                        <span className="font-medium text-gray-900">{phaseGroup.name}</span>
+                        <p className="text-xs text-gray-500">
+                          phase {phaseGroup.phaseExternalId} • {phaseGroup.mode}
+                        </p>
+                      </div>
+                      <ActionBadge action={phaseGroup.action} />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <section className="rounded border border-gray-200 p-4">
+                <div className="mb-3">
+                  <h4 className="font-semibold text-gray-900">Phase seeds</h4>
+                  <p className="text-sm text-gray-500">Phase-level entrant seeding imported from start.gg.</p>
+                </div>
+                <div className="grid gap-2">
+                  {preview.phaseSeeds.slice(0, 16).map((phaseSeed) => (
+                    <div key={phaseSeed.externalId} className="rounded bg-gray-50 px-3 py-2 text-sm">
+                      <p className="font-medium text-gray-900">Seed #{phaseSeed.seedNum}</p>
+                      <p className="text-xs text-gray-500">
+                        phase {phaseSeed.phaseExternalId} • entrant {phaseSeed.entrantExternalId}
+                      </p>
+                    </div>
+                  ))}
+                  {preview.phaseSeeds.length > 16 && (
+                    <p className="text-xs text-gray-500">Showing 16 of {preview.phaseSeeds.length} phase seeds in preview.</p>
+                  )}
                 </div>
               </section>
 

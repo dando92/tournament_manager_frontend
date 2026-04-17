@@ -1,4 +1,3 @@
-import MatchList from "@/features/match/components/MatchList";
 import PhaseMatchesPanel from "@/features/division/components/PhaseMatchesPanel";
 import PhaseSelector from "@/features/division/components/PhaseSelector";
 import { Division } from "@/features/division/types/Division";
@@ -31,14 +30,21 @@ export default function BracketsTab({
 
       {state.selectedPhaseId === "all" ? (
         state.phases.length === 0 ? (
-          <p className="text-center text-gray-400 text-sm py-8">No bracket yet.</p>
+          <p className="text-center text-gray-400 text-sm py-8">No phases yet.</p>
         ) : (
-          <MatchList
-            division={division}
-            controls={controls}
-            tournamentId={tournamentId}
-            matchUpdateSignal={matchRefreshKey}
-          />
+          <div className="flex flex-col gap-6">
+            {state.phases.map((phase) => (
+              <PhaseMatchesPanel
+                key={phase.id}
+                phase={phase}
+                division={division}
+                controls={controls}
+                tournamentId={tournamentId}
+                matchRefreshKey={matchRefreshKey}
+                onDelete={state.handleDeletePhase}
+              />
+            ))}
+          </div>
         )
       ) : state.selectedPhase ? (
         <PhaseMatchesPanel
@@ -50,12 +56,7 @@ export default function BracketsTab({
           onDelete={state.handleDeletePhase}
         />
       ) : (
-        <MatchList
-          division={division}
-          controls={controls}
-          tournamentId={tournamentId}
-          matchUpdateSignal={matchRefreshKey}
-        />
+        <p className="text-center text-gray-400 text-sm py-8">Phase not found.</p>
       )}
     </div>
   );

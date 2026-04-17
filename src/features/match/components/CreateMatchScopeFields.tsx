@@ -9,10 +9,13 @@ type CreateMatchScopeFieldsProps = {
   divisions?: TournamentDivisionOption[];
   phases?: MatchPhaseOption[];
   availablePhases: MatchPhaseOption[];
+  availablePhaseGroups: Array<{ id: number; name: string; mode: "set-driven" | "progression-driven" }>;
   selectedDivisionId: number | null;
   selectedPhaseId: number | null;
+  selectedPhaseGroupId: number | null;
   onDivisionChange: (divisionId: number | null) => void;
   onPhaseChange: (phaseId: number | null) => void;
+  onPhaseGroupChange: (phaseGroupId: number | null) => void;
 };
 
 export default function CreateMatchScopeFields({
@@ -21,10 +24,13 @@ export default function CreateMatchScopeFields({
   divisions,
   phases,
   availablePhases,
+  availablePhaseGroups,
   selectedDivisionId,
   selectedPhaseId,
+  selectedPhaseGroupId,
   onDivisionChange,
   onPhaseChange,
+  onPhaseGroupChange,
 }: CreateMatchScopeFieldsProps) {
   return (
     <>
@@ -77,6 +83,31 @@ export default function CreateMatchScopeFields({
                 : null
             }
             onChange={(selected) => onPhaseChange(selected?.value ?? null)}
+            menuPortalTarget={document.body}
+            styles={selectPortalStyles}
+          />
+        </div>
+      )}
+      {availablePhaseGroups.length > 0 && (
+        <div className="w-full">
+          <h3>Phase group</h3>
+          <Select
+            options={availablePhaseGroups.map((phaseGroup) => ({
+              value: phaseGroup.id,
+              label: `${phaseGroup.name} (${phaseGroup.mode})`,
+            }))}
+            value={
+              selectedPhaseGroupId
+                ? {
+                    value: selectedPhaseGroupId,
+                    label: (() => {
+                      const phaseGroup = availablePhaseGroups.find((candidate) => candidate.id === selectedPhaseGroupId);
+                      return phaseGroup ? `${phaseGroup.name} (${phaseGroup.mode})` : "";
+                    })(),
+                  }
+                : null
+            }
+            onChange={(selected) => onPhaseGroupChange(selected?.value ?? null)}
             menuPortalTarget={document.body}
             styles={selectPortalStyles}
           />
