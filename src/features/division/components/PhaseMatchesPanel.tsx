@@ -1,9 +1,7 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import MatchList from "@/features/match/components/MatchList";
 import { Division } from "@/features/division/types/Division";
 import { Phase } from "@/features/division/types/Phase";
-import { btnTrash } from "@/styles/buttonStyles";
+import DeleteConfirmButton from "@/shared/components/ui/DeleteConfirmButton";
 
 type PhaseMatchesPanelProps = {
   phase: Phase;
@@ -32,17 +30,12 @@ export default function PhaseMatchesPanel({
           {matchCount} match{matchCount !== 1 ? "es" : ""}
         </span>
         {controls && onDelete && (
-          <button
-            type="button"
+          <DeleteConfirmButton
             title="Delete phase"
-            onClick={async () => {
-              if (!window.confirm(`Delete phase "${phase.name}"?`)) return;
-              await onDelete(phase.id);
-            }}
-            className={`ml-auto text-sm ${btnTrash}`}
-          >
-            <FontAwesomeIcon icon={faTrash} />
-          </button>
+            onConfirm={() => onDelete(phase.id)}
+            className="ml-auto text-sm"
+            confirmMessage={`Delete phase "${phase.name}"?`}
+          />
         )}
       </div>
       <MatchList

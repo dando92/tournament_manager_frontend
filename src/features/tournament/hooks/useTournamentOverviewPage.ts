@@ -32,8 +32,7 @@ export function useTournamentOverviewPage({
     return { divisionCount, playerCount, matchCount };
   }, [divisions]);
 
-  async function handleDeleteDivision(divisionId: number, divisionName: string) {
-    if (!window.confirm(`Delete division "${divisionName}"?`)) return;
+  async function handleDeleteDivision(divisionId: number) {
     await axios.delete(`divisions/${divisionId}`);
     await refreshDivisions();
   }

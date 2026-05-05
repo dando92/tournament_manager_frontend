@@ -2,13 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMagnifyingGlass,
-  faTrash,
   faUserShield,
   faUserSlash,
 } from "@fortawesome/free-solid-svg-icons";
 import { Navigate } from "react-router-dom";
 import BaseModal from "@/shared/components/ui/BaseModal";
 import MultiSelect from "@/shared/components/ui/MultiSelect";
+import DeleteConfirmButton from "@/shared/components/ui/DeleteConfirmButton";
 import { btnPrimary, btnSecondary } from "@/styles/buttonStyles";
 import { Participant } from "@/features/entrant/types/Entrant";
 import { Player } from "@/features/player/types/Player";
@@ -229,14 +229,13 @@ export default function TournamentParticipantsPage() {
                     )
                   )}
                   {controls && !roleLabel && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemove(participant.id)}
-                      className="text-red-500 hover:text-red-700"
+                    <DeleteConfirmButton
+                      onConfirm={() => handleRemove(participant.id)}
                       title="Remove participant"
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
+                      className="text-sm"
+                      confirmMessage={`Remove "${participant.player.playerName}" from this tournament?`}
+                      confirmText="Remove"
+                    />
                   )}
                 </div>
               </div>

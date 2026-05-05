@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faStickyNote, faTrash, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faStickyNote, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { Match } from "@/features/match/types/Match";
-import { btnTrash } from "@/styles/buttonStyles";
+import DeleteConfirmButton from "@/shared/components/ui/DeleteConfirmButton";
 
 type Props = {
   match: Match;
@@ -153,13 +153,12 @@ export default function MatchHeader({
               )}
             </>
           )}
-          <button
-            onClick={() => onDeleteMatch(match.id)}
+          <DeleteConfirmButton
+            onConfirm={() => onDeleteMatch(match.id)}
             title="Delete match"
-            className={`text-sm ${btnTrash}`}
-          >
-            <FontAwesomeIcon icon={faTrash} />
-          </button>
+            className="text-sm"
+            confirmMessage={`Delete match "${match.name}"?`}
+          />
         </div>
       )}
     </div>

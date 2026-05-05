@@ -1,8 +1,6 @@
 import { useMemo } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Song } from "@/features/song/types/Song";
-import { btnTrash } from "@/styles/buttonStyles";
+import DeleteConfirmButton from "@/shared/components/ui/DeleteConfirmButton";
 import SongRow from "./SongRow";
 
 type Props = {
@@ -57,13 +55,13 @@ export default function SongListView({ songs, packFilter, songSearch, canEdit, o
               {packSongs.length} song{packSongs.length !== 1 ? "s" : ""}
             </span>
             {canEdit && (
-              <button
-                onClick={() => onDeletePack(pack)}
-                className={`${btnTrash} shrink-0 ml-1`}
+              <DeleteConfirmButton
+                onConfirm={() => onDeletePack(pack)}
+                className="shrink-0 ml-1"
+                iconClassName="w-3"
                 title={`Delete pack "${pack}"`}
-              >
-                <FontAwesomeIcon icon={faTrash} className="w-3" />
-              </button>
+                confirmMessage={`Delete pack "${pack}" and all its songs?`}
+              />
             )}
           </div>
 

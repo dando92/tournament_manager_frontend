@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight, faPlus, faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faPlus, faPencil } from "@fortawesome/free-solid-svg-icons";
 import { Match } from "@/features/match/types/Match";
 import { Player } from "@/features/player/types/Player";
-import { btnTrash } from "@/styles/buttonStyles";
+import DeleteConfirmButton from "@/shared/components/ui/DeleteConfirmButton";
 
 type ScoreEntry = { score: number; percentage: number; isFailed: boolean };
 
@@ -68,14 +68,13 @@ export default function MatchRow({
           <div className="flex items-center gap-2 min-w-0">
             <span className={`font-medium truncate ${highlightRoute ? "text-emerald-700" : "text-gray-800"}`}>{player.playerName}</span>
             {controls && !match.matchResult && onDeletePlayer && (
-              <button
-                type="button"
-                onClick={() => onDeletePlayer(player.id)}
+              <DeleteConfirmButton
+                onConfirm={() => onDeletePlayer(player.id)}
                 title="Remove player from match"
-                className={`${btnTrash} text-xs shrink-0`}
-              >
-                <FontAwesomeIcon icon={faTrash} />
-              </button>
+                className="text-xs shrink-0"
+                confirmMessage={`Remove "${player.playerName}" from this match?`}
+                confirmText="Remove"
+              />
             )}
             {routeMatchName ? (
               <>
@@ -185,13 +184,12 @@ export default function MatchRow({
                     >
                       <FontAwesomeIcon icon={faPencil} />
                     </button>
-                    <button
-                      onClick={() => onDeleteStanding(player.id, round.song.id)}
+                    <DeleteConfirmButton
+                      onConfirm={() => onDeleteStanding(player.id, round.song.id)}
                       title="Delete score"
-                      className={`${btnTrash} text-xs shrink-0`}
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
+                      className="text-xs shrink-0"
+                      confirmMessage={`Delete ${player.playerName}'s score for "${round.song.title}"?`}
+                    />
                   </>
                 )}
               </div>

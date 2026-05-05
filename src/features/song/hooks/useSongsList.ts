@@ -25,7 +25,6 @@ export function useSongsList({ tournamentId, songsVersion }: Params) {
   const packOptions = useMemo(() => groups, [groups]);
 
   async function handleDeleteSong(id: number) {
-    if (!window.confirm("Are you sure you want to delete this song?")) return;
     await axios.delete(`songs/${id}`);
     setSongs((prev) => {
       const merged = prev.filter((song) => song.id !== id);
@@ -36,7 +35,6 @@ export function useSongsList({ tournamentId, songsVersion }: Params) {
 
   async function handleDeletePack(pack: string) {
     const packSongs = songs.filter((song) => song.group === pack);
-    if (!window.confirm(`Delete all ${packSongs.length} song(s) in pack "${pack}"?`)) return;
     await Promise.allSettled(packSongs.map((song) => axios.delete(`songs/${song.id}`)));
     setSongs((prev) => {
       const merged = prev.filter((song) => song.group !== pack);

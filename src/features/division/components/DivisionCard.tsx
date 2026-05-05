@@ -1,9 +1,7 @@
 import { TournamentDivisionOption } from "@/features/tournament/types/TournamentDivisionOption";
 import { entrantPlayer } from "@/features/entrant/types/Entrant";
 import { Player } from "@/features/player/types/Player";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { btnTrash } from "@/styles/buttonStyles";
+import DeleteConfirmButton from "@/shared/components/ui/DeleteConfirmButton";
 
 type DivisionCardProps = {
   division: TournamentDivisionOption;
@@ -31,17 +29,13 @@ export default function DivisionCard({ division, onSelect, controls = false, onD
       <div className="px-4 py-3 bg-primary border-b border-white/10 flex items-center justify-between gap-2">
         <h3 className="font-bold text-white text-base leading-tight">{division.name}</h3>
         {controls && onDelete && (
-          <button
-            type="button"
+          <DeleteConfirmButton
             title="Delete division"
-            onClick={(event) => {
-              event.stopPropagation();
-              onDelete();
-            }}
-            className={`text-sm ${btnTrash}`}
-          >
-            <FontAwesomeIcon icon={faTrash} />
-          </button>
+            onConfirm={onDelete}
+            className="text-sm"
+            stopPropagation
+            confirmMessage={`Delete division "${division.name}"?`}
+          />
         )}
       </div>
 

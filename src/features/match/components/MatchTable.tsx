@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRefresh, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { btnTrash } from "@/styles/buttonStyles";
+import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { Match } from "@/features/match/types/Match";
 import { entrantPlayers } from "@/features/entrant/types/Entrant";
 import MatchRow from "@/features/match/components/row/MatchRow";
 import PathRow from "@/features/match/components/row/PathRow";
 import EditPathRow from "@/features/match/components/row/EditPathRow";
+import DeleteConfirmButton from "@/shared/components/ui/DeleteConfirmButton";
 import { toOrdinal } from "@/shared/utils";
 
 type ScoreEntry = { score: number; percentage: number; isFailed: boolean };
@@ -165,13 +165,14 @@ export default function MatchTable({
                             >
                               <FontAwesomeIcon icon={faRefresh} className="text-xs" />
                             </button>
-                            <button
-                              onClick={() => onDeleteSong(round.song.id)}
+                            <DeleteConfirmButton
+                              onConfirm={() => onDeleteSong(round.song.id)}
                               title="Remove song"
-                              className={`shrink-0 ${btnTrash}`}
-                            >
-                              <FontAwesomeIcon icon={faTrash} className="text-xs" />
-                            </button>
+                              className="shrink-0"
+                              iconClassName="text-xs"
+                              confirmMessage={`Remove song "${round.song.title}" from this match?`}
+                              confirmText="Remove"
+                            />
                           </>
                         )}
                       </div>

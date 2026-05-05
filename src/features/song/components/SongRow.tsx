@@ -1,7 +1,5 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Song } from "@/features/song/types/Song";
-import { btnTrash } from "@/styles/buttonStyles";
+import DeleteConfirmButton from "@/shared/components/ui/DeleteConfirmButton";
 
 function difficultyColor(difficulty: number): string {
   if (difficulty <= 3) return "bg-green-500";
@@ -32,13 +30,12 @@ export default function SongRow({ song, canEdit, onDelete }: Props) {
         <span className="flex-1 text-sm text-gray-800 truncate">{label}</span>
 
         {canEdit && (
-          <button
-            onClick={() => onDelete(song.id)}
-            className={`${btnTrash} text-sm shrink-0`}
+          <DeleteConfirmButton
+            onConfirm={() => onDelete(song.id)}
+            className="text-sm shrink-0"
             title="Delete song"
-          >
-            <FontAwesomeIcon icon={faTrash} />
-          </button>
+            confirmMessage={`Delete "${label}"?`}
+          />
         )}
       </div>
     </div>
