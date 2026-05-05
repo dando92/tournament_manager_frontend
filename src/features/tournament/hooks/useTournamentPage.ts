@@ -35,7 +35,7 @@ export type TournamentPageState = {
   setCreateMenuOpen: Dispatch<SetStateAction<boolean>>;
   setSyncstartUrl: Dispatch<SetStateAction<string>>;
   refreshDivisions: () => Promise<void>;
-  handleCreateDivision: (name: string) => void;
+  handleCreateDivision: (name: string, playersPerMatch: number | null) => void;
   handleCreatePhase: (name: string, divisionId: number) => Promise<void>;
   handleCreateMatch: (request: CreateMatchRequest) => Promise<void>;
   handleGenerateBracket: (bracketType: string, playerPerMatch: number) => Promise<void>;
@@ -62,6 +62,7 @@ export function useTournamentPage({
   const toDivisionOption = useCallback((division: Division): TournamentDivisionOption => ({
     id: division.id,
     name: division.name,
+    playersPerMatch: division.playersPerMatch ?? null,
     entrants: division.entrants ?? [],
     phases: (division.phases ?? []).map((phase) => ({
       id: phase.id,
@@ -89,6 +90,7 @@ export function useTournamentPage({
       response.data.divisions.map((division) => ({
         id: division.id,
         name: division.name,
+        playersPerMatch: division.playersPerMatch ?? null,
         entrants: division.entrants,
         phases: division.phases.map((phase) => ({ id: phase.id, name: phase.name, matchCount: phase.matchCount })),
       })),
@@ -165,10 +167,23 @@ export function useTournamentPage({
     setGenerateBracketDivisionId(null);
   }, [generateBracketDivisionId, refreshDivision, tournamentId]);
 
-  const handleCreateDivision = useCallback((name: string) => {
-    axios.post<{ id: number; name: string }>("divisions", { tournamentId, name })
+  const handleCreateDivision = useCallback((name: string, playersPerMatch: number | null) => {
+    axios.post<{ id: number; name: string; playersPerMatch: number | null }>("divisions", {
+      tournamentId,
+      name,
+      playersPerMatch,
+    })
       .then((r) => {
-        setDivisions((prev) => [...prev, { id: r.data.id, name: r.data.name, entrants: [], phases: [] }]);
+        setDivisions((prev) => [
+          ...prev,
+          {
+            id: r.data.id,
+            name: r.data.name,
+            playersPerMatch: r.data.playersPerMatch ?? null,
+            entrants: [],
+            phases: [],
+          },
+        ]);
       })
       .catch(() => {});
   }, [tournamentId]);
