@@ -16,6 +16,7 @@ type MatchRowProps = {
   highlightRoute?: boolean;
   routeMatchName?: string | null;
   onOpenAddStanding: (playerId: number, songId: number, playerName: string, songTitle: string) => void;
+  onDeletePlayer?: (playerId: number) => void;
   onOpenEditStanding: (
     playerId: number,
     songId: number,
@@ -37,6 +38,7 @@ export default function MatchRow({
   highlightRoute = false,
   routeMatchName = null,
   onOpenAddStanding,
+  onDeletePlayer,
   onOpenEditStanding,
   onDeleteStanding,
 }: MatchRowProps) {
@@ -65,6 +67,16 @@ export default function MatchRow({
           <span className="text-xs font-bold text-gray-300 w-5 shrink-0">#{rank + 1}</span>
           <div className="flex items-center gap-2 min-w-0">
             <span className={`font-medium truncate ${highlightRoute ? "text-emerald-700" : "text-gray-800"}`}>{player.playerName}</span>
+            {controls && !match.matchResult && onDeletePlayer && (
+              <button
+                type="button"
+                onClick={() => onDeletePlayer(player.id)}
+                title="Remove player from match"
+                className={`${btnTrash} text-xs shrink-0`}
+              >
+                <FontAwesomeIcon icon={faTrash} />
+              </button>
+            )}
             {routeMatchName ? (
               <>
                 <button

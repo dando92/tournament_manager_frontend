@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMagnifyingGlass,
@@ -8,6 +8,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Navigate } from "react-router-dom";
 import BaseModal from "@/shared/components/ui/BaseModal";
+import MultiSelect from "@/shared/components/ui/MultiSelect";
 import { btnPrimary, btnSecondary } from "@/styles/buttonStyles";
 import { Participant } from "@/features/entrant/types/Entrant";
 import { Player } from "@/features/player/types/Player";
@@ -30,7 +31,6 @@ export default function TournamentParticipantsPage() {
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
   const [name, setName] = useState("");
   const [participantSearch, setParticipantSearch] = useState("");
-  const [search, setSearch] = useState("");
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
   const [bulkText, setBulkText] = useState("");
   const [preview, setPreview] = useState<ParticipantImportPreviewEntry[]>([]);
@@ -38,34 +38,44 @@ export default function TournamentParticipantsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [previousManageModal, setPreviousManageModal] = useState<ParticipantsManageModal>("none");
 
-  async function refreshParticipants() {
+  const refreshParticipants = useCallback(async () => {
     const response = await listParticipants(tournamentId);
     setParticipants(response);
-  }
+  }, [tournamentId]);
 
   useEffect(() => {
     refreshParticipants().catch(() => {});
     getAllPlayers().then(setAllPlayers).catch(() => {});
-  }, [tournamentId]);
+  }, [refreshParticipants, tournamentId]);
 
   useEffect(() => {
     if (previousManageModal === "startgg" && participantsManageModal === "none") {
       refreshParticipants().catch(() => {});
     }
     setPreviousManageModal(participantsManageModal);
-  }, [participantsManageModal, previousManageModal]);
+  }, [participantsManageModal, previousManageModal, refreshParticipants]);
 
   const participantPlayerIds = useMemo(
     () => new Set(participants.map((participant) => participant.player.id)),
     [participants],
   );
-  const filteredPlayers = useMemo(
+  const availablePlayers = useMemo(
     () =>
       allPlayers
         .filter((player) => !participantPlayerIds.has(player.id))
-        .filter((player) => player.playerName.toLowerCase().includes(search.toLowerCase()))
         .sort((a, b) => a.playerName.localeCompare(b.playerName)),
-    [allPlayers, participantPlayerIds, search],
+    [allPlayers, participantPlayerIds],
+  );
+  const availablePlayerOptions = useMemo(
+    () => availablePlayers.map((player) => ({ value: player.id, label: player.playerName })),
+    [availablePlayers],
+  );
+  const selectedPlayerOptions = useMemo(
+    () =>
+      selectedPlayerIds
+        .map((playerId) => availablePlayerOptions.find((option) => option.value === playerId))
+        .filter((option): option is { value: number; label: string } => Boolean(option)),
+    [availablePlayerOptions, selectedPlayerIds],
   );
   const filteredParticipants = useMemo(
     () =>
@@ -262,31 +272,16 @@ export default function TournamentParticipantsPage() {
 
       <BaseModal open={participantsManageModal === "database"} onClose={() => setParticipantsManageModal("none")} title="Add from player database" maxWidth="max-w-md">
         <div className="flex flex-col gap-3">
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search player"
-            autoFocus
-            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-dark/30"
-          />
-          <div className="flex max-h-80 flex-col gap-1 overflow-y-auto">
-            {filteredPlayers.map((player) => (
-              <label key={player.id} className="flex cursor-pointer items-center gap-3 rounded bg-gray-50 px-3 py-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={selectedPlayerIds.includes(player.id)}
-                  onChange={(event) =>
-                    setSelectedPlayerIds((prev) =>
-                      event.target.checked ? [...prev, player.id] : prev.filter((id) => id !== player.id),
-                    )
-                  }
-                  className="h-4 w-4 rounded border-gray-300 text-primary-dark focus:ring-primary-dark/30"
-                />
-                <span>{player.playerName}</span>
-              </label>
-            ))}
-            {filteredPlayers.length === 0 && <p className="text-sm text-gray-400 italic">No available players.</p>}
-          </div>
+          {availablePlayers.length === 0 ? (
+            <p className="text-sm text-gray-400 italic">No available players.</p>
+          ) : (
+            <MultiSelect
+              options={availablePlayerOptions}
+              value={selectedPlayerOptions}
+              onChange={(selected) => setSelectedPlayerIds(selected.map((option) => option.value))}
+              placeholder="Select players..."
+            />
+          )}
           <div className="flex justify-end gap-2">
             <button type="button" onClick={() => setParticipantsManageModal("none")} className={`${btnSecondary} text-sm`}>
               Cancel

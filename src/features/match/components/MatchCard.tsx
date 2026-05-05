@@ -1,6 +1,7 @@
 import { Match } from "@/features/match/types/Match";
 import { Division } from "@/features/division/types/Division";
 import AddEditSongToMatchModal from "@/features/match/modals/AddEditSongToMatchModal";
+import AddPlayersToMatchModal from "@/features/match/modals/AddPlayersToMatchModal";
 import { useEffect, useRef, useState } from "react";
 import StandingModal from "@/features/match/modals/StandingModal";
 import EditMatchNotesModal from "@/features/match/modals/EditMatchNotesModal";
@@ -19,6 +20,7 @@ type MatchCardProps = {
   onHighlightMatch?: (id: number | null) => void;
   onMatchUpdated: () => void;
   onDeleteMatch: (matchId: number) => void;
+  onAddPlayersToMatch: (entrantIds: number[]) => Promise<void>;
   onAddSongToMatchByRoll: (group: string, level: string) => void;
   onAddSongToMatchBySongId: (songId: number) => void;
   onEditSongToMatchByRoll: (group: string, level: string, editSongId: number) => void;
@@ -77,6 +79,7 @@ export default function MatchCard({
   onHighlightMatch = () => {},
   onMatchUpdated,
   onDeleteMatch,
+  onAddPlayersToMatch,
   onAddSongToMatchByRoll,
   onAddSongToMatchBySongId,
   onEditSongToMatchByRoll,
@@ -91,6 +94,7 @@ export default function MatchCard({
   onRefreshSelf,
 }: MatchCardProps) {
   const [addSongToMatchModalOpen, setAddSongToMatchModalOpen] = useState(false);
+  const [addPlayersToMatchModalOpen, setAddPlayersToMatchModalOpen] = useState(false);
   const [editSongId, setEditSongId] = useState<number | null>(null);
   const [standingModal, setStandingModal] = useState<StandingModalState>(closedModal);
   const [editMatchNotesModalOpen, setEditMatchNotesModalOpen] = useState(false);
@@ -166,6 +170,13 @@ export default function MatchCard({
           setEditSongId(null);
         }}
       />
+      <AddPlayersToMatchModal
+        open={addPlayersToMatchModalOpen}
+        divisionEntrants={division.entrants ?? []}
+        matchEntrants={match.entrants ?? []}
+        onAddPlayers={onAddPlayersToMatch}
+        onClose={() => setAddPlayersToMatchModalOpen(false)}
+      />
       <StandingModal
         {...standingModal}
         onClose={() => setStandingModal(closedModal)}
@@ -190,6 +201,7 @@ export default function MatchCard({
         onOpenEditNotes={() => setEditMatchNotesModalOpen(true)}
         onDeleteMatch={onDeleteMatch}
         onOpenAddSong={() => setAddSongToMatchModalOpen(true)}
+        onOpenAddPlayer={() => setAddPlayersToMatchModalOpen(true)}
         onRenameMatch={onRenameMatch}
         editMode={editMode}
         canEditRoutes={controls}
@@ -219,6 +231,13 @@ export default function MatchCard({
           setAddSongToMatchModalOpen(true);
         }}
         onDeleteSong={onDeleteSongFromMatch}
+        onDeletePlayer={(entrantId) =>
+          onAddPlayersToMatch(
+            (match.entrants ?? [])
+              .filter((entrant) => entrant.id !== entrantId)
+              .map((entrant) => entrant.id),
+          )
+        }
         onOpenAddStanding={(playerId, songId, playerName, songTitle) =>
           setStandingModal({ open: true, mode: "add", playerId, songId, playerName, songTitle })
         }

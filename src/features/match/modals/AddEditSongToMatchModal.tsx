@@ -66,16 +66,19 @@ export default function AddEditSongToMatchModal(props: AddSongToMatchModalProps)
       return;
     }
 
-    if (state.selectedSong) {
+    if (state.selectedSongs.length > 0) {
       if (props.songId) {
+        const selectedSong = state.selectedSongs[0];
         props.onEditSongToMatchBySongId(
           props.divisionId,
           props.matchId,
-          state.selectedSong.id,
+          selectedSong.id,
           props.songId,
         );
       } else {
-        props.onAddSongToMatchBySongId(props.divisionId, props.matchId, state.selectedSong.id);
+        state.selectedSongs.forEach((song) =>
+          props.onAddSongToMatchBySongId(props.divisionId, props.matchId, song.id),
+        );
       }
       props.onClose();
     }
@@ -127,12 +130,10 @@ export default function AddEditSongToMatchModal(props: AddSongToMatchModalProps)
           <AddEditSongTitleFields
             songGroups={state.songGroups}
             selectedGroupName={state.selectedGroupName}
-            songSearch={state.songSearch}
-            selectedSong={state.selectedSong}
+            selectedSongs={state.selectedSongs}
             filteredSongs={state.filteredSongs}
             onGroupChange={state.setSelectedGroupName}
-            onSearchChange={state.setSongSearch}
-            onSongSelect={state.setSelectedSong}
+            onSongsSelect={state.setSelectedSongs}
           />
         )}
       </div>

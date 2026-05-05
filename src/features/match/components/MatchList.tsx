@@ -62,6 +62,9 @@ export default function MatchList({
               onEditMatchNotes={actions.editMatchNotes}
               onRenameMatch={actions.renameMatch}
               onDeleteMatch={actions.deleteMatch}
+              onAddPlayersToMatch={(entrantIds) =>
+                actions.updateMatchEntrants(match.id, entrantIds)
+              }
               onAddSongToMatchByRoll={(group, level) =>
                 actions.addSongToMatchByRoll(match.id, division.id, group, level)
               }

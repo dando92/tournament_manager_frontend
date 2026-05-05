@@ -72,6 +72,19 @@ export async function renameMatch(
   }
 }
 
+export async function updateMatchEntrants(
+  matchId: number,
+  entrantIds: number[],
+): Promise<Match> {
+  try {
+    const response = await axios.patch<Match>(`matches/${matchId}`, { entrantIds });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating match entrants:", error);
+    throw new Error("Unable to update match entrants.");
+  }
+}
+
 export async function deleteMatch(matchId: number): Promise<void> {
   try {
     await axios.delete("matches/" + matchId);

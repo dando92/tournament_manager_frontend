@@ -3,6 +3,7 @@ import { faMinusCircle, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
 import { Song } from "@/features/song/types/Song";
 import { selectPortalStyles } from "@/styles/selectStyles";
+import MultiSelect, { MultiSelectOption } from "@/shared/components/ui/MultiSelect";
 
 type CreateMatchSongFieldsProps = {
   songAddType: "title" | "roll";
@@ -35,6 +36,8 @@ export default function CreateMatchSongFields({
   onAddDifficulty,
   onRemoveDifficulty,
 }: CreateMatchSongFieldsProps) {
+  const songOptions = songs.map((song) => ({ value: song.id, label: song.title }));
+
   return (
     <div className="w-full">
       <h3>Songs</h3>
@@ -107,15 +110,16 @@ export default function CreateMatchSongFields({
       )}
 
       {songAddType === "title" && (
-        <Select
-          isMulti
-          options={songs.map((song) => ({ value: song.id, label: song.title }))}
-          onChange={(selected) =>
-            onSelectedSongsChange(selected.map((option) => songs.find((song) => song.id === option.value)!))
-          }
+        <MultiSelect
+          options={songOptions}
           value={selectedSongs.map((song) => ({ value: song.id, label: song.title }))}
-          menuPortalTarget={document.body}
-          styles={selectPortalStyles}
+          onChange={(selected) =>
+            onSelectedSongsChange(
+              selected
+                .map((option: MultiSelectOption) => songs.find((song) => song.id === option.value))
+                .filter((song): song is Song => Boolean(song)),
+            )
+          }
         />
       )}
     </div>

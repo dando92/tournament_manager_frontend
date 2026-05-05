@@ -1,29 +1,30 @@
 import { Song } from "@/features/song/types/Song";
 import Select from "react-select";
-import { btnSecondary } from "@/styles/buttonStyles";
 import { selectPortalStyles } from "@/styles/selectStyles";
+import MultiSelect, { MultiSelectOption } from "@/shared/components/ui/MultiSelect";
 
 type AddEditSongTitleFieldsProps = {
   songGroups: string[];
   selectedGroupName: string;
-  songSearch: string;
-  selectedSong: Song | null;
+  selectedSongs: Song[];
   filteredSongs: Song[];
   onGroupChange: (group: string) => void;
-  onSearchChange: (value: string) => void;
-  onSongSelect: (song: Song) => void;
+  onSongsSelect: (songs: Song[]) => void;
 };
 
 export default function AddEditSongTitleFields({
   songGroups,
   selectedGroupName,
-  songSearch,
-  selectedSong,
+  selectedSongs,
   filteredSongs,
   onGroupChange,
-  onSearchChange,
-  onSongSelect,
+  onSongsSelect,
 }: AddEditSongTitleFieldsProps) {
+  const songOptions = filteredSongs.map((song) => ({
+    value: song.id,
+    label: song.artist ? `${song.artist} - ${song.title}` : song.title,
+  }));
+
   return (
     <div className="flex flex-col gap-3">
       <div>
@@ -39,55 +40,27 @@ export default function AddEditSongTitleFields({
       </div>
 
       <div>
-        <h3 className="mb-2">Search song</h3>
-        <input
-          type="search"
-          value={songSearch}
-          onChange={(event) => onSearchChange(event.target.value)}
-          className="w-full border border-gray-300 px-3 py-2 rounded-lg"
-          placeholder="Search by title or artist"
-        />
-      </div>
-
-      <div>
-        <h3 className="mb-2">Songs</h3>
+        <h3 className="mb-2">Select songs</h3>
         {filteredSongs.length === 0 ? (
           <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-4 text-sm text-gray-400 italic">
             No songs match the current filters.
           </div>
         ) : (
-          <div className="max-h-72 overflow-y-auto rounded-lg border border-gray-200 divide-y divide-gray-100 bg-white">
-            {filteredSongs.map((song) => {
-              const isSelected = selectedSong?.id === song.id;
-              const label = song.artist ? `${song.artist} - ${song.title}` : song.title;
-
-              return (
-                <button
-                  key={song.id}
-                  type="button"
-                  onClick={() => onSongSelect(song)}
-                  className={`w-full px-3 py-2.5 text-left transition-colors ${
-                    isSelected ? "bg-primary-dark/10" : "hover:bg-gray-50"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="w-8 shrink-0 text-center text-xs font-bold text-white bg-primary rounded">
-                      {song.difficulty}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-gray-900">{label}</div>
-                      <div className="text-xs text-gray-500">{song.group}</div>
-                    </div>
-                    {isSelected && (
-                      <span className={`shrink-0 text-xs ${btnSecondary}`.replace("px-3 py-2", "px-2 py-1")}>
-                        Selected
-                      </span>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+          <MultiSelect
+            options={songOptions}
+            value={selectedSongs.map((song) => ({
+              value: song.id,
+              label: song.artist ? `${song.artist} - ${song.title}` : song.title,
+            }))}
+            onChange={(selected) =>
+              onSongsSelect(
+                selected
+                  .map((option: MultiSelectOption) => filteredSongs.find((song) => song.id === option.value))
+                  .filter((song): song is Song => Boolean(song)),
+              )
+            }
+            placeholder="Select songs..."
+          />
         )}
       </div>
     </div>

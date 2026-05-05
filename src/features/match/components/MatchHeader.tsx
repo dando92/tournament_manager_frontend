@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faStickyNote, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faStickyNote, faTrash, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { Match } from "@/features/match/types/Match";
 import { btnTrash } from "@/styles/buttonStyles";
 
@@ -10,6 +10,7 @@ type Props = {
   onOpenEditNotes: () => void;
   onDeleteMatch: (matchId: number) => void;
   onOpenAddSong: () => void;
+  onOpenAddPlayer: () => void;
   onRenameMatch?: (matchId: number, name: string) => void;
   editMode?: boolean;
   canEditRoutes?: boolean;
@@ -24,6 +25,7 @@ export default function MatchHeader({
   onOpenEditNotes,
   onDeleteMatch,
   onOpenAddSong,
+  onOpenAddPlayer,
   onRenameMatch,
   editMode = false,
   canEditRoutes = false,
@@ -123,18 +125,33 @@ export default function MatchHeader({
       </div>
       {controls && (
         <div className="flex items-center gap-3 shrink-0">
-          {!isMatchEnded && (match.entrants?.length ?? 0) > 0 && (
-            <button
-              onClick={onOpenAddSong}
-              title="Add song/round"
-              className="inline-flex items-center gap-1 text-green-700 hover:text-green-900 text-sm font-medium"
-            >
-              <FontAwesomeIcon icon={faPlus} className="sm:hidden" />
-              <span className="hidden sm:inline-flex items-center gap-1">
-                <FontAwesomeIcon icon={faPlus} />
-                <span>Add song</span>
-              </span>
-            </button>
+          {!isMatchEnded && (
+            <>
+              <button
+                onClick={onOpenAddPlayer}
+                title="Add player"
+                className="inline-flex items-center gap-1 text-green-700 hover:text-green-900 text-sm font-medium"
+              >
+                <FontAwesomeIcon icon={faUserPlus} className="sm:hidden" />
+                <span className="hidden sm:inline-flex items-center gap-1">
+                  <FontAwesomeIcon icon={faUserPlus} />
+                  <span>Add player</span>
+                </span>
+              </button>
+              {(match.entrants?.length ?? 0) > 0 && (
+                <button
+                  onClick={onOpenAddSong}
+                  title="Add song/round"
+                  className="inline-flex items-center gap-1 text-green-700 hover:text-green-900 text-sm font-medium"
+                >
+                  <FontAwesomeIcon icon={faPlus} className="sm:hidden" />
+                  <span className="hidden sm:inline-flex items-center gap-1">
+                    <FontAwesomeIcon icon={faPlus} />
+                    <span>Add song</span>
+                  </span>
+                </button>
+              )}
+            </>
           )}
           <button
             onClick={() => onDeleteMatch(match.id)}

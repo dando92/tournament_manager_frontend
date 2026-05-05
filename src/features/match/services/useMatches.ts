@@ -66,6 +66,17 @@ export function useMatches(divisionId: number) {
     }
   }
 
+  async function updateMatchEntrants(matchId: number, entrantIds: number[]) {
+    try {
+      const item = await MatchesApi.updateMatchEntrants(matchId, entrantIds);
+      dispatch({ type: "onRefreshMatch", payload: item });
+    } catch (error) {
+      toast.error("Error updating match players.");
+      console.error("Error updating match players:", error);
+      throw new Error("Unable to update match players.");
+    }
+  }
+
   async function deleteSongFromMatch(matchId: number, songId: number) {
     try {
       const item = await MatchesApi.deleteSongFromMatch(matchId, songId);
@@ -232,6 +243,7 @@ export function useMatches(divisionId: number) {
       editMatchNotes,
       renameMatch,
       deleteMatch,
+      updateMatchEntrants,
       deleteSongFromMatch,
       addSongToMatchByRoll,
       addSongToMatchBySongId,

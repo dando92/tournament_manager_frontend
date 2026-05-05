@@ -7,6 +7,7 @@ import CreateMatchSongFields from "@/features/match/components/CreateMatchSongFi
 import { useCreateMatchModal } from "@/features/match/hooks/useCreateMatchModal";
 import { MatchPhaseOption } from "@/features/match/types/MatchPhaseOption";
 import { TournamentDivisionOption } from "@/features/tournament/types/TournamentDivisionOption";
+import MultiSelect from "@/shared/components/ui/MultiSelect";
 
 type CreateMatchModalProps = {
   open: boolean;
@@ -76,17 +77,16 @@ export default function CreateMatchModal(props: CreateMatchModalProps) {
         </div>
         <div className="w-full">
           <h3>Entrants</h3>
-          <Select
-            isMulti
+          <MultiSelect
             options={state.entrants.map((entrant) => ({ value: entrant.id, label: entrant.name }))}
             onChange={(selected) =>
               state.setSelectedEntrants(
-                selected.map((option) => state.entrants.find((entrant) => entrant.id === option.value)!),
+                selected
+                  .map((option) => state.entrants.find((entrant) => entrant.id === option.value))
+                  .filter((entrant): entrant is (typeof state.entrants)[number] => Boolean(entrant)),
               )
             }
             value={state.selectedEntrants.map((entrant) => ({ value: entrant.id, label: entrant.name }))}
-            menuPortalTarget={document.body}
-            styles={selectPortalStyles}
           />
         </div>
 

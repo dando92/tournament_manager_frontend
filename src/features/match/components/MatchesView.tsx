@@ -56,6 +56,9 @@ export default function MatchesView({
               onMatchUpdated={actions.list}
               onEditMatchNotes={actions.editMatchNotes}
               onDeleteMatch={actions.deleteMatch}
+              onAddPlayersToMatch={(entrantIds) =>
+                actions.updateMatchEntrants(match.id, entrantIds)
+              }
               onAddSongToMatchByRoll={(group, level) =>
                 actions.addSongToMatchByRoll(match.id, division.id, group, level)
               }

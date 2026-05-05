@@ -16,8 +16,7 @@ export function useAddEditSongToMatchModal({
   const [songs, setSongs] = useState<Song[]>([]);
   const [songGroups, setSongGroups] = useState<string[]>([]);
   const [selectedGroupName, setSelectedGroupName] = useState("");
-  const [selectedSong, setSelectedSong] = useState<Song | null>(null);
-  const [songSearch, setSongSearch] = useState("");
+  const [selectedSongs, setSelectedSongs] = useState<Song[]>([]);
 
   useEffect(() => {
     if (!open) return;
@@ -27,29 +26,21 @@ export function useAddEditSongToMatchModal({
       setSongGroups([...new Set(response.data.map((song) => song.group))]);
       setSelectedGroupName(response.data[0]?.group ?? "");
     });
-    setSongSearch("");
-    setSelectedSong(null);
+    setSelectedSongs([]);
   }, [open, tournamentId]);
 
   const filteredSongs = useMemo(
     () =>
       songs.filter((song) => {
         const matchesGroup = !selectedGroupName || song.group === selectedGroupName;
-        const query = songSearch.trim().toLowerCase();
-        const matchesSearch =
-          !query ||
-          song.title.toLowerCase().includes(query) ||
-          (song.artist ?? "").toLowerCase().includes(query);
-        return matchesGroup && matchesSearch;
+        return matchesGroup;
       }),
-    [selectedGroupName, songSearch, songs],
+    [selectedGroupName, songs],
   );
 
   useEffect(() => {
-    if (selectedSong && !filteredSongs.some((song) => song.id === selectedSong.id)) {
-      setSelectedSong(null);
-    }
-  }, [filteredSongs, selectedSong]);
+    setSelectedSongs((prev) => prev.filter((song) => filteredSongs.some((filteredSong) => filteredSong.id === song.id)));
+  }, [filteredSongs]);
 
   return {
     songAddType,
@@ -57,13 +48,11 @@ export function useAddEditSongToMatchModal({
     songs,
     songGroups,
     selectedGroupName,
-    selectedSong,
-    songSearch,
+    selectedSongs,
     filteredSongs,
     setSongAddType,
     setDifficultyInput,
     setSelectedGroupName,
-    setSelectedSong,
-    setSongSearch,
+    setSelectedSongs,
   };
 }

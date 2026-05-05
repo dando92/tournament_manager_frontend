@@ -24,6 +24,7 @@ type MatchTableProps = {
   onPendingTargetPathChange: (index: number, value: number | null) => void;
   onOpenEditSong: (songId: number) => void;
   onDeleteSong: (songId: number) => void;
+  onDeletePlayer: (entrantId: number) => void;
   onOpenAddStanding: (playerId: number, songId: number, playerName: string, songTitle: string) => void;
   onOpenEditStanding: (
     playerId: number,
@@ -49,6 +50,7 @@ export default function MatchTable({
   onPendingTargetPathChange,
   onOpenEditSong,
   onDeleteSong,
+  onDeletePlayer,
   onOpenAddStanding,
   onOpenEditStanding,
   onDeleteStanding,
@@ -84,6 +86,14 @@ export default function MatchTable({
       .reduce((acc, standing) => acc + (standing?.points ?? 0), 0);
 
   const matchPlayers = entrantPlayers(match.entrants);
+  const entrantIdByPlayerId = new Map(
+    (match.entrants ?? [])
+      .map((entrant) => {
+        const player = entrant.participants?.[0]?.player;
+        return player ? [player.id, entrant.id] as const : null;
+      })
+      .filter((entry): entry is readonly [number, number] => Boolean(entry)),
+  );
   const sortedPlayers = [...matchPlayers].sort(
     (a, b) => getTotalPoints(b.id) - getTotalPoints(a.id),
   );
@@ -220,6 +230,10 @@ export default function MatchTable({
                 scoreTable={scoreTable}
                 highlightRoute={routedPlayerIds.has(player.id)}
                 routeMatchName={routeByPlayerId.get(player.id) ?? null}
+                onDeletePlayer={(playerId) => {
+                  const entrantId = entrantIdByPlayerId.get(playerId);
+                  if (entrantId) onDeletePlayer(entrantId);
+                }}
                 onOpenAddStanding={onOpenAddStanding}
                 onOpenEditStanding={onOpenEditStanding}
                 onDeleteStanding={onDeleteStanding}
