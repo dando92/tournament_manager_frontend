@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { Match } from "@/features/match/types/Match";
 import { entrantPlayers } from "@/features/entrant/types/Entrant";
 import MatchRow from "@/features/match/components/row/MatchRow";
@@ -22,7 +20,6 @@ type MatchTableProps = {
   onHighlightMatch: (id: number | null) => void;
   pendingTargetPaths: (number | null)[];
   onPendingTargetPathChange: (index: number, value: number | null) => void;
-  onOpenEditSong: (songId: number) => void;
   onDeleteSong: (songId: number) => void;
   onDeletePlayer: (entrantId: number) => void;
   onOpenAddStanding: (playerId: number, songId: number, playerName: string, songTitle: string) => void;
@@ -48,7 +45,6 @@ export default function MatchTable({
   onHighlightMatch,
   pendingTargetPaths,
   onPendingTargetPathChange,
-  onOpenEditSong,
   onDeleteSong,
   onDeletePlayer,
   onOpenAddStanding,
@@ -158,13 +154,6 @@ export default function MatchTable({
                         </span>
                         {controls && !roundHasStandings && (
                           <>
-                            <button
-                              onClick={() => onOpenEditSong(round.song.id)}
-                              title="Change song"
-                              className="opacity-60 hover:opacity-100 shrink-0"
-                            >
-                              <FontAwesomeIcon icon={faRefresh} className="text-xs" />
-                            </button>
                             <DeleteConfirmButton
                               onConfirm={() => onDeleteSong(round.song.id)}
                               title="Remove song"

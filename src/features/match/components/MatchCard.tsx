@@ -226,10 +226,6 @@ export default function MatchCard({
             return next;
           });
         }}
-        onOpenEditSong={(songId) => {
-          setEditSongId(songId);
-          setAddSongToMatchModalOpen(true);
-        }}
         onDeleteSong={onDeleteSongFromMatch}
         onDeletePlayer={(entrantId) =>
           onAddPlayersToMatch(

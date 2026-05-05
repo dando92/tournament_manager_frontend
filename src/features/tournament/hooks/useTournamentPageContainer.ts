@@ -1,19 +1,19 @@
 import { useState } from "react";
-import { useMatch, useSearchParams } from "react-router-dom";
+import { useMatch } from "react-router-dom";
 import { usePermissions } from "@/shared/services/permissions/PermissionContext";
 import { ParticipantsManageModal, TournamentPageContextValue } from "@/features/tournament/context/TournamentPageContext";
 import { useTournamentPage } from "@/features/tournament/hooks/useTournamentPage";
 
 export function useTournamentPageContainer(tournamentId: number) {
   const divisionMatch = useMatch("/tournament/:tournamentId/division/:divisionId/*");
-  const [searchParams] = useSearchParams();
+  const phaseMatch = useMatch("/tournament/:tournamentId/division/:divisionId/phases/:phaseId");
   const { canEditTournament } = usePermissions();
   const canControl = canEditTournament(tournamentId);
   const state = useTournamentPage({ tournamentId, canControl });
   const [songsVersion, setSongsVersion] = useState(0);
   const [participantsManageModal, setParticipantsManageModal] = useState<ParticipantsManageModal>("none");
   const parsedDivisionId = divisionMatch?.params.divisionId ? Number(divisionMatch.params.divisionId) : undefined;
-  const parsedPhaseId = Number(searchParams.get("phaseId") ?? "0");
+  const parsedPhaseId = phaseMatch?.params.phaseId ? Number(phaseMatch.params.phaseId) : 0;
   const currentDivisionId = parsedDivisionId && Number.isFinite(parsedDivisionId) ? parsedDivisionId : undefined;
   const currentPhaseId = Number.isFinite(parsedPhaseId) ? parsedPhaseId : 0;
 

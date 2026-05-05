@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Division } from "@/features/division/types/Division";
 
 type UseBracketsTabOptions = {
@@ -9,8 +9,13 @@ type UseBracketsTabOptions = {
 };
 
 export function useBracketsTab({ division, onDivisionChanged }: UseBracketsTabOptions) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const routePhaseId = Number(searchParams.get("phaseId") ?? "0");
+  const navigate = useNavigate();
+  const { tournamentId, divisionId, phaseId } = useParams<{
+    tournamentId: string;
+    divisionId: string;
+    phaseId?: string;
+  }>();
+  const routePhaseId = Number(phaseId ?? "0");
   const phases = useMemo(() => division.phases ?? [], [division.phases]);
   const [selectedPhaseId, setSelectedPhaseIdState] = useState<number | "all">(
     routePhaseId > 0 && phases.some((phase) => phase.id === routePhaseId) ? routePhaseId : "all",
@@ -25,9 +30,11 @@ export function useBracketsTab({ division, onDivisionChanged }: UseBracketsTabOp
   }, [phases, routePhaseId]);
 
   const setSelectedPhaseId = (phaseId: number | "all") => {
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.set("phaseId", phaseId === "all" ? "0" : String(phaseId));
-    setSearchParams(nextParams);
+    navigate(
+      phaseId === "all"
+        ? `/tournament/${tournamentId}/division/${divisionId}/phases`
+        : `/tournament/${tournamentId}/division/${divisionId}/phases/${phaseId}`,
+    );
     setSelectedPhaseIdState(phaseId);
   };
 

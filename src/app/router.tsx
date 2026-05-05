@@ -67,6 +67,7 @@ export default function AppRouter() {
               <Route path="division/:divisionId" element={<DivisionPage />}>
                 <Route index element={<Navigate to="phases" replace />} />
                 <Route path="phases" element={<DivisionPhasesPage />} />
+                <Route path="phases/:phaseId" element={<DivisionPhasesPage />} />
                 <Route path="entrants" element={<DivisionPlayersPage />} />
                 <Route path="standings" element={<DivisionStandingsPage />} />
               </Route>

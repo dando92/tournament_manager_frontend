@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useMatch, useNavigate } from "react-router-dom";
 import { getTournamentHeaderSubtitle } from "@/features/tournament/components/header/tournamentHeaderSubtitle";
 import { TournamentPageContextValue } from "@/features/tournament/context/TournamentPageContext";
 import { TournamentPageState } from "@/features/tournament/hooks/useTournamentPage";
@@ -13,6 +13,8 @@ type UseTournamentLayoutOptions = {
 export function useTournamentLayout({ context, state }: UseTournamentLayoutOptions) {
   const navigate = useNavigate();
   const location = useLocation();
+  const divisionPhasesMatch = useMatch("/tournament/:tournamentId/division/:divisionId/phases");
+  const divisionPhaseMatch = useMatch("/tournament/:tournamentId/division/:divisionId/phases/:phaseId");
   const { tournamentId, currentDivisionId, currentPhaseId } = context;
   const { generateBracketDivisionId } = state;
 
@@ -26,12 +28,12 @@ export function useTournamentLayout({ context, state }: UseTournamentLayoutOptio
       isLobbiesPage: location.pathname === lobbiesPath,
       isParticipantsPage: location.pathname === participantsPath,
       isSongsPage: location.pathname === songsPath,
-      isDivisionPhasesPage: /\/tournament\/\d+\/division\/\d+\/phases$/.test(location.pathname),
+      isDivisionPhasesPage: Boolean(divisionPhasesMatch || divisionPhaseMatch),
       currentDivisionId,
       currentPhaseId,
       headerSubtitle: getTournamentHeaderSubtitle(location.pathname, tournamentId),
     };
-  }, [currentDivisionId, currentPhaseId, location.pathname, tournamentId]);
+  }, [currentDivisionId, currentPhaseId, divisionPhaseMatch, divisionPhasesMatch, location.pathname, tournamentId]);
 
   const handleCreatePhase = useCallback(
     async (name: string, divisionId: number) => {
@@ -46,7 +48,7 @@ export function useTournamentLayout({ context, state }: UseTournamentLayoutOptio
       await state.handleCreateMatch(request);
       if (request.divisionId) {
         navigate(
-          `/tournament/${tournamentId}/division/${request.divisionId}/phases?refresh=${Date.now()}`,
+          `/tournament/${tournamentId}/division/${request.divisionId}/phases/${request.phaseId}?refresh=${Date.now()}`,
         );
       }
     },

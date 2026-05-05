@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faStickyNote, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { faStickyNote, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { Match } from "@/features/match/types/Match";
 import DeleteConfirmButton from "@/shared/components/ui/DeleteConfirmButton";
+import MusicPlusIcon from "@/shared/components/ui/MusicPlusIcon";
 
 type Props = {
   match: Match;
@@ -144,9 +145,9 @@ export default function MatchHeader({
                   title="Add song/round"
                   className="inline-flex items-center gap-1 text-green-700 hover:text-green-900 text-sm font-medium"
                 >
-                  <FontAwesomeIcon icon={faPlus} className="sm:hidden" />
+                  <MusicPlusIcon className="sm:hidden" />
                   <span className="hidden sm:inline-flex items-center gap-1">
-                    <FontAwesomeIcon icon={faPlus} />
+                    <MusicPlusIcon />
                     <span>Add song</span>
                   </span>
                 </button>
