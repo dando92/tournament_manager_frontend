@@ -13,7 +13,7 @@ type UseTournamentLayoutOptions = {
 export function useTournamentLayout({ context, state }: UseTournamentLayoutOptions) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { tournamentId } = context;
+  const { tournamentId, currentDivisionId, currentPhaseId } = context;
   const { generateBracketDivisionId } = state;
 
   const routeState = useMemo(() => {
@@ -21,16 +21,17 @@ export function useTournamentLayout({ context, state }: UseTournamentLayoutOptio
     const lobbiesPath = `/tournament/${tournamentId}/lobbies`;
     const participantsPath = `/tournament/${tournamentId}/participants`;
     const songsPath = `/tournament/${tournamentId}/songs`;
-
     return {
       isOverviewPage: location.pathname === overviewPath,
       isLobbiesPage: location.pathname === lobbiesPath,
       isParticipantsPage: location.pathname === participantsPath,
       isSongsPage: location.pathname === songsPath,
       isDivisionPhasesPage: /\/tournament\/\d+\/division\/\d+\/phases$/.test(location.pathname),
+      currentDivisionId,
+      currentPhaseId,
       headerSubtitle: getTournamentHeaderSubtitle(location.pathname, tournamentId),
     };
-  }, [location.pathname, tournamentId]);
+  }, [currentDivisionId, currentPhaseId, location.pathname, tournamentId]);
 
   const handleCreatePhase = useCallback(
     async (name: string, divisionId: number) => {

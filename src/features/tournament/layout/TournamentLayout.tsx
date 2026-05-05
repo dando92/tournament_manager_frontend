@@ -11,7 +11,7 @@ type TournamentLayoutProps = {
 };
 
 export default function TournamentLayout({ context, state }: TournamentLayoutProps) {
-  const { isOverviewPage, isLobbiesPage, isParticipantsPage, isSongsPage, isDivisionPhasesPage, headerSubtitle, handleCreatePhase, handleCreateMatch, handleGenerateBracket } =
+  const { isOverviewPage, isLobbiesPage, isParticipantsPage, isSongsPage, isDivisionPhasesPage, currentDivisionId, currentPhaseId, headerSubtitle, handleCreatePhase, handleCreateMatch, handleGenerateBracket } =
     useTournamentLayout({ context, state });
 
   return (
@@ -19,6 +19,8 @@ export default function TournamentLayout({ context, state }: TournamentLayoutPro
       <TournamentManagementModals
         context={context}
         state={state}
+        currentDivisionId={currentDivisionId}
+        currentPhaseId={currentPhaseId}
         onCreatePhase={handleCreatePhase}
         onCreateMatch={handleCreateMatch}
         onGenerateBracket={handleGenerateBracket}

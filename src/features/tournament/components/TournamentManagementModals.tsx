@@ -11,6 +11,8 @@ import { CreateMatchRequest } from "@/features/match/types/match-requests";
 type TournamentManagementModalsProps = {
   context: TournamentPageContextValue;
   state: TournamentPageState;
+  currentDivisionId?: number;
+  currentPhaseId: number;
   onCreatePhase: (name: string, divisionId: number) => Promise<void>;
   onCreateMatch: (request: CreateMatchRequest) => Promise<void>;
   onGenerateBracket: (bracketType: string, playerPerMatch: number) => Promise<void>;
@@ -19,10 +21,16 @@ type TournamentManagementModalsProps = {
 export default function TournamentManagementModals({
   context,
   state,
+  currentDivisionId,
+  currentPhaseId,
   onCreatePhase,
   onCreateMatch,
   onGenerateBracket,
 }: TournamentManagementModalsProps) {
+  const currentDivision = currentDivisionId
+    ? state.divisions.find((division) => division.id === currentDivisionId)
+    : undefined;
+
   return (
     <>
       <CreateDivisionModal
@@ -34,12 +42,16 @@ export default function TournamentManagementModals({
         open={state.createPhaseOpen}
         onClose={() => state.setCreatePhaseOpen(false)}
         divisions={state.divisions.map((division) => ({ id: division.id, name: division.name }))}
+        divisionId={currentDivisionId}
         onCreate={onCreatePhase}
       />
       <CreateMatchModal
         open={state.createMatchOpen}
         onClose={() => state.setCreateMatchOpen(false)}
         onCreate={onCreateMatch}
+        divisionId={currentDivisionId}
+        phaseId={currentPhaseId > 0 ? currentPhaseId : undefined}
+        phases={currentDivision?.phases}
         divisions={state.divisions}
         tournamentId={context.tournamentId}
       />

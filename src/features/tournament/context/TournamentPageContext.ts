@@ -7,6 +7,8 @@ export type ParticipantsManageModal = "none" | "register" | "database" | "import
 export type TournamentPageContextValue = {
   tournamentId: number;
   tournamentName: string;
+  currentDivisionId?: number;
+  currentPhaseId: number;
   syncstartUrl: string;
   songsVersion: number;
   divisions: TournamentDivisionOption[];
