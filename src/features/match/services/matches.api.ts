@@ -200,6 +200,24 @@ export async function updateMatchPaths(
   }
 }
 
+export async function activateMatch(matchId: number): Promise<void> {
+  try {
+    await axios.post(`matches/${matchId}/active`);
+  } catch (error) {
+    console.error("Error activating match:", error);
+    throw new Error("Unable to activate match.");
+  }
+}
+
+export async function deactivateMatch(matchId: number): Promise<void> {
+  try {
+    await axios.delete(`matches/${matchId}/active`);
+  } catch (error) {
+    console.error("Error deactivating match:", error);
+    throw new Error("Unable to deactivate match.");
+  }
+}
+
 export async function deleteStandingFromMatch(
   matchId: number,
   playerId: number,

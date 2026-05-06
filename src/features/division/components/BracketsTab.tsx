@@ -29,7 +29,15 @@ export default function BracketsTab({
         onSelect={state.setSelectedPhaseId}
       />
 
-      {state.selectedPhaseId === "all" ? (
+      {state.selectedPhaseId === "active" ? (
+        <MatchList
+          division={division}
+          controls={controls}
+          tournamentId={tournamentId}
+          matchUpdateSignal={matchRefreshKey}
+          activeOnly
+        />
+      ) : state.selectedPhaseId === "all" ? (
         state.phases.length === 0 ? (
           <p className="text-center text-gray-400 text-sm py-8">No bracket yet.</p>
         ) : (

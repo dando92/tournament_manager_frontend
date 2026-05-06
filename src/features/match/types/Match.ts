@@ -23,4 +23,6 @@ export interface Match {
   sourcePaths: number[];
   matchResult?: MatchResult | null;
   phaseId?: number;
+  isActive?: boolean;
+  activeStartedAt?: string | null;
 }

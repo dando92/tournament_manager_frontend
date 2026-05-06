@@ -234,6 +234,30 @@ export function useMatches(divisionId: number) {
     }
   }
 
+  async function activateMatch(matchId: number) {
+    try {
+      await MatchesApi.activateMatch(matchId);
+      await list();
+      toast.success("Match activated.");
+    } catch (error) {
+      toast.error("Error activating match.");
+      console.error("Error activating match:", error);
+      throw new Error("Unable to activate match.");
+    }
+  }
+
+  async function deactivateMatch(matchId: number) {
+    try {
+      await MatchesApi.deactivateMatch(matchId);
+      await list();
+      toast.success("Match deactivated.");
+    } catch (error) {
+      toast.error("Error deactivating match.");
+      console.error("Error deactivating match:", error);
+      throw new Error("Unable to deactivate match.");
+    }
+  }
+
   return {
     state,
     actions: {
@@ -253,6 +277,8 @@ export function useMatches(divisionId: number) {
       editStandingFromMatch,
       deleteStandingsForPlayerFromMatch,
       updateMatchPaths,
+      activateMatch,
+      deactivateMatch,
     },
   };
 }

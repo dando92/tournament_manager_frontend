@@ -44,6 +44,8 @@ type MatchCardProps = {
   ) => void;
   onDeleteStanding: (playerId: number, songId: number) => void;
   onUpdateMatchPaths?: (matchId: number, targetPaths: number[]) => Promise<void>;
+  onActivateMatch?: (matchId: number) => Promise<void>;
+  onDeactivateMatch?: (matchId: number) => Promise<void>;
   onRefreshSelf?: () => void;
 };
 
@@ -91,6 +93,8 @@ export default function MatchCard({
   onDeleteStanding,
   onEditStanding,
   onUpdateMatchPaths,
+  onActivateMatch,
+  onDeactivateMatch,
   onRefreshSelf,
 }: MatchCardProps) {
   const [addSongToMatchModalOpen, setAddSongToMatchModalOpen] = useState(false);
@@ -144,6 +148,15 @@ export default function MatchCard({
     onMatchUpdatedRef.current();
     setEditMode(false);
     setPendingTargetPaths([]);
+  }
+
+  async function toggleCurrentMatch() {
+    if (!controls || match.matchResult) return;
+    if (match.isActive) {
+      await onDeactivateMatch?.(match.id);
+    } else {
+      await onActivateMatch?.(match.id);
+    }
   }
 
   return (
@@ -208,6 +221,7 @@ export default function MatchCard({
         onEditRoutes={enterEditMode}
         onSaveRoutes={saveEditMode}
         onCancelRoutes={cancelEditMode}
+        onToggleActive={toggleCurrentMatch}
       />
 
       <MatchTable

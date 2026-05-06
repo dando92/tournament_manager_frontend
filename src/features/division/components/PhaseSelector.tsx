@@ -2,8 +2,8 @@ import { Phase } from "@/features/division/types/Phase";
 
 type PhaseSelectorProps = {
   phases: Phase[];
-  selectedPhaseId: number | "all";
-  onSelect: (phaseId: number | "all") => void;
+  selectedPhaseId: number | "all" | "active";
+  onSelect: (phaseId: number | "all" | "active") => void;
 };
 
 export default function PhaseSelector({
@@ -19,6 +19,12 @@ export default function PhaseSelector({
           sublabel="All phases"
           selected={selectedPhaseId === "all"}
           onClick={() => onSelect("all")}
+        />
+        <PhaseButton
+          label="Current"
+          sublabel="Current matches"
+          selected={selectedPhaseId === "active"}
+          onClick={() => onSelect("active")}
         />
         {phases.map((phase) => (
           (() => {

@@ -17,11 +17,11 @@ export function useBracketsTab({ division, onDivisionChanged }: UseBracketsTabOp
   }>();
   const routePhaseId = Number(phaseId ?? "0");
   const phases = useMemo(() => division.phases ?? [], [division.phases]);
-  const [selectedPhaseId, setSelectedPhaseIdState] = useState<number | "all">(
+  const [selectedPhaseId, setSelectedPhaseIdState] = useState<number | "all" | "active">(
     routePhaseId > 0 && phases.some((phase) => phase.id === routePhaseId) ? routePhaseId : "all",
   );
   const selectedPhase =
-    selectedPhaseId !== "all" ? phases.find((phase) => phase.id === selectedPhaseId) ?? null : null;
+    typeof selectedPhaseId === "number" ? phases.find((phase) => phase.id === selectedPhaseId) ?? null : null;
 
   useEffect(() => {
     setSelectedPhaseIdState(
@@ -29,12 +29,16 @@ export function useBracketsTab({ division, onDivisionChanged }: UseBracketsTabOp
     );
   }, [phases, routePhaseId]);
 
-  const setSelectedPhaseId = (phaseId: number | "all") => {
-    navigate(
-      phaseId === "all"
-        ? `/tournament/${tournamentId}/division/${divisionId}/phases`
-        : `/tournament/${tournamentId}/division/${divisionId}/phases/${phaseId}`,
-    );
+  const setSelectedPhaseId = (phaseId: number | "all" | "active") => {
+    if (phaseId === "active") {
+      navigate(`/tournament/${tournamentId}/division/${divisionId}/phases`);
+    } else {
+      navigate(
+        phaseId === "all"
+          ? `/tournament/${tournamentId}/division/${divisionId}/phases`
+          : `/tournament/${tournamentId}/division/${divisionId}/phases/${phaseId}`,
+      );
+    }
     setSelectedPhaseIdState(phaseId);
   };
 

@@ -10,6 +10,7 @@ type MatchListProps = {
   tournamentId?: number;
   matchUpdateSignal?: number;
   phaseId?: number;
+  activeOnly?: boolean;
 };
 
 export default function MatchList({
@@ -18,15 +19,18 @@ export default function MatchList({
   tournamentId,
   matchUpdateSignal,
   phaseId,
+  activeOnly = false,
 }: MatchListProps) {
   const { state, actions } = useMatches(division.id);
   const { matchListVersions } = useTournamentUpdates();
   const [highlightedMatchId, setHighlightedMatchId] = useState<number | null>(null);
   const matchListVersion = matchListVersions.get(division.id) ?? 0;
 
-  const visibleMatches = phaseId === undefined
-    ? state.matches
-    : state.matches.filter((match) => match.phaseId === phaseId);
+  const visibleMatches = state.matches.filter((match) => {
+    if (activeOnly && !match.isActive) return false;
+    if (phaseId !== undefined && match.phaseId !== phaseId) return false;
+    return true;
+  });
 
   useEffect(() => {
     actions.list();
@@ -87,6 +91,8 @@ export default function MatchList({
                 actions.editStandingFromMatch(match.id, songId, playerId, pct, sc, fail)
               }
               onUpdateMatchPaths={actions.updateMatchPaths}
+              onActivateMatch={actions.activateMatch}
+              onDeactivateMatch={actions.deactivateMatch}
               onRefreshSelf={() => actions.refreshMatch(match.id)}
               match={match}
             />

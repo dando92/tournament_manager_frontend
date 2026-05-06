@@ -18,6 +18,7 @@ type Props = {
   onEditRoutes?: () => void;
   onSaveRoutes?: () => void;
   onCancelRoutes?: () => void;
+  onToggleActive?: () => void;
 };
 
 export default function MatchHeader({
@@ -33,6 +34,7 @@ export default function MatchHeader({
   onEditRoutes,
   onSaveRoutes,
   onCancelRoutes,
+  onToggleActive,
 }: Props) {
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState("");
@@ -57,8 +59,8 @@ export default function MatchHeader({
   }
 
   return (
-    <div className="flex items-start justify-between gap-3 mb-3">
-      <div>
+    <div className="grid grid-cols-[auto_minmax(8rem,1fr)_auto] items-start gap-3 mb-3">
+      <div className="min-w-0">
         <div className="flex items-center gap-2">
           {controls && isRenaming ? (
             <input
@@ -125,7 +127,21 @@ export default function MatchHeader({
         )}
       </div>
       {controls && (
-        <div className="flex items-center gap-3 shrink-0">
+        <button
+          type="button"
+          onClick={onToggleActive}
+          disabled={isMatchEnded}
+          className={`w-full rounded-md border px-3 py-1 text-center text-xs font-semibold transition-colors ${
+            match.isActive
+              ? "border-green-200 bg-green-50 text-green-800 hover:bg-green-100"
+              : "border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100"
+          } ${isMatchEnded ? "cursor-default opacity-80" : "cursor-pointer"}`}
+        >
+          {match.isActive ? "Active" : "Click to activate"}
+        </button>
+      )}
+      {controls && (
+        <div className="flex items-center justify-end gap-3 shrink-0">
           {!isMatchEnded && (
             <>
               <button
